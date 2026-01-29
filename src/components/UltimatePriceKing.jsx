@@ -14,7 +14,7 @@ import { getMarketableItems } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';
 import { getInternalUrl } from '../utils/internalUrl.js';
 import axios from 'axios';
-import { getTwJobAbbr, getIlvls } from '../services/supabaseData';
+import { getTwJobAbbr, getIlvlsByIds } from '../services/supabaseData';
 
 export default function CraftingJobPriceChecker({ 
   addToast, 
@@ -64,8 +64,8 @@ export default function CraftingJobPriceChecker({
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const loadingIndicatorStartTimeRef = useRef(null);
   
-  // Cache for ilvls data
-  const ilvlsDataRef = useRef(null);
+  // Cache for ilvls data (per-item basis, not full table)
+  const ilvlsCacheRef = useRef({});
   
   // Cache for job abbreviations
   const twJobAbbrDataRef = useRef(null);
@@ -77,13 +77,31 @@ export default function CraftingJobPriceChecker({
     });
   }, []);
 
-  // Helper function to load ilvls data dynamically
-  const loadIlvlsData = useCallback(async () => {
-    if (ilvlsDataRef.current) {
-      return ilvlsDataRef.current;
+  // Helper function to load ilvls data for specific item IDs (targeted query)
+  const loadIlvlsData = useCallback(async (itemIds) => {
+    if (!itemIds || itemIds.length === 0) {
+      return {};
     }
-    ilvlsDataRef.current = await getIlvls();
-    return ilvlsDataRef.current;
+    
+    // Check cache first
+    const uncachedIds = itemIds.filter(id => !ilvlsCacheRef.current.hasOwnProperty(id));
+    
+    if (uncachedIds.length > 0) {
+      // Load only uncached items
+      const ilvlsData = await getIlvlsByIds(uncachedIds);
+      // Merge into cache
+      Object.assign(ilvlsCacheRef.current, ilvlsData);
+    }
+    
+    // Return ilvls for requested items
+    const result = {};
+    itemIds.forEach(id => {
+      if (ilvlsCacheRef.current.hasOwnProperty(id)) {
+        result[id] = ilvlsCacheRef.current[id];
+      }
+    });
+    
+    return result;
   }, []);
 
   // Load marketable items on mount
@@ -521,7 +539,8 @@ export default function CraftingJobPriceChecker({
       }
 
       // Sort item IDs by ilvl (descending, highest first) before API query
-      const ilvlsData = await loadIlvlsData();
+      // Use targeted query to load only ilvls for these specific items
+      const ilvlsData = await loadIlvlsData(tradeableItemIds);
       tradeableItemIds = tradeableItemIds.sort((a, b) => {
         const aIlvl = ilvlsData[a?.toString()] || null;
         const bIlvl = ilvlsData[b?.toString()] || null;
@@ -899,7 +918,8 @@ export default function CraftingJobPriceChecker({
                           let tradeableItemIds = itemIds.filter(id => marketableSet.has(id));
                           
                           // Sort item IDs by ilvl (descending, highest first) before API query
-                          const ilvlsData = await loadIlvlsData();
+                          // Use targeted query to load only ilvls for these specific items
+                          const ilvlsData = await loadIlvlsData(tradeableItemIds);
                           tradeableItemIds = tradeableItemIds.sort((a, b) => {
                             const aIlvl = ilvlsData[a?.toString()] || null;
                             const bIlvl = ilvlsData[b?.toString()] || null;

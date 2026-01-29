@@ -10,7 +10,7 @@ import TaxRatesModal from './TaxRatesModal';
 import { getMarketableItems } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';
 import axios from 'axios';
-import { getEquipSlotCategories, getEquipment, getIlvls } from '../services/supabaseData';
+import { getEquipSlotCategories, getEquipment, getIlvlsByIds } from '../services/supabaseData';
 // Lazy load large data files:
 // - ilvlsData (748KB) - loaded when user inputs ilvl
 // - equipmentData (6.2MB) - loaded when searching
@@ -96,11 +96,15 @@ export default function MSQPriceChecker({
     return equipmentDataRef.current;
   }, []);
 
-  // Helper function to load ilvlsData dynamically
+  // Helper function to load ilvlsData dynamically (only when searching)
+  // Note: This loads all ilvls because we need to find items BY ilvl value (reverse lookup)
+  // This is only called during search, not on every input validation
   const loadIlvlsData = useCallback(async () => {
     if (ilvlsDataRef.current) {
       return ilvlsDataRef.current;
     }
+    console.warn('[MSQPriceChecker] Loading all ilvls for reverse lookup (finding items by ilvl value)');
+    const { getIlvls } = await import('../services/supabaseData');
     ilvlsDataRef.current = await getIlvls();
     return ilvlsDataRef.current;
   }, []);
@@ -128,17 +132,11 @@ export default function MSQPriceChecker({
         isInitializingFromURLRef.current = true;
         setIlvlInput(ilvlParam);
         
-        // Load ilvlsData dynamically to validate URL parameter
-        loadIlvlsData().then(ilvlsData => {
-          const itemsWithIlvl = Object.entries(ilvlsData).filter(
-            ([_, ilvl]) => ilvl === numValue
-          );
-          if (itemsWithIlvl.length > 0) {
-            setIlvlInputValidation({
-              valid: true,
-              message: `找到 ${itemsWithIlvl.length} 個物品`
-            });
-          }
+        // Validate URL parameter - just check range, don't load all ilvls for validation
+        // The actual search will load ilvls when needed
+        setIlvlInputValidation({
+          valid: true,
+          message: `物品等級: ${numValue}`
         });
         
         // Restore category if present
@@ -301,25 +299,13 @@ export default function MSQPriceChecker({
         return;
       }
 
-      // Load ilvlsData dynamically when user inputs
-      const ilvlsData = await loadIlvlsData();
-      
-      // Check if this ilvl exists in the data
-      const itemsWithIlvl = Object.entries(ilvlsData).filter(
-        ([_, ilvl]) => ilvl === numValue
-      );
-
-      if (itemsWithIlvl.length === 0) {
-        setIlvlInputValidation({
-          valid: false,
-          message: '此物品等級沒有物品'
-        });
-      } else {
-        setIlvlInputValidation({
-          valid: true,
-          message: `找到 ${itemsWithIlvl.length} 個物品`
-        });
-      }
+      // Validate input - just check range, don't load all ilvls for validation
+      // The actual search will load ilvls when needed
+      // This avoids loading 50,900 ilvls just to validate user input
+      setIlvlInputValidation({
+        valid: true,
+        message: `物品等級: ${numValue}`
+      });
     }, 1000);
   }, [loadIlvlsData]);
 

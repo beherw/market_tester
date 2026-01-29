@@ -1,5 +1,22 @@
-// Item database service - loads Traditional Chinese item data from Supabase
-// Items are already in Traditional Chinese, so no translation needed for item names
+/**
+ * Item Database Service
+ * 
+ * ⚠️ CRITICAL PERFORMANCE RULE: NEVER LOAD ALL ITEMS AT ONCE
+ * 
+ * Always use targeted queries:
+ * - searchTwItems(searchText) - Search by name (returns only matches)
+ * - getTwItemById(itemId) - Get single item
+ * - getTwItemDescriptionsByIds(itemIds) - Get specific descriptions
+ * 
+ * NEVER use:
+ * - loadItemDatabase() - Loads ALL 42,679 items (only for fuzzy search fallback)
+ * - getTwItemDescriptions() - Loads ALL 19,032 descriptions
+ * 
+ * Workflow:
+ * 1. Search database → get item IDs
+ * 2. Use those IDs to fetch only needed data
+ * 3. Never load entire tables
+ */
 
 import { convertSimplifiedToTraditional, convertTraditionalToSimplified, isTraditionalChinese, containsChinese } from '../utils/chineseConverter';
 import { getTwItems, getTwItemDescriptions, searchTwItems } from './supabaseData';
@@ -290,10 +307,12 @@ async function searchSimplifiedDatabaseByName(searchText) {
  */
 export async function loadItemDatabase() {
   if (itemsDatabase && shopItemsDatabase) {
+    console.log(`[ItemDB] 📦 Using cached item database (${itemsDatabase.length} items)`);
     return { items: itemsDatabase, shopItems: shopItemsDatabase };
   }
 
   if (isLoading) {
+    console.log(`[ItemDB] ⏳ Item database already loading, waiting...`);
     // Wait for existing load to complete
     while (isLoading) {
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -302,6 +321,11 @@ export async function loadItemDatabase() {
   }
 
   isLoading = true;
+  const loadStartTime = performance.now();
+  console.error(`[ItemDB] ❌ CRITICAL: Loading FULL item database (all 42,679 items)!`);
+  console.error(`[ItemDB] ❌ This should ONLY happen for fuzzy search or fallback scenarios.`);
+  console.error(`[ItemDB] ❌ For normal operations, use targeted queries: searchTwItems(), getTwItemById(), etc.`);
+  console.trace(`[ItemDB] 🔍 Stack trace - find and replace with targeted query:`);
 
   try {
     // Load items from Supabase
@@ -328,6 +352,8 @@ export async function loadItemDatabase() {
     itemsDatabase = items;
     shopItemsDatabase = []; // Shop items not available in Supabase, keep empty array
 
+    const loadDuration = performance.now() - loadStartTime;
+    console.log(`[ItemDB] ✅ Loaded full item database (${itemsDatabase.length} items) in ${loadDuration.toFixed(2)}ms`);
     isLoading = false;
     return { items: itemsDatabase, shopItems: shopItemsDatabase };
   } catch (error) {
@@ -391,9 +417,10 @@ function fuzzyMatch(searchText, itemName) {
  * @param {Set} shopItemIds - Set of shop item IDs
  * @param {string} searchText - Search text to use
  * @param {boolean} fuzzy - Whether to use fuzzy matching (default: false)
+ * @param {Set} marketItems - Optional Set of marketable item IDs (from market_items table)
  * @returns {Array} Search results
  */
-function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false) {
+function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false, marketItems = null) {
   const trimmedSearchText = searchText.trim();
   
   // Observable's behavior: if search text has spaces, split into words (AND condition)
@@ -422,12 +449,22 @@ function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false)
       
       // Check if item is untradeable - handle case variations and different formats
       // Observable's SQL: where "22: IsUntradable" = 'False' (only show tradeable items)
-      const untradableValue = (item['22: IsUntradable'] || '').toString().trim();
-      const isUntradable = untradableValue === 'True' || 
-                          untradableValue === 'true' || 
-                          untradableValue === 'TRUE' ||
-                          untradableValue === '1';
+      // If marketItems is provided, use it as the source of truth for tradeability
       const itemId = item['key: #'] || '';
+      const itemIdNum = parseInt(itemId, 10);
+      
+      let isUntradable;
+      if (marketItems !== null) {
+        // Use market_items table as source of truth
+        isUntradable = !marketItems.has(itemIdNum);
+      } else {
+        // Fallback to IsUntradable field if marketItems not provided
+        const untradableValue = (item['22: IsUntradable'] || '').toString().trim();
+        isUntradable = untradableValue === 'True' || 
+                      untradableValue === 'true' || 
+                      untradableValue === 'TRUE' ||
+                      untradableValue === '1';
+      }
       
       // Track items with "地图" in name
       const hasMapInName = rawName.includes('地图');
@@ -549,11 +586,17 @@ function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false)
  * @param {Object} searchResults - Results from searchTwItems: {itemId: {tw: "name"}}
  * @param {Array} shopItems - Shop items array
  * @param {Set} shopItemIds - Set of shop item IDs
+ * @param {Set} marketItems - Optional Set of marketable item IDs (from market_items table)
  * @returns {Array} - Items in the format expected by performSearch
  */
-function transformSearchResultsToItems(searchResults, shopItems, shopItemIds) {
+function transformSearchResultsToItems(searchResults, shopItems, shopItemIds, marketItems = null) {
   return Object.entries(searchResults).map(([id, data]) => {
     const itemName = data.tw || '';
+    const itemIdNum = parseInt(id, 10);
+    // Use market_items table to determine tradeability
+    // If marketItems is provided, check if item is in it
+    // If not provided, default to tradeable (for backward compatibility)
+    const isTradeable = marketItems ? marketItems.has(itemIdNum) : true;
     return {
       'key: #': id,
       '9: Name': itemName,
@@ -561,7 +604,7 @@ function transformSearchResultsToItems(searchResults, shopItems, shopItemIds) {
       '11: Level{Item}': '',
       '25: Price{Mid}': '',
       '8: Description': '',
-      '22: IsUntradable': 'False', // Default to tradeable
+      '22: IsUntradable': isTradeable ? 'False' : 'True', // Set based on market_items
       '27: CanBeHq': 'True',
     };
   }).filter(item => item['key: #'] && item['9: Name'].trim() !== '');
@@ -602,15 +645,26 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
     };
   }
 
-  // Pre-load descriptions cache if not already loaded
-  if (!twItemDescriptionsCache) {
-    twItemDescriptionsCache = await getTwItemDescriptions();
-  }
+  // Don't pre-load descriptions - load lazily only when needed (when displaying item details)
+  // This avoids loading 19,032 descriptions on every search
 
   // Shop items are always empty in Supabase (not available), so create empty Set directly
   // This avoids loading all 42,679 items just to get an empty array
   const shopItems = [];
   const shopItemIds = new Set();
+
+  // Load market_items to determine tradeability (only tradeable items should be shown)
+  // This is the source of truth for which items can be traded
+  let marketItems = null;
+  try {
+    const { getMarketItems } = await import('./supabaseData');
+    const marketItemIds = await getMarketItems();
+    marketItems = new Set(marketItemIds);
+    console.log(`[ItemDB] ✅ Loaded ${marketItems.size} marketable items for tradeability check`);
+  } catch (error) {
+    console.warn(`[ItemDB] ⚠️ Failed to load market_items, will use IsUntradable field as fallback:`, error);
+    // Continue without marketItems - will fallback to IsUntradable field
+  }
 
   const trimmedSearchText = searchText.trim();
   let results = [];
@@ -625,8 +679,34 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
     const { items } = await loadItemDatabase();
     // Check if search text has spaces - fuzzy search only works with spaces
     const hasSpaces = trimmedSearchText.includes(' ');
+    
     // Go straight to fuzzy search (will only use fuzzy if hasSpaces is true)
-    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, true);
+    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, true, marketItems);
+    
+    // Load descriptions ONLY for matching item IDs from fuzzy search results (efficient)
+    if (results.length > 0) {
+      const resultIds = results.map(r => r.id).filter(id => id > 0);
+      if (resultIds.length > 0) {
+        const missingIds = resultIds.filter(id => !twItemDescriptionsCache?.[id]);
+        if (missingIds.length > 0) {
+          const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+          const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+          if (!twItemDescriptionsCache) {
+            twItemDescriptionsCache = {};
+          }
+          Object.assign(twItemDescriptionsCache, descriptions);
+          // Update results with descriptions
+          results = results.map(r => {
+            const desc = twItemDescriptionsCache?.[r.id];
+            return {
+              ...r,
+              description: desc?.tw ? desc.tw.replace(/^["']|["']$/g, '').trim() : r.description
+            };
+          });
+        }
+      }
+    }
+    
     // Return early - don't do conversion or simplified database search for explicit fuzzy mode
     return {
       results,
@@ -652,8 +732,28 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
     if (signal && signal.aborted) {
       throw new DOMException('Request aborted', 'AbortError');
     }
-    const items = transformSearchResultsToItems(searchResults, shopItems, shopItemIds);
-    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false);
+    const items = transformSearchResultsToItems(searchResults, shopItems, shopItemIds, marketItems);
+    
+    // Load descriptions ONLY for matching item IDs (efficient - uses WHERE IN)
+    // This avoids loading 19,032 descriptions if search returns no results
+    if (items.length > 0) {
+      const itemIds = items.map(item => parseInt(item['key: #'], 10)).filter(id => !isNaN(id));
+      if (itemIds.length > 0) {
+        // Check if we already have all descriptions cached
+        const missingIds = itemIds.filter(id => !twItemDescriptionsCache?.[id]);
+        if (missingIds.length > 0) {
+          const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+          const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+          // Merge into cache
+          if (!twItemDescriptionsCache) {
+            twItemDescriptionsCache = {};
+          }
+          Object.assign(twItemDescriptionsCache, descriptions);
+        }
+      }
+    }
+    
+    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false, marketItems);
   } catch (error) {
     // Don't fallback if aborted
     if (error.name === 'AbortError' || (signal && signal.aborted)) {
@@ -662,7 +762,35 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
     console.error('Error in database search, falling back to full load:', error);
     // Fallback to full database load if query fails
     const { items } = await loadItemDatabase();
-    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false);
+    
+    // Fallback: Load full database (fuzzy search or error fallback)
+    // For fuzzy search, we need all items, so descriptions are loaded for all matching items after performSearch
+    // For error fallback, try to load descriptions for matching items if possible
+    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false, marketItems);
+    
+    // Load descriptions for result items if we have results
+    if (results.length > 0) {
+      const resultIds = results.map(r => r.id).filter(id => id > 0);
+      if (resultIds.length > 0) {
+        const missingIds = resultIds.filter(id => !twItemDescriptionsCache?.[id]);
+        if (missingIds.length > 0) {
+          const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+          const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+          if (!twItemDescriptionsCache) {
+            twItemDescriptionsCache = {};
+          }
+          Object.assign(twItemDescriptionsCache, descriptions);
+          // Update results with descriptions
+          results = results.map(r => {
+            const desc = twItemDescriptionsCache?.[r.id];
+            return {
+              ...r,
+              description: desc?.tw ? desc.tw.replace(/^["']|["']$/g, '').trim() : r.description
+            };
+          });
+        }
+      }
+    }
   }
   
   // Step 2: If no results AND search text has spaces, try fuzzy search with TW names (original input)
@@ -670,7 +798,32 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
   // Note: Fuzzy search requires full database load for character-order checking
   if (results.length === 0 && hasSpaces) {
     const { items } = await loadItemDatabase();
-    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, true);
+    
+    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, true, marketItems);
+    
+    // Load descriptions ONLY for matching item IDs from fuzzy search results
+    if (results.length > 0) {
+      const resultIds = results.map(r => r.id).filter(id => id > 0);
+      if (resultIds.length > 0) {
+        const missingIds = resultIds.filter(id => !twItemDescriptionsCache?.[id]);
+        if (missingIds.length > 0) {
+          const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+          const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+          if (!twItemDescriptionsCache) {
+            twItemDescriptionsCache = {};
+          }
+          Object.assign(twItemDescriptionsCache, descriptions);
+          // Update results with descriptions
+          results = results.map(r => {
+            const desc = twItemDescriptionsCache?.[r.id];
+            return {
+              ...r,
+              description: desc?.tw ? desc.tw.replace(/^["']|["']$/g, '').trim() : r.description
+            };
+          });
+        }
+      }
+    }
   }
 
   // Step 3: If still no results, convert user input to traditional Chinese and try again
@@ -708,8 +861,25 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
         if (signal && signal.aborted) {
           throw new DOMException('Request aborted', 'AbortError');
         }
-        const items = transformSearchResultsToItems(searchResults, shopItems, shopItemIds);
-        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false);
+        const items = transformSearchResultsToItems(searchResults, shopItems, shopItemIds, marketItems);
+        
+        // Load descriptions ONLY for matching item IDs (efficient - uses WHERE IN)
+        if (items.length > 0) {
+          const itemIds = items.map(item => parseInt(item['key: #'], 10)).filter(id => !isNaN(id));
+          if (itemIds.length > 0) {
+            const missingIds = itemIds.filter(id => !twItemDescriptionsCache?.[id]);
+            if (missingIds.length > 0) {
+              const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+              const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+              if (!twItemDescriptionsCache) {
+                twItemDescriptionsCache = {};
+              }
+              Object.assign(twItemDescriptionsCache, descriptions);
+            }
+          }
+        }
+        
+        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false, marketItems);
       } catch (error) {
         // Don't fallback if aborted
         if (error.name === 'AbortError' || (signal && signal.aborted)) {
@@ -717,14 +887,62 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
         }
         console.error('Error in database search (converted), falling back to full load:', error);
         const { items } = await loadItemDatabase();
-        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false);
+        
+        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false, marketItems);
+        
+        // Load descriptions for result items
+        if (results.length > 0) {
+          const resultIds = results.map(r => r.id).filter(id => id > 0);
+          if (resultIds.length > 0) {
+            const missingIds = resultIds.filter(id => !twItemDescriptionsCache?.[id]);
+            if (missingIds.length > 0) {
+              const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+              const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+              if (!twItemDescriptionsCache) {
+                twItemDescriptionsCache = {};
+              }
+              Object.assign(twItemDescriptionsCache, descriptions);
+              results = results.map(r => {
+                const desc = twItemDescriptionsCache?.[r.id];
+                return {
+                  ...r,
+                  description: desc?.tw ? desc.tw.replace(/^["']|["']$/g, '').trim() : r.description
+                };
+              });
+            }
+          }
+        }
       }
       
       // Step 3b: If still no results AND converted text has spaces, try fuzzy search with converted traditional Chinese
       // Note: Fuzzy search requires full database load
       if (results.length === 0 && convertedHasSpaces) {
         const { items } = await loadItemDatabase();
-        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, true);
+        
+        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, true, marketItems);
+        
+        // Load descriptions ONLY for matching item IDs from fuzzy search results
+        if (results.length > 0) {
+          const resultIds = results.map(r => r.id).filter(id => id > 0);
+          if (resultIds.length > 0) {
+            const missingIds = resultIds.filter(id => !twItemDescriptionsCache?.[id]);
+            if (missingIds.length > 0) {
+              const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+              const descriptions = await getTwItemDescriptionsByIds(missingIds, signal);
+              if (!twItemDescriptionsCache) {
+                twItemDescriptionsCache = {};
+              }
+              Object.assign(twItemDescriptionsCache, descriptions);
+              results = results.map(r => {
+                const desc = twItemDescriptionsCache?.[r.id];
+                return {
+                  ...r,
+                  description: desc?.tw ? desc.tw.replace(/^["']|["']$/g, '').trim() : r.description
+                };
+              });
+            }
+          }
+        }
       }
     }
   }
@@ -747,20 +965,53 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
           convertedText = simplifiedSearchText;
         }
         
-        // Fetch items by ID from Traditional Chinese database
-        const itemsById = matchingItemIds
-          .map(itemId => {
-            const item = items.find(item => {
-              const id = item['key: #'];
-              return id && parseInt(id, 10) === itemId;
-            });
-            return item;
+        // Fetch items by ID from Traditional Chinese database using targeted queries
+        // Don't load full database - use getTwItemById for each item
+        const itemsById = await Promise.all(
+          matchingItemIds.map(async (itemId) => {
+            try {
+              const { getTwItemById } = await import('./supabaseData');
+              const itemData = await getTwItemById(itemId);
+              if (!itemData) {
+                return null;
+              }
+              return {
+                'key: #': itemId.toString(),
+                '9: Name': itemData.tw || '',
+                '0: Singular': itemData.tw || '',
+                '11: Level{Item}': '',
+                '25: Price{Mid}': '',
+                '8: Description': '',
+                '22: IsUntradable': marketItems && marketItems.has(itemId) ? 'False' : 'True',
+                '27: CanBeHq': 'True',
+              };
+            } catch (error) {
+              console.error(`Failed to fetch item ${itemId} for simplified search:`, error);
+              return null;
+            }
           })
-          .filter(item => item !== undefined);
+        );
+        
+        const validItems = itemsById.filter(item => item !== null && item['9: Name'].trim() !== '');
 
         // Convert items to result format (same as performSearch)
-        // itemsById already filters out undefined items, so we can map directly
-        results = itemsById.map(item => {
+        // Filter by tradeability using marketItems
+        results = validItems
+          .filter(item => {
+            // Filter out untradeable items using marketItems if available
+            if (marketItems !== null) {
+              const itemIdNum = parseInt(item['key: #'], 10);
+              return marketItems.has(itemIdNum);
+            }
+            // Fallback to IsUntradable field if marketItems not available
+            const untradableValue = (item['22: IsUntradable'] || '').toString().trim();
+            const isUntradable = untradableValue === 'True' || 
+                                untradableValue === 'true' || 
+                                untradableValue === 'TRUE' ||
+                                untradableValue === '1';
+            return !isUntradable;
+          })
+          .map(item => {
             const id = item['key: #'];
             let name = item['9: Name'] || '';
             if (!name || name.trim() === '') {
@@ -775,13 +1026,20 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
             const descriptionData = twItemDescriptionsCache?.[id];
             const description = descriptionData?.tw || '';
 
-            // Check if item is tradable
-            const untradableValue = (item['22: IsUntradable'] || '').toString().trim();
-            const isUntradable = untradableValue === 'True' || 
-                                untradableValue === 'true' || 
-                                untradableValue === 'TRUE' ||
-                                untradableValue === '1';
-            const isTradable = !isUntradable;
+            // Check if item is tradable (use marketItems if available)
+            let isTradable;
+            if (marketItems !== null) {
+              const itemIdNum = parseInt(id, 10);
+              isTradable = marketItems.has(itemIdNum);
+            } else {
+              // Fallback to IsUntradable field
+              const untradableValue = (item['22: IsUntradable'] || '').toString().trim();
+              const isUntradable = untradableValue === 'True' || 
+                                  untradableValue === 'true' || 
+                                  untradableValue === 'TRUE' ||
+                                  untradableValue === '1';
+              isTradable = !isUntradable;
+            }
 
             // Clean name and description
             const cleanName = name.replace(/^["']|["']$/g, '').trim();
@@ -824,78 +1082,59 @@ export async function searchItems(searchText, fuzzy = false, signal = null) {
 }
 
 /**
- * Get item by ID
+ * Get item by ID using targeted database query (efficient - doesn't load all items)
  * @param {number} itemId - Item ID
+ * @param {boolean} includeDescription - Whether to load description (default: true, set to false for performance)
  * @returns {Promise<Object|null>} - Item object or null if not found
  */
-export async function getItemById(itemId) {
+export async function getItemById(itemId, includeDescription = true) {
   if (!itemId || itemId <= 0) {
     return null;
   }
 
-  const { items, shopItems } = await loadItemDatabase();
-
-  // Create shop items lookup
-  const shopItemIds = new Set();
-  shopItems.forEach(item => {
-    const id = item['0: Item'];
-    if (id) {
-      shopItemIds.add(id);
+  // Use targeted query instead of loading all items
+  try {
+    const { getTwItemById } = await import('./supabaseData');
+    const itemData = await getTwItemById(itemId);
+    
+    if (!itemData) {
+      return null;
     }
-  });
-
-  // Find item by ID
-  const item = items.find(item => {
-    const id = item['key: #'];
-    return id && parseInt(id, 10) === itemId;
-  });
-
-  if (!item) {
+    
+    const itemName = itemData.tw || '';
+    let description = '';
+    
+    // Only load descriptions if requested (lazy loading - use targeted query)
+    if (includeDescription) {
+      // Load description ONLY for this specific item ID (efficient)
+      if (!twItemDescriptionsCache?.[itemId]) {
+        const { getTwItemDescriptionsByIds } = await import('./supabaseData');
+        const descriptions = await getTwItemDescriptionsByIds([itemId]);
+        if (!twItemDescriptionsCache) {
+          twItemDescriptionsCache = {};
+        }
+        Object.assign(twItemDescriptionsCache, descriptions);
+      }
+      const descriptionData = twItemDescriptionsCache?.[itemId];
+      description = descriptionData?.tw || '';
+    }
+    
+    // Create item object matching expected format
+    return {
+      id: itemId,
+      name: itemName.replace(/^["']|["']$/g, '').trim(),
+      description: description.replace(/^["']|["']$/g, '').trim(),
+      itemLevel: '',
+      shopPrice: '',
+      inShop: false,
+      canBeHQ: true,
+      isTradable: true,
+    };
+  } catch (error) {
+    console.error(`Error fetching item ${itemId} from Supabase:`, error);
+    // Don't fallback to full database load - it's too expensive
+    // Just return null if the targeted query fails
+    console.warn(`[ItemDB] ⚠️ Failed to fetch item ${itemId} - returning null (no fallback to avoid loading all items)`);
     return null;
   }
-
-  const id = item['key: #'];
-  // Use "9: Name" as primary, fallback to "0: Singular" if empty
-  let name = item['9: Name'] || '';
-  if (!name || name.trim() === '') {
-    name = item['0: Singular'] || '';
-  }
-  const itemLevel = item['11: Level{Item}'] || '';
-  const shopPrice = item['25: Price{Mid}'] || '';
-  const canBeHQ = item['27: CanBeHq'] !== 'False';
-  const inShop = shopItemIds.has(id);
-
-  // Pre-load descriptions cache if not already loaded
-  if (!twItemDescriptionsCache) {
-    twItemDescriptionsCache = await getTwItemDescriptions();
-  }
-  
-  // Get description from Supabase (cached)
-  const descriptionData = twItemDescriptionsCache[id];
-  const description = descriptionData?.tw || '';
-
-  // Check if item is tradable (opposite of untradable)
-  const untradableValue = (item['22: IsUntradable'] || '').toString().trim();
-  const isUntradable = untradableValue === 'True' || 
-                      untradableValue === 'true' || 
-                      untradableValue === 'TRUE' ||
-                      untradableValue === '1';
-  const isTradable = !isUntradable;
-
-  // Items are already in Traditional Chinese, no conversion needed
-  // Remove any quotes that might be in the name/description
-  const cleanName = name.replace(/^["']|["']$/g, '').trim();
-  const cleanDescription = description.replace(/^["']|["']$/g, '').trim();
-
-  return {
-    id: parseInt(id, 10) || 0,
-    name: cleanName, // Already in Traditional Chinese, no conversion needed
-    nameSimplified: cleanName, // Keep same for compatibility
-    itemLevel: itemLevel,
-    shopPrice: shopPrice,
-    description: cleanDescription, // From tw-item-descriptions.json
-    inShop: inShop,
-    canBeHQ: canBeHQ,
-    isTradable: isTradable, // Add tradable status
-  };
 }

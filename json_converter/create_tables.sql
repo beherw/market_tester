@@ -1,24 +1,42 @@
 -- Supabase Table Creation Scripts
 -- Run these SQL statements in Supabase SQL Editor before importing CSV files
 -- After creating tables, import the corresponding CSV files from csv_output/
+--
+-- NEW SEARCH LOGIC:
+-- User input >> search TW (Traditional Chinese) strict then fuzzy
+-- User input >> search CN (Simplified Chinese) strict then fuzzy  
+-- User input >> search other languages...
 
 -- ============================================================================
--- ITEM DATA TABLES
+-- ITEM NAME TABLES (for search - one per language)
 -- ============================================================================
 
--- Traditional Chinese item names
+-- Traditional Chinese item names (TW)
 CREATE TABLE IF NOT EXISTS tw_items (
   id INTEGER PRIMARY KEY,
   tw TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_tw_items_id ON tw_items(id);
+CREATE INDEX IF NOT EXISTS idx_tw_items_tw ON tw_items(tw);  -- For text search
 
--- Traditional Chinese item descriptions
+-- Simplified Chinese item names (CN/ZH)
+CREATE TABLE IF NOT EXISTS cn_items (
+  id INTEGER PRIMARY KEY,
+  zh TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_cn_items_id ON cn_items(id);
+CREATE INDEX IF NOT EXISTS idx_cn_items_zh ON cn_items(zh);  -- For text search
+
+-- Traditional Chinese item descriptions (for display)
 CREATE TABLE IF NOT EXISTS tw_item_descriptions (
   id INTEGER PRIMARY KEY,
   tw TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_tw_item_descriptions_id ON tw_item_descriptions(id);
+
+-- ============================================================================
+-- SHARED ITEM DATA TABLES (use item ID, shared across all languages)
+-- ============================================================================
 
 -- Marketable items list (simple array converted to table)
 CREATE TABLE IF NOT EXISTS market_items (
@@ -29,19 +47,19 @@ CREATE INDEX IF NOT EXISTS idx_market_items_id ON market_items(id);
 -- Equipment data (complex structure with JSONB for arrays)
 CREATE TABLE IF NOT EXISTS equipment (
   id INTEGER PRIMARY KEY,
-  equipSlotCategory INTEGER,
+  "equipSlotCategory" INTEGER,
   level INTEGER,
-  unique INTEGER,
+  "unique" INTEGER,
   jobs JSONB,  -- Array stored as JSONB
-  pDmg INTEGER,
-  mDmg INTEGER,
-  pDef INTEGER,
-  mDef INTEGER,
+  "pDmg" INTEGER,
+  "mDmg" INTEGER,
+  "pDef" INTEGER,
+  "mDef" INTEGER,
   delay INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_equipment_id ON equipment(id);
 CREATE INDEX IF NOT EXISTS idx_equipment_level ON equipment(level);
-CREATE INDEX IF NOT EXISTS idx_equipment_equipSlotCategory ON equipment(equipSlotCategory);
+CREATE INDEX IF NOT EXISTS idx_equipment_equipSlotCategory ON equipment("equipSlotCategory");
 
 -- Item levels
 CREATE TABLE IF NOT EXISTS ilvls (
@@ -90,13 +108,18 @@ CREATE TABLE IF NOT EXISTS tw_recipes (
   durability INTEGER,
   quality INTEGER,
   progress INTEGER,
-  suggestedControl INTEGER,
-  suggestedCraftsmanship INTEGER,
-  controlReq INTEGER,
-  craftsmanshipReq INTEGER,
+  "suggestedControl" INTEGER,
+  "suggestedCraftsmanship" INTEGER,
+  "controlReq" INTEGER,
+  "craftsmanshipReq" INTEGER,
   rlvl INTEGER,
   ingredients JSONB,  -- Array of ingredient objects stored as JSONB
-  unlocks INTEGER
+  "progressDivider" INTEGER,
+  "qualityDivider" INTEGER,
+  "progressModifier" INTEGER,
+  "qualityModifier" INTEGER,
+  expert INTEGER,
+  "conditionsFlag" INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_tw_recipes_id ON tw_recipes(id);
 CREATE INDEX IF NOT EXISTS idx_tw_recipes_result ON tw_recipes(result);
@@ -120,7 +143,7 @@ CREATE TABLE IF NOT EXISTS ui_categories (
   name TEXT,
   category INTEGER,
   job INTEGER,
-  order INTEGER,
+  "order" INTEGER,
   data JSONB  -- Additional nested data stored as JSONB
 );
 CREATE INDEX IF NOT EXISTS idx_ui_categories_id ON ui_categories(id);
@@ -130,7 +153,20 @@ CREATE INDEX IF NOT EXISTS idx_ui_categories_job ON ui_categories(job);
 -- Equipment slot categories
 CREATE TABLE IF NOT EXISTS equip_slot_categories (
   id INTEGER PRIMARY KEY,
-  data JSONB  -- Complex nested structure stored as JSONB
+  "MainHand" INTEGER,
+  "OffHand" INTEGER,
+  "Head" INTEGER,
+  "Body" INTEGER,
+  "Gloves" INTEGER,
+  "Waist" INTEGER,
+  "Legs" INTEGER,
+  "Feet" INTEGER,
+  "Ears" INTEGER,
+  "Neck" INTEGER,
+  "Wrists" INTEGER,
+  "FingerL" INTEGER,
+  "FingerR" INTEGER,
+  "SoulCrystal" INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_equip_slot_categories_id ON equip_slot_categories(id);
 
@@ -153,3 +189,8 @@ CREATE INDEX IF NOT EXISTS idx_tw_job_abbr_id ON tw_job_abbr(id);
 -- 3. Consider adding Row Level Security (RLS) policies if needed
 -- 4. You may want to add foreign key constraints between related tables
 -- 5. For large tables, consider partitioning or additional indexes based on query patterns
+-- 6. Text search indexes (idx_tw_items_tw, idx_cn_items_zh) support LIKE queries for search
+-- 7. For fuzzy search, consider using PostgreSQL's pg_trgm extension for trigram matching:
+--    CREATE EXTENSION IF NOT EXISTS pg_trgm;
+--    CREATE INDEX idx_tw_items_tw_trgm ON tw_items USING gin(tw gin_trgm_ops);
+--    CREATE INDEX idx_cn_items_zh_trgm ON cn_items USING gin(zh gin_trgm_ops);

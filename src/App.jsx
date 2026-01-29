@@ -22,6 +22,7 @@ import { addSearchToHistory } from './utils/searchHistory';
 import { useHistory } from './hooks/useHistory';
 import { hasRecipe, buildCraftingTree, findRelatedItems } from './services/recipeDatabase';
 import { getIlvls, getItemPatch, getPatchNames } from './services/supabaseData';
+import { initializeSupabaseConnection } from './services/supabaseClient';
 import TopBar from './components/TopBar';
 import NotFound from './components/NotFound';
 
@@ -99,7 +100,7 @@ function App() {
   const [isLoadingVelocities, setIsLoadingVelocities] = useState(false);
   const [isServerSelectorDisabled, setIsServerSelectorDisabled] = useState(true); // Start disabled until server data loads
   const [searchCurrentPage, setSearchCurrentPage] = useState(1);
-  const [searchItemsPerPage, setSearchItemsPerPage] = useState(50);
+  const [searchItemsPerPage, setSearchItemsPerPage] = useState(20);
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const loadingIndicatorStartTimeRef = useRef(null);
   
@@ -165,11 +166,18 @@ function App() {
   // Cache for ilvls data
   const ilvlsDataRef = useRef(null);
   
-  // Helper function to load ilvls data dynamically
-  const loadIlvlsData = useCallback(async () => {
+  // Helper function to load ilvls data dynamically (targeted - only for specific item IDs)
+  const loadIlvlsData = useCallback(async (itemIds = null) => {
+    // If itemIds provided, use targeted query
+    if (itemIds && itemIds.length > 0) {
+      const { getIlvlsByIds } = await import('./services/supabaseData');
+      return await getIlvlsByIds(itemIds);
+    }
+    // Fallback to full load only if no itemIds provided (should rarely happen)
     if (ilvlsDataRef.current) {
       return ilvlsDataRef.current;
     }
+    const { getIlvls } = await import('./services/supabaseData');
     ilvlsDataRef.current = await getIlvls();
     return ilvlsDataRef.current;
   }, []);
@@ -201,18 +209,9 @@ function App() {
   const [itemPatchData, setItemPatchData] = useState(null);
   const [patchNamesData, setPatchNamesData] = useState(null);
 
-  // Load ilvl and patch data on mount
-  useEffect(() => {
-    Promise.all([
-      loadIlvlsData(),
-      loadItemPatchData(),
-      loadPatchNamesData()
-    ]).then(([ilvls, patch, patchNames]) => {
-      setIlvlsData(ilvls);
-      setItemPatchData(patch);
-      setPatchNamesData(patchNames);
-    });
-  }, [loadIlvlsData, loadItemPatchData, loadPatchNamesData]);
+  // Load ilvl and patch data lazily (only when needed, not on mount)
+  // This prevents unnecessary data loading on initial page load
+  // Data will be loaded when first used (e.g., when displaying search results or item details)
 
   // Helper function to get ilvl for an item
   const getIlvl = useCallback((itemId) => {
@@ -543,6 +542,8 @@ function App() {
     };
   }, []);
 
+  // Connection is initialized in main.jsx before React renders - no need to duplicate here
+
   // Update document title based on selected item
   useEffect(() => {
     if (selectedItem && selectedItem.name) {
@@ -745,12 +746,30 @@ function App() {
     };
   }, [addToast]);
 
-  // Load marketable items on mount
+  // Load marketable items lazily (only when needed for filtering)
+  // This avoids loading 16,670 marketable items on initial page load
+  // Load it when we first need it (when fetching velocities or when we have items to filter)
   useEffect(() => {
-    getMarketableItems().then(items => {
-      setMarketableItems(items);
-    });
-  }, []);
+    // Load marketable items ONLY for displayed items (efficient - uses WHERE IN)
+    const allItemIds = [
+      ...tradeableResults.map(item => item.id),
+      ...untradeableResults.map(item => item.id),
+      ...historyItems.map(item => item.id)
+    ].filter(id => id > 0);
+    
+    const needsMarketableItems = 
+      allItemIds.length > 0 &&
+      !marketableItems &&
+      (selectedServerOption && selectedWorld); // Only load when server is selected (needed for filtering)
+    
+    if (needsMarketableItems) {
+      (async () => {
+        const { getMarketableItemsByIds } = await import('./services/universalis');
+        const items = await getMarketableItemsByIds(allItemIds);
+        setMarketableItems(items);
+      })();
+    }
+  }, [tradeableResults.length, untradeableResults.length, historyItems.length, marketableItems, selectedServerOption, selectedWorld]);
 
   // Fetch tax rates when modal opens
   useEffect(() => {
@@ -866,17 +885,18 @@ function App() {
 
     // Get all item IDs from displayed results and sort by ilvl before API query
     (async () => {
-      // Ensure marketable items are loaded before processing batches
-      // This ensures we only process tradeable items
-      const marketableSet = await getMarketableItems();
-      
-      // Load ilvls data and sort item IDs by ilvl (descending, highest first)
-      const ilvlsData = await loadIlvlsData();
       const allItemIds = displayedResults.map(item => item.id);
+      
+      // Check marketability ONLY for displayed items (efficient - uses WHERE IN)
+      const { getMarketableItemsByIds } = await import('./services/universalis');
+      const marketableSet = await getMarketableItemsByIds(allItemIds);
       
       // Filter to only marketable items before batch processing
       // This ensures batch processing only handles tradeable items
       const marketableItemIds = allItemIds.filter(id => marketableSet.has(id));
+      
+      // Load ilvls data ONLY for marketable items (efficient - uses WHERE IN)
+      const ilvlsData = await loadIlvlsData(marketableItemIds);
       
       // Sort item IDs by ilvl (descending, highest first), then by ID if no ilvl
       const sortedItemIds = marketableItemIds.sort((a, b) => {
@@ -1378,15 +1398,17 @@ function App() {
 
     // Get all item IDs from history items and sort by ilvl before API query
     (async () => {
-      // Ensure marketable items are loaded before processing batches
-      const marketableSet = await getMarketableItems();
-      
-      // Load ilvls data and sort item IDs by ilvl (descending, highest first)
-      const ilvlsData = await loadIlvlsData();
       const allItemIds = historyItems.map(item => item.id);
+      
+      // Check marketability ONLY for history items (efficient - uses WHERE IN)
+      const { getMarketableItemsByIds } = await import('./services/universalis');
+      const marketableSet = await getMarketableItemsByIds(allItemIds);
       
       // Filter to only marketable items before batch processing
       const marketableItemIds = allItemIds.filter(id => marketableSet.has(id));
+      
+      // Load ilvls data ONLY for marketable items (efficient - uses WHERE IN)
+      const ilvlsData = await loadIlvlsData(marketableItemIds);
       
       // Sort item IDs by ilvl (descending, highest first), then by ID if no ilvl
       const sortedItemIds = marketableItemIds.sort((a, b) => {
@@ -2060,42 +2082,53 @@ function App() {
               
               // Verify tradeability asynchronously in the background (for more accurate data)
               // This doesn't block the UI - users see results immediately
-              getMarketableItems().then(marketableSet => {
-                // Only update if this is still the current search
-                if (lastProcessedURLRef.current === currentURLKey) {
-                  const tradeable = results.filter(item => marketableSet.has(item.id));
-                  const untradeable = results.filter(item => !marketableSet.has(item.id));
+              // Use targeted query to check only search result items (efficient - uses WHERE IN)
+              const resultIds = results.map(item => item.id).filter(id => id > 0);
+              (async () => {
+                try {
+                  const { getMarketableItemsByIds } = await import('./services/universalis');
+                  const marketableSet = await getMarketableItemsByIds(resultIds, searchSignal);
                   
-                  // Keep track of untradeable items even when we have tradeable items
-                  // This allows users to view untradeable items via the button
-                  if (tradeable.length > 0) {
-                    // Set showUntradeable to false FIRST (show tradeable by default)
-                    setShowUntradeable(false);
-                    // Then update tradeable results
-                    setTradeableResults(tradeable);
-                    // Keep untradeable items record for the button to display
-                    setUntradeableResults(untradeable);
-                  } else {
-                    // Only show untradeable if there are no tradeable items
-                    setShowUntradeable(tradeable.length === 0 && untradeable.length > 0);
-                    setTradeableResults(tradeable);
-                    setUntradeableResults(untradeable);
+                  // Only update if this is still the current search
+                  if (lastProcessedURLRef.current === currentURLKey) {
+                    const tradeable = results.filter(item => marketableSet.has(item.id));
+                    const untradeable = results.filter(item => !marketableSet.has(item.id));
+                    
+                    // Keep track of untradeable items even when we have tradeable items
+                    // This allows users to view untradeable items via the button
+                    if (tradeable.length > 0) {
+                      // Set showUntradeable to false FIRST (show tradeable by default)
+                      setShowUntradeable(false);
+                      // Then update tradeable results
+                      setTradeableResults(tradeable);
+                      // Keep untradeable items record for the button to display
+                      setUntradeableResults(untradeable);
+                    } else {
+                      // Only show untradeable if there are no tradeable items
+                      setShowUntradeable(tradeable.length === 0 && untradeable.length > 0);
+                      setTradeableResults(tradeable);
+                      setUntradeableResults(untradeable);
+                    }
+                    searchResultsRef.current = tradeable.length > 0 ? tradeable : untradeable;
+                    
+                    // Show toast for multiple results after tradeability is verified
+                    if (results.length > 1 && previousSearchText !== searchQuery) {
+                      addToast(`找到 ${tradeable.length} 個可交易物品${untradeable.length > 0 ? `、${untradeable.length} 個不可交易物品` : ''}`, 'success');
+                    }
                   }
-                  searchResultsRef.current = tradeable.length > 0 ? tradeable : untradeable;
-                  
-                  // Show toast for multiple results after tradeability is verified
-                  if (results.length > 1 && previousSearchText !== searchQuery) {
-                    addToast(`找到 ${tradeable.length} 個可交易物品${untradeable.length > 0 ? `、${untradeable.length} 個不可交易物品` : ''}`, 'success');
+                } catch (error) {
+                  // Ignore abort errors
+                  if (error.name === 'AbortError' || (searchSignal && searchSignal.aborted)) {
+                    return;
+                  }
+                  console.error('Error verifying tradeability:', error);
+                  // If API fails, keep showing the results (they're already filtered locally)
+                  // Show toast with total results count if we have results
+                  if (lastProcessedURLRef.current === currentURLKey && results.length > 1 && previousSearchText !== searchQuery) {
+                    addToast(`找到 ${results.length} 個物品`, 'success');
                   }
                 }
-              }).catch(error => {
-                console.error('Error verifying tradeability:', error);
-                // If API fails, keep showing the results (they're already filtered locally)
-                // Show toast with total results count if we have results
-                if (lastProcessedURLRef.current === currentURLKey && results.length > 1 && previousSearchText !== searchQuery) {
-                  addToast(`找到 ${results.length} 個物品`, 'success');
-                }
-              });
+              })();
               if (results.length === 0) {
                 addToast('未找到相關物品', 'warning');
                 // No results means velocity fetch won't run, so re-enable server selector here
@@ -2331,7 +2364,10 @@ function App() {
       
       // Verify tradeability asynchronously in the background (for more accurate data)
       // This doesn't block the UI - users see results immediately
-      getMarketableItems().then(marketableSet => {
+      // Use targeted query to check only search result items (efficient - uses WHERE IN)
+      const resultIds = results.map(item => item.id).filter(id => id > 0);
+      const { getMarketableItemsByIds } = await import('./services/universalis');
+      getMarketableItemsByIds(resultIds, searchSignal).then(marketableSet => {
         const tradeable = results.filter(item => marketableSet.has(item.id));
         const untradeable = results.filter(item => !marketableSet.has(item.id));
         
@@ -3203,6 +3239,8 @@ function App() {
                         }}
                         className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
                       >
+                        <option value={20}>20</option>
+                        <option value={30}>30</option>
                         <option value={50}>50</option>
                         <option value={100}>100</option>
                         <option value={200}>200</option>
@@ -3968,17 +4006,20 @@ function App() {
               </Suspense>
               
               {/* Recent Updates Section - Show on home page below history section */}
-              <Suspense fallback={
-                <div className="bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 rounded-lg border border-purple-500/20 p-8 text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-400/30 border-t-purple-400 mx-auto"></div>
-                  <p className="mt-4 text-sm text-gray-400">載入最近更新...</p>
-                </div>
-              }>
-                <RecentUpdatesSection 
-                  onItemSelect={handleItemSelect} 
-                  selectedDcName={selectedWorld?.section}
-                />
-              </Suspense>
+              {/* Only render when selectedWorld is available to avoid unnecessary component/data loading */}
+              {selectedWorld?.section && (
+                <Suspense fallback={
+                  <div className="bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 rounded-lg border border-purple-500/20 p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-400/30 border-t-purple-400 mx-auto"></div>
+                    <p className="mt-4 text-sm text-gray-400">載入最近更新...</p>
+                  </div>
+                }>
+                  <RecentUpdatesSection 
+                    onItemSelect={handleItemSelect} 
+                    selectedDcName={selectedWorld.section}
+                  />
+                </Suspense>
+              )}
 
               {/* Credits Section - Show on home page at the bottom */}
               <div className="bg-gradient-to-br from-slate-800/60 via-slate-900/40 to-slate-800/60 backdrop-blur-sm rounded-lg border border-slate-600/30 p-4 sm:p-6 mt-4 sm:mt-6">

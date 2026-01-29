@@ -2,37 +2,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import ItemImage from './ItemImage';
 
-import { getIlvls, getRarities, getItemPatch, getPatchNames } from '../services/supabaseData';
-
-// Lazy load ilvls data
-let ilvlsDataRef = null;
-const loadIlvlsData = async () => {
-  if (ilvlsDataRef) {
-    return ilvlsDataRef;
-  }
-  ilvlsDataRef = await getIlvls();
-  return ilvlsDataRef;
-};
-
-// Lazy load rarities data
-let raritiesDataRef = null;
-const loadRaritiesData = async () => {
-  if (raritiesDataRef) {
-    return raritiesDataRef;
-  }
-  raritiesDataRef = await getRarities();
-  return raritiesDataRef;
-};
-
-// Lazy load item-patch data
-let itemPatchDataRef = null;
-const loadItemPatchData = async () => {
-  if (itemPatchDataRef) {
-    return itemPatchDataRef;
-  }
-  itemPatchDataRef = await getItemPatch();
-  return itemPatchDataRef;
-};
+import { getIlvlsByIds, getRaritiesByIds, getItemPatchByIds, getPatchNames } from '../services/supabaseData';
 
 // Lazy load patch-names data
 let patchNamesDataRef = null;
@@ -163,34 +133,93 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
   const setSelectedRarities = externalSetSelectedRarities !== undefined ? externalSetSelectedRarities : setInternalSelectedRarities;
   const raritiesDataToUse = externalRaritiesData || raritiesData;
   
-  // Load ilvls data
+  // Load ilvls data lazily (only for tradeable items when marketableItems is available - efficient)
   useEffect(() => {
-    loadIlvlsData().then(data => {
-      setIlvlsData(data);
-    });
-  }, []);
+    if (items && items.length > 0 && !ilvlsData) {
+      // If marketableItems is available, only load metadata for tradeable items
+      // Otherwise, wait for marketableItems to avoid loading metadata for untradeable items
+      let itemIdsToLoad = [];
+      if (marketableItems && marketableItems.size > 0) {
+        // Only load for tradeable items
+        itemIdsToLoad = items
+          .filter(item => marketableItems.has(item.id))
+          .map(item => item.id)
+          .filter(id => id > 0);
+      } else if (!marketableItems) {
+        // marketableItems not loaded yet, wait for it (don't load for all items)
+        return;
+      } else {
+        // marketableItems is empty Set, no tradeable items, don't load
+        return;
+      }
+      
+      if (itemIdsToLoad.length > 0) {
+        getIlvlsByIds(itemIdsToLoad).then(data => {
+          setIlvlsData(data);
+        });
+      }
+    }
+  }, [items, ilvlsData, marketableItems]);
 
-  // Load rarities data (only if not provided externally)
+  // Load rarities data (only for tradeable items when marketableItems is available - efficient)
   useEffect(() => {
     // Only load if external data is not provided (undefined or null) and internal data is not loaded yet
-    if ((externalRaritiesData === undefined || externalRaritiesData === null) && !raritiesData) {
-      loadRaritiesData().then(data => {
-        setRaritiesData(data);
-      });
+    if (items && items.length > 0 && (externalRaritiesData === undefined || externalRaritiesData === null) && !raritiesData) {
+      // If marketableItems is available, only load metadata for tradeable items
+      let itemIdsToLoad = [];
+      if (marketableItems && marketableItems.size > 0) {
+        // Only load for tradeable items
+        itemIdsToLoad = items
+          .filter(item => marketableItems.has(item.id))
+          .map(item => item.id)
+          .filter(id => id > 0);
+      } else if (!marketableItems) {
+        // marketableItems not loaded yet, wait for it
+        return;
+      } else {
+        // marketableItems is empty Set, no tradeable items, don't load
+        return;
+      }
+      
+      if (itemIdsToLoad.length > 0) {
+        getRaritiesByIds(itemIdsToLoad).then(data => {
+          setRaritiesData(data);
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalRaritiesData]);
+  }, [items, externalRaritiesData, raritiesData, marketableItems]);
 
-  // Load item-patch and patch-names data
+  // Load item-patch and patch-names data lazily (only for tradeable items when marketableItems is available - efficient)
   useEffect(() => {
-    Promise.all([
-      loadItemPatchData(),
-      loadPatchNamesData()
-    ]).then(([patchData, patchNames]) => {
-      setItemPatchData(patchData);
-      setPatchNamesData(patchNames);
-    });
-  }, []);
+    if (items && items.length > 0 && (!itemPatchData || !patchNamesData)) {
+      // If marketableItems is available, only load metadata for tradeable items
+      let itemIdsToLoad = [];
+      if (marketableItems && marketableItems.size > 0) {
+        // Only load for tradeable items
+        itemIdsToLoad = items
+          .filter(item => marketableItems.has(item.id))
+          .map(item => item.id)
+          .filter(id => id > 0);
+      } else if (!marketableItems) {
+        // marketableItems not loaded yet, wait for it
+        return;
+      } else {
+        // marketableItems is empty Set, no tradeable items, don't load
+        return;
+      }
+      
+      if (itemIdsToLoad.length > 0) {
+        Promise.all([
+          getItemPatchByIds(itemIdsToLoad),
+          loadPatchNamesData() // patch_names is small, can load all
+        ]).then(([patchData, patchNames]) => {
+          setItemPatchData(patchData);
+          setPatchNamesData(patchNames);
+        });
+      }
+    }
+  }, [items, itemPatchData, patchNamesData, marketableItems]);
   
   // Helper function to get ilvl for an item
   const getIlvl = (itemId) => {
@@ -260,10 +289,22 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
   const filteredItems = useMemo(() => {
     let filtered = items;
     
-    // Always filter if marketableItems is available
-    // During loading: use marketableItems to filter
-    // After loading: use itemTradability (more accurate) but fallback to marketableItems
-    if (marketableItems) {
+    // Check if items have isTradable property (from searchItems - already filtered)
+    // If they do, trust that and skip marketableItems filtering
+    const hasIsTradableProperty = items.length > 0 && items.some(item => item.hasOwnProperty('isTradable'));
+    
+    if (hasIsTradableProperty) {
+      // Items come from searchItems which already filtered correctly
+      // Trust the isTradable property - don't filter again
+      // Only filter out items explicitly marked as untradeable
+      filtered = items.filter(item => {
+        // If isTradable is explicitly false, hide it
+        // If isTradable is true or undefined, show it
+        return item.isTradable !== false;
+      });
+    } else if (marketableItems) {
+      // Items don't have isTradable property (e.g., from history)
+      // Use marketableItems to filter (fallback behavior)
       // CRITICAL: First check using marketableItems (always available)
       // This ensures filtering works even when itemTradability hasn't loaded yet
       const hasTradeableItemsByMarketable = items.some(item => marketableItems.has(item.id));
@@ -318,6 +359,9 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
   }, [items, isLoadingVelocities, itemTradability, marketableItems, selectedRarities, raritiesDataToUse, externalRarityFilter, selectedVersions, itemPatchData, patchNamesData]);
 
   // Sort items based on current sort column and direction
+  // CRITICAL: This creates the final sorted list after filtering untradeables
+  // When sortColumn is 'id', this sorts by ilvl (descending by default)
+  // sortedItems is the source of truth for the order in which icons should be loaded
   const sortedItems = useMemo(() => {
     if (!sortColumn) return filteredItems;
 
@@ -446,6 +490,9 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
   }, [filteredItems, sortColumn, sortDirection, itemTradability, itemVelocities, itemAveragePrices, itemMinListings, itemRecentPurchases, ilvlsData]);
 
   // Paginate sorted items if pagination is enabled
+  // CRITICAL: This creates the list of items for the current page
+  // For page 1: items 0-19 (if itemsPerPage = 20)
+  // This is the final list of items that icons will be loaded for, in order
   const paginatedItems = useMemo(() => {
     if (!itemsPerPage || itemsPerPage <= 0) {
       return sortedItems;
@@ -873,31 +920,45 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
         </thead>
         <tbody>
           {paginatedItems.map((item, index) => {
-            // Calculate original index for priority loading (first 5 items of final sorted/filtered list)
-            // This is the position in sortedItems (after filtering and sorting, before pagination)
-            // 
-            // If pagination is handled internally (itemsPerPage is set):
-            //   - Use pagination offset + current index to get position in sortedItems
-            //   - This gives the absolute position in the full sorted list
-            // If pagination is handled externally (itemsPerPage is null/undefined):
-            //   - items prop is already paginated, so sortedItems only contains current page
-            //   - Use index directly, which gives position 0-49 for current page
-            //   - For page 1, items 0-4 get priority (correct)
-            //   - For page 2+, items 0-4 of that page get priority (acceptable - they're visible)
-            // This ensures icons for the first 5 items in the final order get priority
-            const paginationOffset = itemsPerPage && itemsPerPage > 0 
-              ? (currentPage - 1) * itemsPerPage 
-              : 0;
-            const originalIndex = paginationOffset + index;
+            // Simplified icon loading logic:
+            // 1. Only load icons for page 1 items
+            // 2. Wait for ilvl sort to complete (when sortColumn === 'id', wait for ilvlsData)
+            // 3. Load sequentially from top to bottom with proper delays to respect API rate limits
             
-            // Ensure priority is only set for items that are actually in the first 5 positions
-            // This handles the case where sortedItems might be recalculating
-            const isPriority = originalIndex < 5 && sortedItems.length > 0;
+            const isSortingByIlvl = sortColumn === 'id';
+            const hasIlvlData = ilvlsData !== null;
+            
+            // Sort is ready when:
+            // - Not sorting by ilvl (other sorts don't need ilvlsData), OR
+            // - Sorting by ilvl AND we have ilvlsData
+            const isSortReady = !isSortingByIlvl || (isSortingByIlvl && hasIlvlData);
+            
+            // Only load icons for page 1 items
+            const isPage1 = currentPage === 1;
+            
+            // Calculate load delay: sequential loading with 53ms delay per item (respects 19 req/sec rate limit)
+            // First item loads immediately (delay 0), second item after 53ms, third after 106ms, etc.
+            const loadDelay = isPage1 && isSortReady ? index * 53 : 999999; // Large delay if not ready or not page 1
+            
             // Use API-based tradability if available, otherwise fallback to marketableItems
             const isTradableFromAPI = itemTradability ? itemTradability[item.id] : undefined;
-            const isMarketable = marketableItems ? marketableItems.has(item.id) : true;
-            // Use API-based tradability, fallback to marketableItems check if API data not loaded yet
-            const isTradable = isTradableFromAPI !== undefined ? isTradableFromAPI : (isMarketable || item.isTradable);
+            const isMarketable = marketableItems ? marketableItems.has(item.id) : undefined;
+            
+            // Determine tradeability: Only consider tradeable if we have positive confirmation
+            let isTradable;
+            if (isTradableFromAPI !== undefined) {
+              isTradable = isTradableFromAPI === true;
+            } else if (isMarketable !== undefined) {
+              isTradable = isMarketable === true;
+            } else {
+              isTradable = item.isTradable === true;
+            }
+            
+            // Only load icons for tradeable items (or if tradeability data isn't available yet)
+            const shouldLoadIcon = (isTradableFromAPI === undefined && isMarketable === undefined) 
+              ? true  // No tradeability data yet - load icon anyway
+              : (isTradableFromAPI === true) || (isMarketable === true);  // Only load if tradeable when we have data
+            
             const velocity = itemVelocities ? itemVelocities[item.id] : undefined;
             const averagePrice = itemAveragePrices ? itemAveragePrices[item.id] : undefined;
             const minListing = itemMinListings ? itemMinListings[item.id] : undefined;
@@ -905,7 +966,7 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
             
             return (
               <tr
-                key={item.id || index}
+                key={`${currentPage}-${item.id || index}`}
                 onClick={() => onSelect && onSelect(item)}
                 onMouseDown={(e) => {
                   // Middle mouse button (button === 1)
@@ -927,8 +988,9 @@ export default function ItemTable({ items, onSelect, selectedItem, marketableIte
                     itemId={item.id}
                     alt={item.name}
                     className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded border border-purple-500/30 bg-slate-900/50"
-                    priority={isPriority}
-                    loadDelay={isPriority ? 0 : (originalIndex >= 5 ? (originalIndex - 5) * 200 : 0)}
+                    priority={false}
+                    loadDelay={loadDelay}
+                    isTradable={shouldLoadIcon ? true : false}
                   />
                 </td>
                 <td className="px-2 sm:px-4 py-2 text-right font-mono text-xs">

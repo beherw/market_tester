@@ -3,6 +3,15 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './styles/main.css'
+import { initializeSupabaseConnection } from './services/supabaseClient'
+
+// Initialize Supabase connection immediately on page load (before React renders)
+console.log('[App] 🚀 Starting application initialization...');
+const appStartTime = performance.now();
+initializeSupabaseConnection().then(() => {
+  const appInitTime = performance.now() - appStartTime;
+  console.log(`[App] ⚡ Application ready (init time: ${appInitTime.toFixed(2)}ms)`);
+});
 
 // Disable browser scroll restoration
 if ('scrollRestoration' in history) {
@@ -18,7 +27,13 @@ document.body.scrollTop = 0;
 const basename = document.location.pathname.includes('/market_tester') ? '/market_tester/' : '/';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter basename={basename}>
+  <BrowserRouter 
+    basename={basename}
+    future={{
+      v7_startTransition: true,
+      v7_relativeSplatPath: true
+    }}
+  >
     <App />
   </BrowserRouter>
 )

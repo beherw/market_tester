@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { requestManager } from '../utils/requestManager';
-import { getMarketItems } from './supabaseData';
+import { getMarketItems, getMarketItemsByIds } from './supabaseData';
 
 const UNIVERSALIS_BASE_URL = 'https://universalis.app/api/v2';
 
@@ -47,6 +47,25 @@ export async function getMarketableItems() {
   })();
 
   return marketableItemsLoadPromise;
+}
+
+/**
+ * Get marketable items filtered by item IDs (efficient - uses WHERE IN)
+ * @param {Array<number>} itemIds - Array of item IDs to check
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Set<number>>} - Set of marketable item IDs from the provided list
+ */
+export async function getMarketableItemsByIds(itemIds, signal = null) {
+  if (!itemIds || itemIds.length === 0) {
+    return new Set();
+  }
+  
+  try {
+    return await getMarketItemsByIds(itemIds, signal);
+  } catch (error) {
+    console.error('Error checking marketability for items:', error);
+    return new Set();
+  }
 }
 
 /**

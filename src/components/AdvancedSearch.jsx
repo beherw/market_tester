@@ -10,7 +10,7 @@ import TaxRatesModal from './TaxRatesModal';
 import { getMarketableItems } from '../services/universalis';
 import { searchItems, getSimplifiedChineseName, getItemById } from '../services/itemDatabase';
 import { loadRecipeDatabase } from '../services/recipeDatabase';
-import { getTwJobAbbr, getTwItemUICategories, getTwItems, getIlvls, getRarities, getEquipment, getUICategories } from '../services/supabaseData';
+import { getTwJobAbbr, getTwItemUICategories, getTwItems, getIlvlsByIds, getRaritiesByIds, getEquipmentByIds, getEquipmentByJobs, getUICategoriesByIds, getTwItemById } from '../services/supabaseData';
 
 export default function AdvancedSearch({
   addToast,
@@ -62,7 +62,6 @@ export default function AdvancedSearch({
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isFilterSearching, setIsFilterSearching] = useState(false);
-  const [failedIcons, setFailedIcons] = useState(new Set());
   const [minLevel, setMinLevel] = useState(1);
   const [maxLevel, setMaxLevel] = useState(999);
   const [minLevelFocused, setMinLevelFocused] = useState(false);
@@ -84,11 +83,6 @@ export default function AdvancedSearch({
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const loadingIndicatorStartTimeRef = useRef(null);
   
-  // Handle icon load error
-  const handleIconError = useCallback((jobId) => {
-    setFailedIcons(prev => new Set(prev).add(jobId));
-  }, []);
-  
   // Refs for request management
   const velocityFetchAbortControllerRef = useRef(null);
   const velocityFetchRequestIdRef = useRef(0);
@@ -104,52 +98,93 @@ export default function AdvancedSearch({
   const twItemUICategoriesDataRef = useRef(null);
   const twItemsDataRef = useRef(null);
   
-  // Cache for ilvls data
-  const ilvlsDataRef = useRef(null);
+  // State to trigger re-render when data loads
+  const [jobAbbrLoaded, setJobAbbrLoaded] = useState(false);
+  const [itemUICategoriesLoaded, setItemUICategoriesLoaded] = useState(false);
   
-  // Helper function to load ilvls data dynamically
-  const loadIlvlsData = useCallback(async () => {
-    if (ilvlsDataRef.current) {
-      return ilvlsDataRef.current;
+  // Cache for ilvls data (per-item basis, not full table)
+  const ilvlsCacheRef = useRef({});
+  
+  // Helper function to load ilvls data for specific item IDs (targeted query)
+  const loadIlvlsData = useCallback(async (itemIds) => {
+    if (!itemIds || itemIds.length === 0) {
+      return {};
     }
-    ilvlsDataRef.current = await getIlvls();
-    return ilvlsDataRef.current;
+    
+    // Check cache first
+    const uncachedIds = itemIds.filter(id => !ilvlsCacheRef.current.hasOwnProperty(id));
+    
+    if (uncachedIds.length > 0) {
+      // Load only uncached items
+      const ilvlsData = await getIlvlsByIds(uncachedIds);
+      // Merge into cache
+      Object.assign(ilvlsCacheRef.current, ilvlsData);
+    }
+    
+    // Return ilvls for requested items
+    const result = {};
+    itemIds.forEach(id => {
+      if (ilvlsCacheRef.current.hasOwnProperty(id)) {
+        result[id] = ilvlsCacheRef.current[id];
+      }
+    });
+    
+    return result;
   }, []);
 
-  // Cache for rarities data
-  const raritiesDataRef = useRef(null);
+  // Cache for rarities data (per-item basis, not full table)
+  const raritiesCacheRef = useRef({});
   const [raritiesData, setRaritiesData] = useState(null);
   const [selectedRarities, setSelectedRarities] = useState([]); // Multi-select: empty array = show all, [rarityValue1, rarityValue2, ...] = show selected rarities
   
-  // Helper function to load rarities data dynamically
-  const loadRaritiesData = useCallback(async () => {
-    if (raritiesDataRef.current) {
-      return raritiesDataRef.current;
+  // Helper function to load rarities data for specific item IDs (targeted query)
+  const loadRaritiesData = useCallback(async (itemIds) => {
+    if (!itemIds || itemIds.length === 0) {
+      return {};
     }
-    raritiesDataRef.current = await getRarities();
-    return raritiesDataRef.current;
+    
+    // Check cache first
+    const uncachedIds = itemIds.filter(id => !raritiesCacheRef.current.hasOwnProperty(id));
+    
+    if (uncachedIds.length > 0) {
+      // Load only uncached items
+      const raritiesData = await getRaritiesByIds(uncachedIds);
+      // Merge into cache
+      Object.assign(raritiesCacheRef.current, raritiesData);
+    }
+    
+    // Return rarities for requested items
+    const result = {};
+    itemIds.forEach(id => {
+      if (raritiesCacheRef.current.hasOwnProperty(id)) {
+        result[id] = raritiesCacheRef.current[id];
+      }
+    });
+    
+    return result;
   }, []);
 
-  // Load all Supabase data on mount
+  // Load Supabase data on mount (only small tables, not full item/rarity tables)
   useEffect(() => {
     const loadAllData = async () => {
       try {
-        const [jobAbbr, itemUICategories, items, rarities] = await Promise.all([
+        const [jobAbbr, itemUICategories] = await Promise.all([
           getTwJobAbbr(),
           getTwItemUICategories(),
-          getTwItems(),
-          loadRaritiesData(),
         ]);
         twJobAbbrDataRef.current = jobAbbr;
         twItemUICategoriesDataRef.current = itemUICategories;
-        twItemsDataRef.current = items;
-        setRaritiesData(rarities);
+        // Trigger re-render so useMemo hooks can recompute with loaded data
+        setJobAbbrLoaded(true);
+        setItemUICategoriesLoaded(true);
+        // Don't load getTwItems() or getRarities() on mount - load lazily when needed
+        // twItemsDataRef will be loaded lazily when category filter is used
       } catch (error) {
         console.error('Error loading Supabase data:', error);
       }
     };
     loadAllData();
-  }, [loadRaritiesData]);
+  }, []);
 
   // Reset to first page when rarity filter changes
   useEffect(() => {
@@ -167,28 +202,79 @@ export default function AdvancedSearch({
     }
   }, [searchResults.length, untradeableResults.length, showUntradeable, itemsPerPage, currentPage]);
 
-  // Cache for equipment data
-  const equipmentDataRef = useRef(null);
+  // Cache for equipment data (per-job basis, not full table)
+  const equipmentCacheRef = useRef({});
   
-  // Helper function to load equipment data dynamically
-  const loadEquipmentData = useCallback(async () => {
-    if (equipmentDataRef.current) {
-      return equipmentDataRef.current;
+  // Helper function to load equipment data for specific jobs (targeted query)
+  const loadEquipmentByJobs = useCallback(async (jobAbbrs) => {
+    if (!jobAbbrs || jobAbbrs.length === 0) {
+      return {};
     }
-    equipmentDataRef.current = await getEquipment();
-    return equipmentDataRef.current;
+    
+    // Create cache key
+    const cacheKey = jobAbbrs.sort().join(',');
+    
+    // Check cache first
+    if (equipmentCacheRef.current[cacheKey]) {
+      return equipmentCacheRef.current[cacheKey];
+    }
+    
+    // Load equipment matching these jobs
+    const equipmentData = await getEquipmentByJobs(jobAbbrs);
+    
+    // Cache it
+    equipmentCacheRef.current[cacheKey] = equipmentData;
+    
+    return equipmentData;
+  }, []);
+  
+  // Helper function to load equipment data for specific item IDs (targeted query)
+  const loadEquipmentByIds = useCallback(async (itemIds) => {
+    if (!itemIds || itemIds.length === 0) {
+      return {};
+    }
+    
+    // Create cache key
+    const cacheKey = [...new Set(itemIds)].sort((a, b) => a - b).join(',');
+    
+    // Check cache first
+    if (equipmentCacheRef.current[`ids:${cacheKey}`]) {
+      return equipmentCacheRef.current[`ids:${cacheKey}`];
+    }
+    
+    // Load equipment for these item IDs
+    const equipmentData = await getEquipmentByIds(itemIds);
+    
+    // Cache it
+    equipmentCacheRef.current[`ids:${cacheKey}`] = equipmentData;
+    
+    return equipmentData;
   }, []);
 
-  // Cache for UI categories data
-  const uiCategoriesDataRef = useRef(null);
+  // Cache for UI categories data (per-item basis, not full table)
+  const uiCategoriesCacheRef = useRef({});
   
-  // Helper function to load UI categories data dynamically
-  const loadUICategoriesData = useCallback(async () => {
-    if (uiCategoriesDataRef.current) {
-      return uiCategoriesDataRef.current;
+  // Helper function to load UI categories data for specific item IDs (targeted query)
+  const loadUICategoriesByIds = useCallback(async (itemIds) => {
+    if (!itemIds || itemIds.length === 0) {
+      return {};
     }
-    uiCategoriesDataRef.current = await getUICategories();
-    return uiCategoriesDataRef.current;
+    
+    // Create cache key
+    const cacheKey = [...new Set(itemIds)].sort((a, b) => a - b).join(',');
+    
+    // Check cache first
+    if (uiCategoriesCacheRef.current[cacheKey]) {
+      return uiCategoriesCacheRef.current[cacheKey];
+    }
+    
+    // Load ui_categories for these item IDs
+    const uiCategoriesData = await getUICategoriesByIds(itemIds);
+    
+    // Cache it
+    uiCategoriesCacheRef.current[cacheKey] = uiCategoriesData;
+    
+    return uiCategoriesData;
   }, []);
 
   // Map job ID to job abbreviation
@@ -383,7 +469,9 @@ export default function AdvancedSearch({
       }
 
       // Load ilvls data and sort by ilvl (descending, highest first), then by ID if no ilvl
-      const ilvlsData = await loadIlvlsData();
+      // Use targeted query to load only ilvls for these specific items
+      const itemIdsForSort = tradeableItems.map(item => item.id);
+      const ilvlsData = await loadIlvlsData(itemIdsForSort);
       
       // Check if this request was superseded
       if (currentRequestId !== batchSearchRequestIdRef.current) {
@@ -412,6 +500,14 @@ export default function AdvancedSearch({
       }
       
       setSearchResults(itemsSorted);
+      
+      // Load rarities for search results (for rarity filter)
+      const itemIdsForRarities = itemsSorted.map(item => item.id);
+      loadRaritiesData(itemIdsForRarities).then(raritiesForItems => {
+        setRaritiesData(prev => ({ ...prev, ...raritiesForItems }));
+      }).catch(error => {
+        console.error('Error loading rarities:', error);
+      });
 
       // Fetch market data using progressive batch sizes (20, 50, 100)
       if (!selectedWorld || !selectedServerOption) {
@@ -820,54 +916,15 @@ export default function AdvancedSearch({
     }
   }, [isLoadingVelocities, isFilterSearching, velocityFetchInProgress, showUntradeable, searchResults.length, untradeableResults.length, activeTab]);
 
-  // Job icons mapping with XIVAPI URLs - separated into 生產 and 戰鬥職業
+  // Job icons mapping with Garland Tools URLs - separated into 生產 and 戰鬥職業
   // Only show higher tier jobs (exclude base classes 1-7, 26, 29)
+  // Depend on jobAbbrLoaded to trigger recomputation when data loads
   const { craftingJobs, gatheringJobs, battleJobsByRole } = useMemo(() => {
     // Mapping of lower tier classes to their higher tier jobs
     // We'll exclude these lower tier IDs: 1-7 (base classes), 26 (ACN), 29 (ROG)
     const lowerTierClasses = new Set([1, 2, 3, 4, 5, 6, 7, 26, 29]);
     
-    // Complete mapping of job IDs to XIVAPI companion icon names
-    const jobNameMap = {
-      // 戰鬥職業 (Battle Jobs) - Only higher tier jobs (19-42, excluding lower tier)
-      19: 'paladin',       // 騎士 (upgrade from GLA/1)
-      20: 'monk',          // 武僧 (upgrade from PGL/2)
-      21: 'warrior',       // 戰士 (upgrade from MRD/3)
-      22: 'dragoon',       // 龍騎士 (upgrade from LNC/4)
-      23: 'bard',          // 吟遊詩人 (upgrade from ARC/5)
-      24: 'whitemage',     // 白魔道士 (upgrade from CNJ/6)
-      25: 'blackmage',     // 黑魔道士 (upgrade from THM/7)
-      27: 'summoner',      // 召喚士 (upgrade from ACN/26)
-      28: 'scholar',       // 學者 (upgrade from ACN/26)
-      30: 'ninja',         // 忍者 (upgrade from ROG/29)
-      31: 'machinist',     // 機工士
-      32: 'darkknight',    // 暗黑騎士
-      33: 'astrologian',   // 占星術師
-      34: 'samurai',       // 武士
-      35: 'redmage',       // 赤魔道士
-      36: 'bluemage',      // 青魔道士
-      37: 'gunbreaker',    // 絕槍戰士
-      38: 'dancer',        // 舞者
-      39: 'reaper',        // 奪魂者
-      40: 'sage',          // 賢者
-      41: 'viper',         // 毒蛇劍士
-      42: 'pictomancer',   // 繪靈法師
-      
-      // 生產職業 (Production Jobs) - Crafting (8-15) and Gathering (16-18)
-      8: 'carpenter',      // 木工師
-      9: 'blacksmith',     // 鍛造師
-      10: 'armorer',       // 甲冑師
-      11: 'goldsmith',     // 金工師
-      12: 'leatherworker', // 皮革師
-      13: 'weaver',        // 裁縫師
-      14: 'alchemist',     // 鍊金術師
-      15: 'culinarian',    // 烹調師
-      16: 'miner',         // 採掘師
-      17: 'botanist',      // 園藝師
-      18: 'fisher',        // 漁師
-    };
-    
-    // Role definitions: 1=Tank, 2=Physical DPS, 3=Ranged Physical DPS, 4=Healer, 5=Magical DPS
+    // Role definitions for battle jobs: 1=Tank, 2=Physical DPS, 3=Ranged Physical DPS, 4=Healer, 5=Magical DPS
     const jobRoles = {
       // Tanks (Role 1)
       19: 'tank',    // PLD
@@ -919,13 +976,13 @@ export default function AdvancedSearch({
       // Skip lower tier classes
       if (lowerTierClasses.has(jobId)) return;
       
-      const iconName = jobNameMap[jobId];
-      if (!iconName) return; // Skip if no icon mapping
+      const abbr = getJobAbbreviation(jobId);
+      if (!abbr) return; // Skip if no abbreviation mapping
       
       const jobData = {
         id: jobId,
         name: data.tw,
-        iconUrl: `https://xivapi.com/cj/companion/${iconName}.png`,
+        iconUrl: `https://garlandtools.org/files/icons/job/${abbr}.png`,
       };
       
       // 生產職業: 8-15 (crafting)
@@ -953,7 +1010,7 @@ export default function AdvancedSearch({
     });
     
     return { craftingJobs: crafting, gatheringJobs: gathering, battleJobsByRole: battleByRole };
-  }, []);
+  }, [jobAbbrLoaded, getJobAbbreviation]); // Recompute when job data loads or getJobAbbreviation changes
 
   // Map job-specific weapon categories to generic categories
   // Job-specific weapon categories that should be hidden and mapped to generic ones
@@ -1111,6 +1168,7 @@ export default function AdvancedSearch({
   ]);
 
   // Item categories from tw-item-ui-categories.json (filtered to remove job-specific weapon categories)
+  // Depend on itemUICategoriesLoaded to trigger recomputation when data loads
   const itemCategories = useMemo(() => {
     const twItemUICategoriesData = twItemUICategoriesDataRef.current || {};
     const allCategories = Object.entries(twItemUICategoriesData)
@@ -1172,7 +1230,7 @@ export default function AdvancedSearch({
       otherEquipment: otherEquipmentCategories, // 其他装备（如灵魂水晶）
       miscellaneous: miscellaneousCategories,
     };
-  }, []);
+  }, [itemUICategoriesLoaded]); // Recompute when category data loads
 
   // Filter categories based on search term
   const filteredItemCategories = useMemo(() => {
@@ -1261,40 +1319,29 @@ export default function AdvancedSearch({
         });
       });
       
-      // Also add production tools from equipment.json
-      const equipmentData = await loadEquipmentData();
+      // Also add production tools from equipment - use targeted query by jobs
       const productionJobAbbrs = productionJobIds.map(jobId => getJobAbbreviation(jobId)).filter(abbr => abbr);
-      Object.entries(equipmentData).forEach(([itemId, equipment]) => {
-        if (equipment.jobs && Array.isArray(equipment.jobs)) {
-          const hasMatchingJob = productionJobAbbrs.some(abbr => equipment.jobs.includes(abbr));
-          if (hasMatchingJob) {
-            itemIds.add(parseInt(itemId, 10));
-          }
-        }
-      });
+      if (productionJobAbbrs.length > 0) {
+        const equipmentData = await loadEquipmentByJobs(productionJobAbbrs);
+        Object.keys(equipmentData).forEach(itemId => {
+          itemIds.add(parseInt(itemId, 10));
+        });
+      }
     }
 
-    // Filter by battle jobs (using equipment.json)
+    // Filter by battle jobs - use targeted query by jobs
     if (battleJobIds.length > 0) {
-      const equipmentData = await loadEquipmentData();
       const battleJobAbbrs = battleJobIds.map(jobId => getJobAbbreviation(jobId)).filter(abbr => abbr);
-      
-      // Filter equipment items that match any of the selected battle jobs
-      Object.entries(equipmentData).forEach(([itemId, equipment]) => {
-        if (equipment.jobs && Array.isArray(equipment.jobs)) {
-          // Check if any of the selected job abbreviations match the equipment's jobs
-          const hasMatchingJob = battleJobAbbrs.some(abbr => equipment.jobs.includes(abbr));
-          if (hasMatchingJob) {
-            itemIds.add(parseInt(itemId, 10));
-          }
-        }
-      });
+      if (battleJobAbbrs.length > 0) {
+        const equipmentData = await loadEquipmentByJobs(battleJobAbbrs);
+        Object.keys(equipmentData).forEach(itemId => {
+          itemIds.add(parseInt(itemId, 10));
+        });
+      }
     }
 
     // Filter by categories
     if (selectedCategories.length > 0) {
-      const uiCategoriesData = await loadUICategoriesData();
-      
       // Map generic categories to specific categories based on selected jobs
       let categoryIdsToFilter = new Set();
       
@@ -1354,19 +1401,29 @@ export default function AdvancedSearch({
       });
       
       // If only categories selected (no jobs), get all items from database first
+      // NOTE: This requires loading all items, but only when category filter is used without job filter
       if (itemIds.size === 0 && selectedJobs.length === 0) {
-        // Load all items from tw-items.json
+        // Load all items lazily only when needed (category-only filter)
+        if (!twItemsDataRef.current) {
+          console.warn('[AdvancedSearch] Loading all items for category-only filter (this is necessary for this use case)');
+          const { getTwItems } = await import('../services/supabaseData');
+          twItemsDataRef.current = await getTwItems();
+        }
         const twItemsData = twItemsDataRef.current || {};
         Object.keys(twItemsData).forEach(itemId => {
           itemIds.add(parseInt(itemId, 10));
         });
       }
       
+      // Now load ui_categories for all items we have (use targeted query)
+      const itemIdsArray = Array.from(itemIds);
+      const uiCategoriesData = await loadUICategoriesByIds(itemIdsArray);
+      
       // Filter items by category
       if (categoryIdsToFilter.size > 0) {
         const filteredItemIds = new Set();
         itemIds.forEach(itemId => {
-          const itemCategoryId = uiCategoriesData[itemId.toString()];
+          const itemCategoryId = uiCategoriesData[itemId];
           // Exclude items in excluded categories
           if (EXCLUDED_CATEGORIES.includes(itemCategoryId)) {
             return;
@@ -1380,7 +1437,22 @@ export default function AdvancedSearch({
         // Even if no category filter is selected, exclude items in excluded categories
         const filteredItemIds = new Set();
         itemIds.forEach(itemId => {
-          const itemCategoryId = uiCategoriesData[itemId.toString()];
+          const itemCategoryId = uiCategoriesData[itemId];
+          if (!EXCLUDED_CATEGORIES.includes(itemCategoryId)) {
+            filteredItemIds.add(itemId);
+          }
+        });
+        itemIds = filteredItemIds;
+      }
+    } else {
+      // Even if no category filter is selected, exclude items in excluded categories
+      // But only if we have items to check
+      if (itemIds.size > 0) {
+        const itemIdsArray = Array.from(itemIds);
+        const uiCategoriesData = await loadUICategoriesByIds(itemIdsArray);
+        const filteredItemIds = new Set();
+        itemIds.forEach(itemId => {
+          const itemCategoryId = uiCategoriesData[itemId];
           if (!EXCLUDED_CATEGORIES.includes(itemCategoryId)) {
             filteredItemIds.add(itemId);
           }
@@ -1390,11 +1462,13 @@ export default function AdvancedSearch({
     }
 
     // Filter by equipment level range if specified (LevelEquip, not ilvl)
+    // Use targeted query since we already have itemIds
     if (minLevel > 1 || maxLevel < 999) {
-      const equipmentData = await loadEquipmentData();
+      const itemIdsArray = Array.from(itemIds);
+      const equipmentData = await loadEquipmentByIds(itemIdsArray);
       const filteredByLevel = new Set();
       itemIds.forEach(itemId => {
-        const equipment = equipmentData[itemId.toString()];
+        const equipment = equipmentData[itemId];
         // Include items without equipment level if range is not restrictive (default range)
         if (!equipment || equipment.level === undefined || equipment.level === null) {
           // If no equipment level data, include it only if range is default (1-999)
@@ -1482,12 +1556,41 @@ export default function AdvancedSearch({
       
       // twItemsData is imported synchronously, so it should always be available
       // Filter items by name before checking tradeable status
+      // Load item names for the items we need to filter (targeted queries)
+      const itemIdsArray = Array.from(itemIds);
+      const itemNamesMap = {};
+      
+      // Load item names in batches (1000 at a time to avoid overwhelming Supabase)
+      const batchSize = 1000;
+      for (let i = 0; i < itemIdsArray.length; i += batchSize) {
+        const batch = itemIdsArray.slice(i, i + batchSize);
+        await Promise.all(batch.map(async (itemId) => {
+          // Check cache first
+          if (twItemsDataRef.current?.[itemId.toString()]) {
+            itemNamesMap[itemId] = twItemsDataRef.current[itemId.toString()].tw;
+            return;
+          }
+          // Load individual item name
+          try {
+            const itemData = await getTwItemById(itemId);
+            if (itemData && itemData.tw) {
+              itemNamesMap[itemId] = itemData.tw;
+              // Cache it
+              if (!twItemsDataRef.current) {
+                twItemsDataRef.current = {};
+              }
+              twItemsDataRef.current[itemId.toString()] = { tw: itemData.tw };
+            }
+          } catch (error) {
+            console.error(`Failed to load item name for ${itemId}:`, error);
+          }
+        }));
+      }
+      
       itemIds.forEach(itemId => {
-        const twItemsData = twItemsDataRef.current || {};
-        const item = twItemsData?.[itemId.toString()];
+        const itemName = itemNamesMap[itemId];
         // If item has name data, check if it matches
-        if (item && item.tw) {
-          const itemName = item.tw;
+        if (itemName) {
           let matches = false;
           
           if (filterFuzzySearch) {
@@ -1533,7 +1636,8 @@ export default function AdvancedSearch({
     }
 
     // Sort item IDs by ilvl (descending, highest first) before API query
-    const ilvlsData = await loadIlvlsData();
+    // Use targeted query to load only ilvls for these specific items
+    const ilvlsData = await loadIlvlsData(tradeableItemIds);
     tradeableItemIds = tradeableItemIds.sort((a, b) => {
       const aIlvl = ilvlsData[a?.toString()] || null;
       const bIlvl = ilvlsData[b?.toString()] || null;
@@ -1560,7 +1664,7 @@ export default function AdvancedSearch({
     }
 
     return { itemIds, tradeableItemIds, untradeableItemIds };
-  }, [selectedJobs, selectedCategories, selectedWorld, selectedServerOption, minLevel, maxLevel, itemNameFilter, filterFuzzySearch, addToast, loadRecipeDatabase, loadEquipmentData, loadUICategoriesData, loadIlvlsData, getJobAbbreviation]);
+  }, [selectedJobs, selectedCategories, selectedWorld, selectedServerOption, minLevel, maxLevel, itemNameFilter, filterFuzzySearch, addToast, loadRecipeDatabase, loadEquipmentByJobs, loadEquipmentByIds, loadUICategoriesByIds, loadIlvlsData, getJobAbbreviation]);
 
   // Handle filter search
   const handleFilterSearch = useCallback(async () => {
@@ -1655,8 +1759,9 @@ export default function AdvancedSearch({
       // performFilterSearchLogic already filtered, but we ensure consistency here
       const verifiedTradeableItemIds = tradeableItemIds.filter(id => currentMarketableSet.has(id));
 
-      // Load ilvls data for sorting
-      const ilvlsData = await loadIlvlsData();
+      // Load ilvls data for sorting - use targeted query for these specific items
+      const allItemIdsForSort = [...verifiedTradeableItemIds, ...untradeableItemIds];
+      const ilvlsData = await loadIlvlsData(allItemIdsForSort);
       
       // Check again if this request was superseded
       if (currentRequestId !== filterSearchRequestIdRef.current) {
@@ -1706,11 +1811,28 @@ export default function AdvancedSearch({
           ? initialBatch.filter(id => currentMarketableSet.has(id))
           : initialBatch;
         
-        // Create items with names from twItemsData for immediate display
-        const tempItems = verifiedInitialBatch.map(id => {
-          const twItemsData = twItemsDataRef.current || {};
-          const itemData = twItemsData[id?.toString()];
-          const itemName = itemData?.tw || `物品 (ID: ${id})`;
+        // Create items with names - load item names using targeted queries
+        const tempItems = await Promise.all(verifiedInitialBatch.map(async (id) => {
+          // Check cache first
+          let itemName = `物品 (ID: ${id})`;
+          if (twItemsDataRef.current?.[id.toString()]) {
+            itemName = twItemsDataRef.current[id.toString()].tw;
+          } else {
+            // Load item name using targeted query
+            try {
+              const itemData = await getTwItemById(id);
+              if (itemData && itemData.tw) {
+                itemName = itemData.tw;
+                // Cache it
+                if (!twItemsDataRef.current) {
+                  twItemsDataRef.current = {};
+                }
+                twItemsDataRef.current[id.toString()] = { tw: itemData.tw };
+              }
+            } catch (error) {
+              console.error(`Failed to load item name for ${id}:`, error);
+            }
+          }
           return {
             id: id,
             name: itemName,
@@ -1721,7 +1843,7 @@ export default function AdvancedSearch({
             canBeHQ: true,
             isTradable: true,
           };
-        });
+        }));
         
         // Sort temp items by ilvl (descending, highest first)
         const tempItemsSorted = tempItems.sort((a, b) => {
@@ -1778,6 +1900,12 @@ export default function AdvancedSearch({
                                     if (currentRequestId !== filterSearchRequestIdRef.current) {
                                       return;
                                     }
+                                    
+                                    // Load rarities for these items (for rarity filter)
+                                    const itemIdsForRarities = initialItemsSorted.map(item => item.id);
+                                    const raritiesForItems = await loadRaritiesData(itemIdsForRarities);
+                                    // Update rarities state
+                                    setRaritiesData(prev => ({ ...prev, ...raritiesForItems }));
                                     
                                     // Update with full item details
                                     setSearchResults(initialItemsSorted);
@@ -2163,6 +2291,14 @@ export default function AdvancedSearch({
                                     return;
                                   }
 
+                                  // Load rarities for this batch
+                                  const batchItemIds = batchItemsSorted.map(item => item.id);
+                                  loadRaritiesData(batchItemIds).then(raritiesForBatch => {
+                                    setRaritiesData(prev => ({ ...prev, ...raritiesForBatch }));
+                                  }).catch(error => {
+                                    console.error('Error loading rarities for batch:', error);
+                                  });
+                                  
                                   // Update results with new batch
                                   if (isTradeable) {
                                     setSearchResults(prev => {
@@ -2533,16 +2669,11 @@ export default function AdvancedSearch({
                                 : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                             }`}
                           >
-                            {failedIcons.has(job.id) ? (
-                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                            ) : (
-                              <img 
-                                src={job.iconUrl} 
-                                alt={job.name}
-                                className="w-8 h-8 object-contain"
-                                onError={() => handleIconError(job.id)}
-                              />
-                            )}
+                            <img 
+                              src={job.iconUrl} 
+                              alt={job.name}
+                              className="w-8 h-8 object-contain"
+                            />
                           </button>
                         );
                       })}
@@ -2562,16 +2693,11 @@ export default function AdvancedSearch({
                                 : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                             }`}
                           >
-                            {failedIcons.has(job.id) ? (
-                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                            ) : (
-                              <img 
-                                src={job.iconUrl} 
-                                alt={job.name}
-                                className="w-8 h-8 object-contain"
-                                onError={() => handleIconError(job.id)}
-                              />
-                            )}
+                            <img 
+                              src={job.iconUrl} 
+                              alt={job.name}
+                              className="w-8 h-8 object-contain"
+                            />
                           </button>
                         );
                       })}
@@ -2592,16 +2718,11 @@ export default function AdvancedSearch({
                                 : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                             }`}
                           >
-                            {failedIcons.has(job.id) ? (
-                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                            ) : (
-                              <img 
-                                src={job.iconUrl} 
-                                alt={job.name}
-                                className="w-8 h-8 object-contain"
-                                onError={() => handleIconError(job.id)}
-                              />
-                            )}
+                            <img 
+                              src={job.iconUrl} 
+                              alt={job.name}
+                              className="w-8 h-8 object-contain"
+                            />
                           </button>
                         );
                       })}
@@ -2621,16 +2742,11 @@ export default function AdvancedSearch({
                                 : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                             }`}
                           >
-                            {failedIcons.has(job.id) ? (
-                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                            ) : (
-                              <img 
-                                src={job.iconUrl} 
-                                alt={job.name}
-                                className="w-8 h-8 object-contain"
-                                onError={() => handleIconError(job.id)}
-                              />
-                            )}
+                            <img 
+                              src={job.iconUrl} 
+                              alt={job.name}
+                              className="w-8 h-8 object-contain"
+                            />
                           </button>
                         );
                       })}
@@ -2654,16 +2770,11 @@ export default function AdvancedSearch({
                                     : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                                 }`}
                               >
-                                {failedIcons.has(job.id) ? (
-                                  <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                                ) : (
-                                  <img 
-                                    src={job.iconUrl} 
-                                    alt={job.name}
-                                    className="w-8 h-8 object-contain"
-                                    onError={() => handleIconError(job.id)}
-                                  />
-                                )}
+                                <img 
+                                  src={job.iconUrl} 
+                                  alt={job.name}
+                                  className="w-8 h-8 object-contain"
+                                />
                               </button>
                             );
                           })}
@@ -2685,16 +2796,11 @@ export default function AdvancedSearch({
                                   : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                               }`}
                             >
-                              {failedIcons.has(job.id) ? (
-                                <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                              ) : (
-                                <img 
-                                  src={job.iconUrl} 
-                                  alt={job.name}
-                                  className="w-8 h-8 object-contain"
-                                  onError={() => handleIconError(job.id)}
-                                />
-                              )}
+                              <img
+                                src={job.iconUrl} 
+                                alt={job.name}
+                                className="w-8 h-8 object-contain"
+                              />
                             </button>
                           );
                         })}
@@ -2716,16 +2822,11 @@ export default function AdvancedSearch({
                                 : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
                             }`}
                           >
-                            {failedIcons.has(job.id) ? (
-                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
-                            ) : (
-                              <img 
-                                src={job.iconUrl} 
-                                alt={job.name}
-                                className="w-8 h-8 object-contain"
-                                onError={() => handleIconError(job.id)}
-                              />
-                            )}
+                            <img 
+                              src={job.iconUrl} 
+                              alt={job.name}
+                              className="w-8 h-8 object-contain"
+                            />
                           </button>
                         );
                       })}
@@ -3091,8 +3192,9 @@ export default function AdvancedSearch({
                               const limitedTradeableItemIds = verifiedTradeableItemIds.slice(0, MAX_ITEMS_LIMIT);
                               addToast(`已限制為前 ${limitedTradeableItemIds.length} 個物品，正在獲取市場數據...`, 'warning');
 
-                              // Load ilvls data for sorting
-                              const ilvlsData = await loadIlvlsData();
+                              // Load ilvls data for sorting - use targeted query for these specific items
+                              const allItemIdsForSortContinue = [...limitedTradeableItemIds, ...untradeableItemIds];
+                              const ilvlsData = await loadIlvlsData(allItemIdsForSortContinue);
                               
                               // Check again if this request was superseded
                               if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
@@ -3137,11 +3239,28 @@ export default function AdvancedSearch({
                                   ? initialBatch.filter(id => currentMarketableSet.has(id))
                                   : initialBatch;
                                 
-                                // Create items with names from twItemsData for immediate display
-                                const tempItems = verifiedInitialBatch.map(id => {
-                                  const twItemsData = twItemsDataRef.current || {};
-          const itemData = twItemsData[id?.toString()];
-                                  const itemName = itemData?.tw || `物品 (ID: ${id})`;
+                                // Create items with names - load item names using targeted queries
+                                const tempItems = await Promise.all(verifiedInitialBatch.map(async (id) => {
+                                  // Check cache first
+                                  let itemName = `物品 (ID: ${id})`;
+                                  if (twItemsDataRef.current?.[id.toString()]) {
+                                    itemName = twItemsDataRef.current[id.toString()].tw;
+                                  } else {
+                                    // Load item name using targeted query
+                                    try {
+                                      const itemData = await getTwItemById(id);
+                                      if (itemData && itemData.tw) {
+                                        itemName = itemData.tw;
+                                        // Cache it
+                                        if (!twItemsDataRef.current) {
+                                          twItemsDataRef.current = {};
+                                        }
+                                        twItemsDataRef.current[id.toString()] = { tw: itemData.tw };
+                                      }
+                                    } catch (error) {
+                                      console.error(`Failed to load item name for ${id}:`, error);
+                                    }
+                                  }
                                   return {
                                     id: id,
                                     name: itemName,
@@ -3152,7 +3271,7 @@ export default function AdvancedSearch({
                                     canBeHQ: true,
                                     isTradable: true,
                                   };
-                                });
+                                }));
                                 
                                 const tempItemsSorted = tempItems.sort((a, b) => {
                                   const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
@@ -3198,6 +3317,12 @@ export default function AdvancedSearch({
                                       if (bIlvl !== null) return 1;
                                       return b.id - a.id;
                                     });
+                                    
+                                    // Load rarities for these items (for rarity filter)
+                                    const itemIdsForRaritiesContinue = initialItemsSorted.map(item => item.id);
+                                    const raritiesForItemsContinue = await loadRaritiesData(itemIdsForRaritiesContinue);
+                                    // Update rarities state
+                                    setRaritiesData(prev => ({ ...prev, ...raritiesForItemsContinue }));
                                     
                                     // Check again before updating state
                                     if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
@@ -3564,6 +3689,14 @@ export default function AdvancedSearch({
                                   if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
                                     return;
                                   }
+
+                                  // Load rarities for this batch (for rarity filter)
+                                  const batchItemIdsContinue = batchItemsSorted.map(item => item.id);
+                                  loadRaritiesData(batchItemIdsContinue).then(raritiesForBatchContinue => {
+                                    setRaritiesData(prev => ({ ...prev, ...raritiesForBatchContinue }));
+                                  }).catch(error => {
+                                    console.error('Error loading rarities for batch:', error);
+                                  });
 
                                   if (isTradeable) {
                                     setSearchResults(prev => {

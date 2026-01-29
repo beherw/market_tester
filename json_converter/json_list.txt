@@ -2,8 +2,9 @@
 # Format: relative_path|table_name|structure_type|description
 # structure_type: array, object_simple, object_nested, array_of_objects
 
-# Item Data Files
+# Item Data Files (for search - language-specific item names)
 teamcraft_git/libs/data/src/lib/json/tw/tw-items.json|tw_items|object_nested|Traditional Chinese item names - { "itemId": { "tw": "name" } }
+teamcraft_git/libs/data/src/lib/json/zh/zh-items.json|cn_items|object_nested|Simplified Chinese item names - { "itemId": { "zh": "name" } }
 teamcraft_git/libs/data/src/lib/json/tw/tw-item-descriptions.json|tw_item_descriptions|object_nested|Traditional Chinese item descriptions - { "itemId": { "tw": "description" } }
 teamcraft_git/libs/data/src/lib/json/market-items.json|market_items|array|List of marketable item IDs - [itemId1, itemId2, ...]
 teamcraft_git/libs/data/src/lib/json/equipment.json|equipment|object_complex|Equipment data - { "itemId": { "equipSlotCategory": 1, "jobs": [...], ... } }
