@@ -10,6 +10,7 @@
     "push": "./git-push.sh"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.93.3",
     "axios": "^1.6.0",
     "opencc-js": "^1.0.5",
     "react": "^18.2.0",
