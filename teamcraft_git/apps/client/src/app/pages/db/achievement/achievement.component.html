@@ -1,0 +1,105 @@
+@if (achievement$ | async; as achievement) {
+  <div [style.padding]="'0 25px' | ifMobile: '0'" fxLayout="column" fxLayoutGap="10px">
+    <div class="top-bar" fxFlex="1 1 auto" fxLayout="row" fxLayout.lt-md="column"
+      fxLayoutAlign="flex-start flex-start" fxLayoutGap="5px" fxLayoutGap.lt-md="10px">
+      <div class="top-left-block" fxFlex="0 0 300px" fxFlex.lt-md="1 1 auto" fxLayout="column"
+        fxLayoutAlign="space-between" fxLayoutGap="10px">
+        <div class="icon-block" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+          <img [src]="achievement.icon | xivapiIcon" fxFlex="0 0 auto">
+          <div fxLayout="column" fxLayoutAlign="flex-start flex-start">
+            <h2 class="item-name">{{achievement | i18n}}</h2>
+            @if (achievement.patch) {
+              <div class="flex-row gap-5 align-center">
+                <app-i18n-name content="patchNames" [id]="achievement.patch"></app-i18n-name>
+                <app-db-button [id]="achievement.patch" type="patch"></app-db-button>
+              </div>
+            }
+          </div>
+        </div>
+        @if (links$ | async; as links) {
+          <div class="links" fxLayout="row" fxLayoutAlign="flex-start center"
+            fxLayoutGap="5px">
+            @for (link of links; track link) {
+              <a [href]="link.url" [nzTooltipTitle]="link.title" nz-tooltip target="_blank">
+                <img [alt]="link.title" [src]="link.icon" class="link-icon">
+              </a>
+            }
+          </div>
+        }
+      </div>
+      <div fxFlex="1 1 auto">
+        @if (achievement.description.en) {
+          <p [innerHTML]="achievement.description | i18n"></p>
+        }
+      </div>
+      <app-i18n-display fxFlex="0 0 300px" fxFlex.lt-md="1 1 auto" fxLayout="column" fxLayoutGap="5px"
+      [value]="achievement"></app-i18n-display>
+    </div>
+    <div>
+      @if (settings.dbCommentsPosition === 'TOP') {
+        <app-db-comments [id]="achievement.id" type="achievement"></app-db-comments>
+      }
+    </div>
+    <div fxLayout="column" fxLayoutGap="10px">
+      <div fxLayout="row wrap" fxLayout.lt-md="column" fxLayoutGap="10px">
+        <nz-card [nzTitle]="rewardsTitle" class="details-card" fxFlex="1 1 auto" nzBordered="false">
+          <ng-template #rewardsTitle>
+            <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+              <div>
+                {{'DB.QUEST.Rewards' | translate}}
+              </div>
+            </div>
+          </ng-template>
+          <nz-list [nzDataSource]="rewards$ | async" [nzItemLayout]="'horizontal'"
+            [nzRenderItem]="rewardTemplate">
+            <ng-template #rewardTemplate let-reward>
+              <nz-list-item
+                [nzContent]="reward.type==='item'?more:null">
+                <nz-list-item-meta
+                  [nzAvatar]="rewardAvatar"
+                  [nzTitle]="rewardTitle">
+                  <ng-template #rewardAvatar>
+                    @if (reward.type === 'item') {
+                      <app-item-icon [hq]="reward.hq"
+                      [itemId]="reward.id" [width]="32"></app-item-icon>
+                    }
+                    @if (reward.type === 'title') {
+                      <img src="https://xivapi.com/c/Title.png" class="larger-img-icon">
+                    }
+                  </ng-template>
+                  <ng-template #rewardTitle>
+                    @if (reward.type === 'item') {
+                      <div [appItemRarity]="reward.id">
+                        <app-i18n-name [id]="reward.id" content="items"></app-i18n-name>
+                      </div>
+                    }
+                    @if (reward.type === 'title') {
+                      <div>
+                        {{reward.id | i18nRow:'titles' | i18n}}
+                      </div>
+                    }
+                  </ng-template>
+                  <ng-template #more>
+                    @if (reward.id > 1) {
+                      <app-db-button
+                        [id]="reward.id"
+                      [type]="reward.type"></app-db-button>
+                    }
+                  </ng-template>
+                </nz-list-item-meta>
+              </nz-list-item>
+            </ng-template>
+          </nz-list>
+        </nz-card>
+      </div>
+      <div>
+        @if (settings.dbCommentsPosition === 'BOTTOM') {
+          <app-db-comments [id]="achievement.id"
+          type="achievement"></app-db-comments>
+        }
+      </div>
+    </div>
+  </div>
+} @else {
+  <app-page-loader></app-page-loader>
+}

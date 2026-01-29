@@ -1,0 +1,114 @@
+<app-page-loader [loading]="loading$ | async">
+  <div fxLayout="row wrap" fxLayoutGap="5px">
+    <div>
+      <button nz-button (click)="newFolder()">{{'FOLDERS.New_folder' | translate}}</button>
+    </div>
+    <div>
+      <button nz-button (click)="newGearset()">{{'GEARSETS.New_gearset' | translate}}</button>
+    </div>
+    <div>
+      <button nz-button (click)="importAriyalaGearset()">{{'GEARSETS.Import_from_ariyala' | translate}}</button>
+    </div>
+    <div>
+      <button nz-button (click)="importEtroGearset()">{{'GEARSETS.Import_from_etro' | translate}}</button>
+    </div>
+    <div>
+      @if (pcapToggle) {
+        <button nz-button (click)="importFromPcap()">{{'GEARSETS.Import_using_pcap' | translate}}</button>
+      }
+    </div>
+    <div>
+      @if (pcapToggle) {
+        <button nz-button (click)="syncFromPcap()">{{'GEARSETS.Sync_with_pcap' | translate}}</button>
+      }
+    </div>
+    @if (user$ | async; as user) {
+      @if (user.editor || user.admin) {
+        <button (click)="scanGuideGearsets()" class="new-rotation" nz-button>
+          <span nz-icon nzType="tags" nzTheme="outline"></span> {{'SIMULATOR.ROTATIONS.Scan_guides' | translate}}
+        </button>
+      }
+    }
+  </div>
+
+  @if (userId$ | async; as userId) {
+    <ng-template #gearsetTemplate let-gearset>
+      <app-gearset-row [gearset]="gearset" [userId]="userId"></app-gearset-row>
+    </ng-template>
+    <nz-divider nzOrientation="left" [nzText]="'GEARSETS.Your_gearsets' | translate"></nz-divider>
+    @if (display$ | async; as display) {
+      <div fxLayout="column" fxLayoutGap="10px">
+        @if (display.folders.length === 0 && display.root.length === 0) {
+          <app-fullpage-message height="300px">
+            {{'GEARSETS.You_have_no_gearsets' | translate}}
+          </app-fullpage-message>
+        }
+        <div cdkDropList id="gearsets-root"
+          [cdkDropListEnterPredicate]="canDropGearset"
+          [cdkDropListConnectedTo]="dndConnections"
+          (cdkDropListDropped)="drop($event, display.root)"
+          class="gearsets-list"
+          fxLayout="column" fxLayoutGap="10px">
+          @for (gearset of display.root; track trackByKey($index, gearset)) {
+            <div cdkDrag [cdkDragData]="gearset">
+              <ng-container *ngTemplateOutlet="gearsetTemplate;context:{$implicit: gearset}"></ng-container>
+            </div>
+          }
+        </div>
+        <div>
+          <nz-divider nzOrientation="left" [nzText]="'FOLDERS.Your_folders' | translate"></nz-divider>
+        </div>
+        <div cdkDropList fxLayout="column" fxLayoutGap="10px"
+          id="folder-root"
+          (cdkDropListDropped)="dropFolder($event, display.folders)"
+          [cdkDropListConnectedTo]="dndConnections"
+          [cdkDropListEnterPredicate]="canDropFolder">
+          @for (folder of display.folders; track trackByKey(i, folder); let i = $index) {
+            <div
+              cdkDrag [cdkDragData]="folder.folder">
+              <app-folder [display]="folder"
+                [userId]="userId"
+                [elementTemplate]="gearsetTemplate"
+                [dndConnections]="dndConnections"
+                [canDropElement]="canDropGearset"
+                folderPath="gearset-folder"
+                id="folder-{{i}}"
+                (connectDnD)="addDnDConnections($event)">
+              </app-folder>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @if (favoritesDisplay$ | async; as favoritesDisplay) {
+      <nz-divider nzOrientation="left" [nzText]="'GEARSETS.Favorite_gearsets' | translate"></nz-divider>
+      <div fxLayout="column" fxLayoutGap="10px">
+        @if (favoritesDisplay.root.length > 0) {
+          <div class="gearsets-list" fxLayout="column" fxLayoutGap="10px">
+            @for (gearset of favoritesDisplay.root; track trackByKey($index, gearset)) {
+              <div>
+                <ng-container *ngTemplateOutlet="gearsetTemplate;context:{$implicit: gearset}"></ng-container>
+              </div>
+            }
+          </div>
+        }
+        @if (favoritesDisplay.folders.length > 0) {
+          <div>
+            <nz-divider nzOrientation="left" [nzText]="'FOLDERS.Favorite_folders' | translate"></nz-divider>
+          </div>
+          <div fxLayout="column" fxLayoutGap="10px">
+            @for (folder of favoritesDisplay.folders; track trackByKey(i, folder); let i = $index) {
+              <div>
+                <app-folder [display]="folder"
+                  [userId]="userId"
+                  [elementTemplate]="gearsetTemplate"
+                  folderPath="gearset-folder">
+                </app-folder>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</app-page-loader>

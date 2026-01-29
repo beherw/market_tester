@@ -1,0 +1,112 @@
+<nz-page-header [nzTitle]="'LIST_AGGREGATE.Title' | translate" [nzSubtitle]="subtitle$ | async"
+  (nzBack)="onBack()" [nzBackIcon]="backIconTpl">
+  <ng-template #backIconTpl>
+    @if ((selectedPanelTitle$ | async) !== null) {
+      <span nz-icon nzType="arrow-left" nzTheme="outline" class="back-icon"></span>
+    }
+  </ng-template>
+  <nz-page-header-extra>
+    <div class="display-mode-selector">
+      <span class="selector-label">
+        {{'LIST_DETAILS.DISPLAY_MODE.Title' | translate}}
+      </span>
+      <nz-radio-group [ngModel]="displayMode$ | async" (ngModelChange)="displayMode$.next($event)">
+        <label nz-radio-button [nzValue]="ListDisplayMode.FULL">{{'LIST_DETAILS.DISPLAY_MODE.Full' | translate}}</label>
+        <label nz-radio-button [nzValue]="ListDisplayMode.MINIMALIST">{{'LIST_DETAILS.DISPLAY_MODE.Minimalist' | translate}}</label>
+      </nz-radio-group>
+    </div>
+  </nz-page-header-extra>
+  @if (aggregate$ | async; as aggregate) {
+    <nz-page-header-content>
+      <div class="flex-row gap-10">
+        @if ({panel: selectedPanelTitle$ | async, aggregateFromRoute: aggregateFromRoute$ | async}; as ctxHack) {
+          <div>
+            <nz-input-group [nzAddOnBefore]="'LIST_AGGREGATE.Select_layout_dropdown' | translate">
+              <nz-select (ngModelChange)="selectLayout($event, ctxHack.aggregateFromRoute, ctxHack.panel)" [ngModel]="layoutId$ | async">
+                @for (layout of layouts$ | async; track layout) {
+                  <nz-option [nzValue]="layout.$key" [nzLabel]="layout.name"></nz-option>
+                }
+              </nz-select>
+            </nz-input-group>
+          </div>
+        }
+        @if ((selectedPanelTitle$ | async) !== null) {
+          @if (withLayoutApplied$ | async; as withLayoutApplied) {
+            <div class="flex-auto">
+              <button nz-button nz-dropdown nzBlock [nzDropdownMenu]="menu" nzPlacement="bottomLeft"><span nz-icon nzType="swap"
+              nzTheme="outline"></span>{{'LIST_AGGREGATE.Switch_panel' | translate}}
+            </button>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                @for (panel of withLayoutApplied.items.rows; track panel) {
+                  <div nz-menu-item routerLink="../{{panel.title | encodeUriComponent}}">
+                    {{panel.title | translate}} ({{'LIST.Items_count' | translate: { amount: panel.rows.length } }})
+                  </div>
+                }
+                @if (withLayoutApplied.finalItems.rows.length > 0) {
+                  <li nz-menu-item routerLink="../{{withLayoutApplied.finalItems.title | encodeUriComponent}}">
+                    {{withLayoutApplied.finalItems.title | translate}}
+                    ({{'LIST.Items_count' | translate: { amount: withLayoutApplied.finalItems.rows.length } }})
+                  </li>
+                }
+              </ul>
+            </nz-dropdown-menu>
+          </div>
+        }
+      }
+      @if (layoutId$ | async; as layoutId) {
+        <div>
+          @if (aggregateFromRoute$ | async; as aggregateFromRoute) {
+            @if (aggregateFromRoute) {
+              @if (missingLists$ | async; as missingLists) {
+                <button
+                  nz-button nzDanger
+                  (click)="removeMissingLists(aggregateFromRoute.$key, missingLists)"><span nz-icon nzType="clear"
+                nzTheme="outline"></span> {{'LIST_AGGREGATE.Remove_missing_ids' | translate}}
+              </button>
+            }
+          }
+        } @else {
+          <button nz-button nzType="primary" (click)="saveAggregate(aggregate, layoutId)">
+            <span nz-icon nzType="save"></span> {{'LIST_AGGREGATE.Save' | translate}}
+          </button>
+        }
+      </div>
+    }
+  </div>
+</nz-page-header-content>
+}
+</nz-page-header>
+
+@if (missingLists$ | async; as missingLists) {
+  <nz-alert
+    nzType="warning"
+    nzShowIcon
+    [nzMessage]="'LIST_AGGREGATE.Missing_lists' | translate:{amount: missingLists.length}"
+    [nzDescription]="'LIST_AGGREGATE.Missing_lists_description' | translate: {ids: missingLists}">
+  </nz-alert>
+}
+
+@if (selectedPanelTitle$ | async) {
+  @if (panelDisplay$ | async; as display) {
+    @if (display.panel) {
+      <app-list-details-panel [finalItems]="display.finalItems" [displayRow]="display.panel"
+        [permissionLevel]="permissionLevel$ | async" [aggregate]="aggregate$ | async"
+      [compact]="(displayMode$ | async) === ListDisplayMode.MINIMALIST"></app-list-details-panel>
+    }
+  }
+} @else {
+  <h3>{{'LIST_AGGREGATE.Select_panel' | translate}}</h3>
+  @if (withLayoutApplied$ | async; as withLayoutApplied) {
+    @for (panel of withLayoutApplied.items.rows; track panel) {
+      <div class="panel-selector" [routerLink]="panel.title | encodeUriComponent">
+        {{panel.title | translate}} ({{'LIST.Items_count' | translate: { amount: panel.rows.length } }})
+      </div>
+    }
+    @if (withLayoutApplied.finalItems.rows.length > 0) {
+      <div class="panel-selector" [routerLink]="withLayoutApplied.finalItems.title | encodeUriComponent">
+        {{withLayoutApplied.finalItems.title | translate}} ({{'LIST.Items_count' | translate: { amount: withLayoutApplied.finalItems.rows.length } }})
+      </div>
+    }
+  }
+}

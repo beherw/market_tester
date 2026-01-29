@@ -1,0 +1,12 @@
+@if (loading$ | async) {
+  <app-page-loader></app-page-loader>
+} @else {
+  <app-fullpage-message>
+    {{error$ | async | translate}}
+  </app-fullpage-message>
+}
+<ng-template #error>
+  <app-fullpage-message>
+    {{error$ | async | translate}}
+  </app-fullpage-message>
+</ng-template>

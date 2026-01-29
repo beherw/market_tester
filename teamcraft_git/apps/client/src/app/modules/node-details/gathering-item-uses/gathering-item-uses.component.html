@@ -1,0 +1,41 @@
+@if (reduction$ | async; as reduction) {
+  @if (reduction.length > 0) {
+    <img [nzPopoverTitle]="'Reduction' | translate"
+      [nzPopoverContent]="reductionsTpl"
+      nz-popover src="./assets/icons/Reduce.png"
+      class="reduction-icon" [class.compact]="compact">
+  }
+  <ng-template #reductionsTpl>
+    <div fxLayout="column" fxLayoutGap="5px">
+      @for (itemId of reduction; track itemId) {
+        <div>
+          <img src="{{itemId | lazyIcon | xivapiIcon}}" alt="" class="reduction-icon">
+          {{itemId | itemName | i18n}}
+        </div>
+      }
+    </div>
+  </ng-template>
+}
+@if (collectable$ | async; as collectable) {
+  <img src="{{collectable.reward | lazyIcon | xivapiIcon}}" alt="" class="scrip-icon" [class.compact]="compact"
+    [nzPopoverTitle]="collectable.reward | itemName | i18n"
+    [nzPopoverContent]="collectableTpl"
+    nz-popover>
+  <ng-template #collectableTpl>
+    <div>
+      {{collectable.base.rating}} - {{collectable.mid.rating - 1}}&nbsp;
+      <img src="{{collectable.reward | lazyIcon | xivapiIcon}}" alt="" class="scrip-icon small-icon"/>
+      x{{collectable.base.scrip}}
+    </div>
+    <div>
+      {{collectable.mid.rating}} - {{collectable.high.rating - 1}}&nbsp;
+      <img src="{{collectable.reward | lazyIcon | xivapiIcon}}" alt="" class="scrip-icon small-icon"/>
+      x{{collectable.mid.scrip}}
+    </div>
+    <div>
+      {{collectable.high.rating}}+&nbsp;
+      <img src="{{collectable.reward | lazyIcon | xivapiIcon}}" alt="" class="scrip-icon small-icon"/>
+      x{{collectable.high.scrip}}
+    </div>
+  </ng-template>
+}

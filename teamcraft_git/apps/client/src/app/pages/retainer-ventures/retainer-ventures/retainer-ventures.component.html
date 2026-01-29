@@ -1,0 +1,136 @@
+<h2>{{'RETAINER_VENTURES.Title' | translate}}</h2>
+
+<div fxLayout="column" fxLayoutGap="10px">
+  <i>{{'RETAINER_VENTURES.Description' | translate}}</i>
+  @if (retainersMissingStats$ | async; as retainersMissingStats) {
+    @if (retainersMissingStats.length > 0) {
+      <nz-alert nzType="warning" nzShowIcon [nzMessage]="'RETAINER_VENTURES.Missing_gear' | translate"
+        [nzDescription]="descriptionTpl">
+        <ng-template #descriptionTpl>
+          {{'RETAINER_VENTURES.Missing_gear_description' | translate}}: @for (retainer of retainersMissingStats; track retainer; let last = $last) {
+          <span>{{retainer.name}}@if (!last) {
+            <span>, </span>
+          }</span>
+        }
+      </ng-template>
+    </nz-alert>
+  }
+}
+@if (platform.isDesktop()) {
+  @if (retainersWithStats$ | async; as retainers) {
+    <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="10px">
+      <div>{{'RETAINER_VENTURES.Use_retainer' | translate}}:&nbsp;</div>
+      <nz-select [nzPlaceHolder]="'RETAINER_VENTURES.Select_retainer' | translate"
+        [ngModel]="null"
+        (ngModelChange)="selectRetainer($event)"
+        class="retainer-filter"
+        nzShowSearch>
+        @for (retainer of retainers; track retainer) {
+          <nz-option nzLabel="{{retainer.name}} (ilvl {{retainer.ilvl}})" [nzValue]="retainer"></nz-option>
+        }
+      </nz-select>
+    </div>
+  }
+}
+
+<form nz-form nzLayout="inline" [formGroup]="form" (ngSubmit)="filters$.next(form.value)" fxLayout="row">
+  <nz-form-item>
+    <nz-form-label>{{'DESYNTH.Job' | translate}}</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="job" [nzPlaceHolder]="'SIMULATOR.CONFIGURATION.Select_job' | translate"
+        class="job-filter"
+        nzShowSearch>
+        @for (job of jobList$ | async; track job) {
+          <nz-option [nzLabel]="job | i18nRow:'jobName' | i18n" [nzValue]="job" nzCustomContent>
+            <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+              <div class="companion-svg job-icon" [innerHtml]="job | jobUnicode"></div>
+              <div>{{job | i18nRow:'jobName' | i18n}}</div>
+            </div>
+          </nz-option>
+        }
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>{{'Level' | translate}}</nz-form-label>
+    <nz-form-control>
+      <nz-input-number formControlName="level" nzMin="1"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>{{'RETAINER_VENTURES.Retainer_ilvl' | translate}}</nz-form-label>
+    <nz-form-control>
+      <nz-input-number formControlName="ilvl" nzMin="1"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+  @if (form.get('job').value >= 16 && form.get('job').value <= 18) {
+    <nz-form-item>
+      <nz-form-label>{{'RETAINER_VENTURES.Gathering' | translate}}</nz-form-label>
+      <nz-form-control>
+        <nz-input-number formControlName="gathering" nzMin="0"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+  }
+  @if (form.get('job').value >= 16 && form.get('job').value <= 18) {
+    <nz-form-item>
+      <nz-form-label>{{73 | i18nRow:'baseParams' | i18n}}</nz-form-label>
+      <nz-form-control>
+        <nz-input-number formControlName="perception" nzMin="0"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+  }
+  <nz-form-item>
+    <nz-form-label>{{'MARKETBOARD.Server' | translate}}</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="server"
+        [nzPlaceHolder]="'Server_name' | translate"
+        class="server-picker"
+        nzShowSearch>
+        @for (server of servers$ | async; track server) {
+          <nz-option [nzLabel]="server"
+            [nzValue]="server">
+          </nz-option>
+        }
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-control>
+      <button [disabled]="form.invalid" nz-button type="submit" nzType="primary">
+        <i nz-icon nzType="search"></i>{{'GC_SUPPLY.Search' | translate}}
+      </button>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+
+<div>
+  <app-page-loader [loading]="loading">
+    @for (task of results$ | async; track task; let odd = $odd) {
+      <div nz-row [class.odd]="odd">
+        <div nz-col nzMd="1" fxLayout="row" fxLayoutAlign="center center">
+          <app-item-icon [itemId]="task.item" [width]="32"></app-item-icon>
+        </div>
+        <div fxLayout="column" nz-col nzMd="13" fxLayoutAlign="center flex-start" fxLayoutGap="1px">
+          <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+            <div><b>{{task.item | itemName | i18n}}</b></div>
+            <app-db-button [id]="task.item" type="item"></app-db-button>
+            <app-marketboard-icon [itemId]="task.item" [showHistory]="true"></app-marketboard-icon>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="flex-start center">
+            <div>{{'MARKETBOARD.Unit_price' | translate}}:</div>
+            <app-item-icon [icon]="1 | lazyIcon" [itemId]="1" [width]="32"></app-item-icon>
+            <div>x {{task.price | number}},&nbsp;</div>
+            <div>{{'RETAINER_VENTURES.Total_per_venture' | translate}}:</div>
+            <app-item-icon [icon]="1 | lazyIcon" [itemId]="1" [width]="32"></app-item-icon>
+            <div>x {{task.obtainedAmount * task.price | number:'1.0-0':translate.currentlang}}</div>
+          </div>
+        </div>
+        <div nz-col nzMd="3" fxLayout="row" fxLayoutAlign="flex-start center">{{'RETAINER_VENTURES.Task_level' | translate}}: {{task.lvl}}</div>
+        <div nz-col nzMd="3" fxLayout="row" fxLayoutAlign="flex-start center"><img alt="exp" class="img-icon"
+          src="./assets/icons/exp.png">&nbsp;{{task.exp | number:'1.0-0':translate.currentLang}}
+        </div>
+      </div>
+    }
+  </app-page-loader>
+</div>
+</div>

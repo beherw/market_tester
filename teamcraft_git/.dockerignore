@@ -1,0 +1,6 @@
+# Ignore everything, whitelist to allow
+**
+
+!/dist
+!/apps/api
+!/apps/lodestone-api

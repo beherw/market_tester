@@ -1,0 +1,23 @@
+@if (rank > 0 && rank < maxRank) {
+  <div nz-popover
+    [nzPopoverTitle]="voyageRankTitle"
+    [nzPopoverContent]="voyageRankContent">
+    {{ rank }} / {{ maxRank }}
+  </div>
+} @else {
+  {{ rank }} / {{ maxRank }}
+}
+
+
+<ng-template #voyageRankTitle>
+  <div style="text-align: center">{{ 'VOYAGE_TRACKER.RANK_DETAILS.Experience_Points' | translate }}</div>
+</ng-template>
+
+<ng-template #voyageRankContent>
+  <div fxLaout="column">
+    <div style="text-align: center">{{ currentExperience }} / {{ totalExperienceForNextRank }}</div>
+    <div>
+      <nz-progress [nzPercent]="rankupPercent$ | async"></nz-progress>
+    </div>
+  </div>
+</ng-template>

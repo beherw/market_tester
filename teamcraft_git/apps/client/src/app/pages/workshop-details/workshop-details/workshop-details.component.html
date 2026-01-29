@@ -1,0 +1,40 @@
+@if (workshop$ | async; as workshop) {
+  <div>
+    @if (!workshop.notFound) {
+      <nz-card>
+        @if (author$ | async; as author) {
+          <nz-card-meta [nzAvatar]="author.Avatar?avatarTemplate:null" [nzDescription]="'WORKSHOP.Created_by' | translate: {name: author.Name | translate}"
+            [nzTitle]="workshopName">
+          </nz-card-meta>
+          <ng-template #avatarTemplate>
+            <nz-avatar [nzSrc]="author.Avatar"></nz-avatar>
+          </ng-template>
+          <ng-template #workshopName>
+            <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="10px">
+              <div>{{workshop.name}}</div>
+              <app-favorite-button [key]="workshop.$key" type="workshops"></app-favorite-button>
+            </div>
+          </ng-template>
+        }
+        @if (lists$ | async; as lists) {
+          <div class="lists" fxLayout="column" fxLayoutGap="5px">
+            @for (list of lists; track list) {
+              <app-list-panel [list]="list"></app-list-panel>
+            }
+          </div>
+        }
+      </nz-card>
+    } @else {
+      <app-fullpage-message>
+        {{'WORKSHOP.Not_found' | translate}}
+      </app-fullpage-message>
+    }
+    <ng-template #notFound>
+      <app-fullpage-message>
+        {{'WORKSHOP.Not_found' | translate}}
+      </app-fullpage-message>
+    </ng-template>
+  </div>
+} @else {
+  <app-page-loader></app-page-loader>
+}

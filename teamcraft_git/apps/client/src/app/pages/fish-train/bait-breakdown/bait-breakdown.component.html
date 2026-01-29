@@ -1,0 +1,10 @@
+@if (loading) {
+  <app-page-loader></app-page-loader>
+}
+@if (!loading) {
+  <div echarts theme="dark" [options]="options" (chartInit)="onChartInit($event)" [initOpts]="{height: '500px'}" [class.hidden]="options.empty"></div>
+  @if (options.empty) {
+    <nz-empty [nzNotFoundContent]="'FISH_TRAIN.Nothing_to_show' | translate"></nz-empty>
+  }
+}
+

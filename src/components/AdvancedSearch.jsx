@@ -1,0 +1,4093 @@
+// Advanced Search Component (進階搜尋)
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { flushSync } from 'react-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import Toast from './Toast';
+import ItemTable from './ItemTable';
+import TopBar from './TopBar';
+import ServerSelector from './ServerSelector';
+import TaxRatesModal from './TaxRatesModal';
+import { getMarketableItems } from '../services/universalis';
+import { searchItems, getSimplifiedChineseName, getItemById } from '../services/itemDatabase';
+import { loadRecipeDatabase } from '../services/recipeDatabase';
+import twJobAbbrData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-job-abbr.json';
+import twItemUICategoriesData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-item-ui-categories.json';
+import twItemsData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-items.json';
+
+export default function AdvancedSearch({
+  addToast,
+  removeToast,
+  toasts,
+  datacenters,
+  worlds,
+  selectedWorld,
+  onWorldChange,
+  selectedServerOption,
+  onServerOptionChange,
+  serverOptions,
+  isServerDataLoaded,
+  onItemSelect,
+  onSearch,
+  searchText,
+  setSearchText,
+  isSearching,
+  onTaxRatesClick,
+  isTaxRatesModalOpen,
+  setIsTaxRatesModalOpen,
+  taxRates,
+  isLoadingTaxRates
+}) {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('filter'); // 'batch' or 'filter'
+  const BATCH_SEARCH_DISABLED = true; // 批量搜索功能暂时禁用
+  const [batchInput, setBatchInput] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [untradeableResults, setUntradeableResults] = useState([]);
+  const [showUntradeable, setShowUntradeable] = useState(false);
+  const hasInitializedFromURLRef = useRef(false);
+  const lastProcessedURLRef = useRef('');
+  const [itemVelocities, setItemVelocities] = useState({});
+  const [itemAveragePrices, setItemAveragePrices] = useState({});
+  const [itemMinListings, setItemMinListings] = useState({});
+  const [itemRecentPurchases, setItemRecentPurchases] = useState({});
+  const [itemTradability, setItemTradability] = useState({});
+  const [isLoadingVelocities, setIsLoadingVelocities] = useState(false);
+  const [marketableItems, setMarketableItems] = useState(null);
+  const [isBatchSearching, setIsBatchSearching] = useState(false);
+  const [tooManyItemsWarning, setTooManyItemsWarning] = useState(null);
+  const MAX_ITEMS_LIMIT = 500; // Maximum number of items to process
+  const [batchFuzzySearch, setBatchFuzzySearch] = useState(true); // Fuzzy search toggle for batch search (default: true = fuzzy search)
+  
+  // Filter search state
+  const [selectedJobs, setSelectedJobs] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [isFilterSearching, setIsFilterSearching] = useState(false);
+  const [failedIcons, setFailedIcons] = useState(new Set());
+  const [minLevel, setMinLevel] = useState(1);
+  const [maxLevel, setMaxLevel] = useState(999);
+  const [minLevelFocused, setMinLevelFocused] = useState(false);
+  const [maxLevelFocused, setMaxLevelFocused] = useState(false);
+  const [itemNameFilter, setItemNameFilter] = useState(''); // Item name filter text
+  const [filterFuzzySearch, setFilterFuzzySearch] = useState(true); // Fuzzy search toggle for filter search (true = fuzzy, false = exact) (default: fuzzy enabled)
+  const [categorySearchTerm, setCategorySearchTerm] = useState(''); // Category search filter text
+  
+  // Category filter list - categories to exclude from search results
+  const EXCLUDED_CATEGORIES = [
+    62, // 靈魂水晶 (Soul Crystal)
+  ];
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  
+  // Loading indicator state (same as main search page)
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const loadingIndicatorStartTimeRef = useRef(null);
+  
+  // Handle icon load error
+  const handleIconError = useCallback((jobId) => {
+    setFailedIcons(prev => new Set(prev).add(jobId));
+  }, []);
+  
+  // Refs for request management
+  const velocityFetchAbortControllerRef = useRef(null);
+  const velocityFetchRequestIdRef = useRef(0);
+  const velocityFetchInProgressRef = useRef(false);
+  const [velocityFetchInProgress, setVelocityFetchInProgress] = useState(false); // State version for reactivity
+  const filterSearchRequestIdRef = useRef(0);
+  const batchSearchRequestIdRef = useRef(0);
+  const [isSearchButtonDisabled, setIsSearchButtonDisabled] = useState(false);
+  const categorySearchInputRef = useRef(null);
+  
+  // Cache for ilvls data
+  const ilvlsDataRef = useRef(null);
+  
+  // Helper function to load ilvls data dynamically
+  const loadIlvlsData = useCallback(async () => {
+    if (ilvlsDataRef.current) {
+      return ilvlsDataRef.current;
+    }
+    const ilvlsModule = await import('../../teamcraft_git/libs/data/src/lib/json/ilvls.json');
+    ilvlsDataRef.current = ilvlsModule.default;
+    return ilvlsDataRef.current;
+  }, []);
+
+  // Cache for rarities data
+  const raritiesDataRef = useRef(null);
+  const [raritiesData, setRaritiesData] = useState(null);
+  const [selectedRarities, setSelectedRarities] = useState([]); // Multi-select: empty array = show all, [rarityValue1, rarityValue2, ...] = show selected rarities
+  
+  // Helper function to load rarities data dynamically
+  const loadRaritiesData = useCallback(async () => {
+    if (raritiesDataRef.current) {
+      return raritiesDataRef.current;
+    }
+    const raritiesModule = await import('../../teamcraft_git/libs/data/src/lib/json/rarities.json');
+    raritiesDataRef.current = raritiesModule.default;
+    return raritiesDataRef.current;
+  }, []);
+
+  // Load rarities data on mount
+  useEffect(() => {
+    loadRaritiesData().then(data => {
+      setRaritiesData(data);
+    });
+  }, [loadRaritiesData]);
+
+  // Reset to first page when rarity filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedRarities]);
+
+  // Reset to first page if currentPage exceeds totalPages (safety check for pagination)
+  useEffect(() => {
+    if (searchResults.length > 0 || untradeableResults.length > 0) {
+      const currentResults = showUntradeable ? untradeableResults : searchResults;
+      const totalPages = Math.ceil(currentResults.length / itemsPerPage);
+      if (totalPages > 0 && currentPage > totalPages) {
+        setCurrentPage(1);
+      }
+    }
+  }, [searchResults.length, untradeableResults.length, showUntradeable, itemsPerPage, currentPage]);
+
+  // Cache for equipment data
+  const equipmentDataRef = useRef(null);
+  
+  // Helper function to load equipment data dynamically
+  const loadEquipmentData = useCallback(async () => {
+    if (equipmentDataRef.current) {
+      return equipmentDataRef.current;
+    }
+    const equipmentModule = await import('../../teamcraft_git/libs/data/src/lib/json/equipment.json');
+    equipmentDataRef.current = equipmentModule.default;
+    return equipmentDataRef.current;
+  }, []);
+
+  // Cache for UI categories data
+  const uiCategoriesDataRef = useRef(null);
+  
+  // Helper function to load UI categories data dynamically
+  const loadUICategoriesData = useCallback(async () => {
+    if (uiCategoriesDataRef.current) {
+      return uiCategoriesDataRef.current;
+    }
+    const uiCategoriesModule = await import('../../teamcraft_git/libs/data/src/lib/json/ui-categories.json');
+    uiCategoriesDataRef.current = uiCategoriesModule.default;
+    return uiCategoriesDataRef.current;
+  }, []);
+
+  // Map job ID to job abbreviation
+  const getJobAbbreviation = useCallback((jobId) => {
+    const jobAbbrMap = {
+      // Base classes (lower tier)
+      1: 'GLA', 2: 'PGL', 3: 'MRD', 4: 'LNC', 5: 'ARC', 6: 'CNJ', 7: 'THM',
+      // Production jobs
+      8: 'CRP', 9: 'BSM', 10: 'ARM', 11: 'GSM', 12: 'LTW', 13: 'WVR', 14: 'ALC', 15: 'CUL',
+      // Gathering jobs
+      16: 'MIN', 17: 'BTN', 18: 'FSH',
+      // Battle jobs (higher tier)
+      19: 'PLD', 20: 'MNK', 21: 'WAR', 22: 'DRG', 23: 'BRD', 24: 'WHM', 25: 'BLM',
+      26: 'ACN', 27: 'SMN', 28: 'SCH', 29: 'ROG', 30: 'NIN',
+      31: 'MCH', 32: 'DRK', 33: 'AST', 34: 'SAM', 35: 'RDM', 36: 'BLU',
+      37: 'GNB', 38: 'DNC', 39: 'RPR', 40: 'SGE', 41: 'VPR', 42: 'PCT',
+    };
+    return jobAbbrMap[jobId];
+  }, []);
+
+  // Handle batch search
+  const handleBatchSearch = useCallback(async (inputOverride = null) => {
+    // Batch search is disabled
+    if (BATCH_SEARCH_DISABLED) {
+      addToast('批量搜索功能暂时不可用，敬请期待', 'info');
+      return;
+    }
+    // Prevent multiple clicks within 1.5 seconds
+    if (isSearchButtonDisabled) return;
+
+    // Cancel any ongoing search requests
+    const currentRequestId = ++batchSearchRequestIdRef.current;
+    
+    // Cancel all ongoing market data fetches
+    if (velocityFetchAbortControllerRef.current) {
+      velocityFetchAbortControllerRef.current.abort();
+      velocityFetchAbortControllerRef.current = null;
+    }
+    
+    // Increment velocity fetch request ID to cancel any ongoing market data requests
+    velocityFetchRequestIdRef.current++;
+    velocityFetchInProgressRef.current = false;
+    setVelocityFetchInProgress(false);
+    setIsLoadingVelocities(false);
+
+    // Clear table immediately at the start of search
+    setSearchResults([]);
+    setUntradeableResults([]);
+    setSelectedRarities([]); // Reset rarity filter on new search
+    setShowUntradeable(false);
+    setItemVelocities({});
+    setItemAveragePrices({});
+    setItemMinListings({});
+    setItemRecentPurchases({});
+    setItemTradability({});
+    setCurrentPage(1);
+
+    // Use override input if provided (for URL parameter), otherwise use batchInput state
+    // Ensure inputToUse is always a string (handle case where inputOverride might be an event object)
+    let inputToUse;
+    if (inputOverride !== null && typeof inputOverride === 'string') {
+      inputToUse = inputOverride;
+    } else {
+      inputToUse = typeof batchInput === 'string' ? batchInput : String(batchInput || '');
+    }
+    
+    // Parse batch input - support both comma-separated and newline-separated item names
+    const inputLines = inputToUse.trim().split(/[,\n]/).map(line => line.trim()).filter(line => line);
+    
+    if (inputLines.length === 0) {
+      addToast('請輸入至少一個物品名稱', 'error');
+      return;
+    }
+
+    // Remove duplicate item names (case-insensitive)
+    const uniqueItemNames = [];
+    const seenNames = new Set();
+    for (const name of inputLines) {
+      const normalizedName = name.toLowerCase().trim();
+      if (!seenNames.has(normalizedName)) {
+        seenNames.add(normalizedName);
+        uniqueItemNames.push(name);
+      }
+    }
+
+    // Limit to 100 searches per batch
+    if (uniqueItemNames.length > 100) {
+      addToast('一次最多只能搜尋100個物品名稱', 'warning');
+      uniqueItemNames.splice(100);
+    }
+
+    // Show message if duplicates were removed
+    if (uniqueItemNames.length < inputLines.length) {
+      const removedCount = inputLines.length - uniqueItemNames.length;
+      addToast(`已移除 ${removedCount} 個重複的物品名稱`, 'info');
+    }
+
+    // Don't update URL - display results in current page like filter search
+    // Results will be shown in the table below, same as filter search
+
+    // Disable search button for 1.5 seconds
+    setIsSearchButtonDisabled(true);
+    setTimeout(() => {
+      setIsSearchButtonDisabled(false);
+    }, 1500);
+
+    try {
+      setIsBatchSearching(true);
+
+      // Check if this request was superseded
+      if (currentRequestId !== batchSearchRequestIdRef.current) {
+        setIsBatchSearching(false);
+        return;
+      }
+      
+      // Search for each unique item name
+      const allSearchResults = [];
+      const searchPromises = uniqueItemNames.map(async (itemName) => {
+        try {
+          if (!batchFuzzySearch) {
+            // Exact search mode: only return items with exactly matching names (case-insensitive)
+            // First get potential matches using substring search (for efficiency)
+            const substringResult = await searchItems(itemName, false);
+            
+            // Filter to only exact matches - item name must exactly equal search text
+            const trimmedName = itemName.trim().toLowerCase();
+            let exactMatches = [];
+            
+            if (substringResult.results && substringResult.results.length > 0) {
+              exactMatches = substringResult.results.filter(item => {
+                const itemNameLower = (item.name || '').trim().toLowerCase();
+                // Exact match: item name must exactly equal search text (case-insensitive)
+                return itemNameLower === trimmedName;
+              });
+            }
+            
+            // Return only exact matches, or empty array if no exact match found (no fallback)
+            return exactMatches;
+          } else {
+            // Fuzzy search mode: use fuzzy matching directly
+            const searchResult = await searchItems(itemName, true);
+            return searchResult.results || [];
+          }
+        } catch (error) {
+          console.error(`Error searching for "${itemName}":`, error);
+          return [];
+        }
+      });
+      
+      const searchResultsArray = await Promise.all(searchPromises);
+      
+      // Check if this request was superseded
+      if (currentRequestId !== batchSearchRequestIdRef.current) {
+        setIsBatchSearching(false);
+        return;
+      }
+      
+      // Flatten and deduplicate results by item ID
+      const itemsMap = new Map();
+      searchResultsArray.forEach(results => {
+        results.forEach(item => {
+          if (!itemsMap.has(item.id)) {
+            itemsMap.set(item.id, item);
+          }
+        });
+      });
+      
+      const allItems = Array.from(itemsMap.values());
+      
+      if (allItems.length === 0) {
+        addToast('未找到任何物品', 'warning');
+        setIsBatchSearching(false);
+        return;
+      }
+
+      // Filter out non-tradeable items using marketable API
+      const marketableSet = await getMarketableItems();
+      
+      // Check if this request was superseded
+      if (currentRequestId !== batchSearchRequestIdRef.current) {
+        setIsBatchSearching(false);
+        return;
+      }
+      
+      setMarketableItems(marketableSet);
+      const tradeableItems = allItems.filter(item => marketableSet.has(item.id));
+
+      if (tradeableItems.length === 0) {
+        addToast('沒有可交易的物品', 'warning');
+        setIsBatchSearching(false);
+        return;
+      }
+
+      // Load ilvls data and sort by ilvl (descending, highest first), then by ID if no ilvl
+      const ilvlsData = await loadIlvlsData();
+      
+      // Check if this request was superseded
+      if (currentRequestId !== batchSearchRequestIdRef.current) {
+        setIsBatchSearching(false);
+        return;
+      }
+      const itemsSorted = tradeableItems.sort((a, b) => {
+        const aIlvl = ilvlsData[a.id?.toString()] || null;
+        const bIlvl = ilvlsData[b.id?.toString()] || null;
+        
+        // If both have ilvl, sort by ilvl descending (highest first)
+        if (aIlvl !== null && bIlvl !== null) {
+          return bIlvl - aIlvl;
+        }
+        // If only one has ilvl, prioritize it
+        if (aIlvl !== null) return -1;
+        if (bIlvl !== null) return 1;
+        // If neither has ilvl, sort by ID descending
+        return b.id - a.id;
+      });
+
+      // Check if this request was superseded before setting results
+      if (currentRequestId !== batchSearchRequestIdRef.current) {
+        setIsBatchSearching(false);
+        return;
+      }
+      
+      setSearchResults(itemsSorted);
+
+      // Fetch market data using progressive batch sizes (20, 50, 100)
+      if (!selectedWorld || !selectedServerOption) {
+        addToast('請選擇伺服器', 'warning');
+        setIsBatchSearching(false);
+        return;
+      }
+
+      // Cancel any previous fetch
+      if (velocityFetchAbortControllerRef.current) {
+        velocityFetchAbortControllerRef.current.abort();
+      }
+
+      const marketDataRequestId = ++velocityFetchRequestIdRef.current;
+      velocityFetchAbortControllerRef.current = new AbortController();
+      const abortSignal = velocityFetchAbortControllerRef.current.signal;
+      velocityFetchInProgressRef.current = true;
+      setVelocityFetchInProgress(true);
+
+      setIsLoadingVelocities(true);
+
+      const isDCQuery = selectedServerOption === selectedWorld.section;
+      const queryTarget = isDCQuery
+        ? selectedWorld.section
+        : selectedServerOption;
+
+      // Extract IDs and sort by ilvl (descending, highest first) before API query
+      // itemsSorted is already sorted by ilvl, so just extract IDs
+      const tradeableItemIds = itemsSorted.map(item => item.id);
+      const allVelocities = {};
+      const allAveragePrices = {};
+      const allMinListings = {};
+      const allRecentPurchases = {};
+      const allTradability = {};
+
+      // Progressive batch sizes: 20, then 50, then 100 per batch
+      const processBatch = async (batchNumber, startIndex) => {
+        // Check if request was cancelled or superseded
+        if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== batchSearchRequestIdRef.current) {
+          return;
+        }
+        
+        // Determine batch size: first batch = 20, second batch = 50, rest = 100
+        let batchSize;
+        if (batchNumber === 0) {
+          batchSize = 20; // First batch: 20 items for fast initial display
+        } else if (batchNumber === 1) {
+          batchSize = 50; // Second batch: 50 items
+        } else {
+          batchSize = 100; // Remaining batches: 100 items each
+        }
+        
+        const batch = tradeableItemIds.slice(startIndex, startIndex + batchSize);
+        if (batch.length === 0) {
+          return;
+        }
+        
+        const itemIdsString = batch.join(',');
+        
+        try {
+          const response = await fetch(`https://universalis.app/api/v2/aggregated/${encodeURIComponent(queryTarget)}/${itemIdsString}`, {
+            signal: abortSignal
+          });
+          
+          // Check again after fetch
+          if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== batchSearchRequestIdRef.current) {
+            return;
+          }
+          
+          const data = await response.json();
+          
+          if (data && data.results) {
+            data.results.forEach(item => {
+              const itemId = item.itemId;
+
+              const getValue = (nqData, hqData, field) => {
+                const nqWorld = nqData?.world?.[field];
+                const hqWorld = hqData?.world?.[field];
+                const nqDc = nqData?.dc?.[field];
+                const hqDc = hqData?.dc?.[field];
+
+                const nqValue = isDCQuery 
+                  ? (nqDc !== undefined ? nqDc : nqWorld)
+                  : (nqWorld !== undefined ? nqWorld : undefined);
+                const hqValue = isDCQuery
+                  ? (hqDc !== undefined ? hqDc : hqWorld)
+                  : (hqWorld !== undefined ? hqWorld : undefined);
+
+                if (field === 'quantity') {
+                  if (nqValue !== undefined || hqValue !== undefined) {
+                    return (nqValue || 0) + (hqValue || 0);
+                  }
+                } else {
+                  if (nqValue !== undefined && hqValue !== undefined) {
+                    return Math.min(nqValue, hqValue);
+                  } else if (hqValue !== undefined) {
+                    return hqValue;
+                  } else if (nqValue !== undefined) {
+                    return nqValue;
+                  }
+                }
+                return null;
+              };
+
+              const velocity = getValue(
+                item.nq?.dailySaleVelocity,
+                item.hq?.dailySaleVelocity,
+                'quantity'
+              );
+
+              // For average price, always fallback to DC data if world data doesn't exist (even when server is selected)
+              let averagePrice = null;
+              if (!isDCQuery) {
+                // When server is selected, try world first, then fallback to DC
+                const nqWorld = item.nq?.averageSalePrice?.world?.price;
+                const hqWorld = item.hq?.averageSalePrice?.world?.price;
+                const nqDc = item.nq?.averageSalePrice?.dc?.price;
+                const hqDc = item.hq?.averageSalePrice?.dc?.price;
+                
+                const nqValue = nqWorld !== undefined ? nqWorld : nqDc;
+                const hqValue = hqWorld !== undefined ? hqWorld : hqDc;
+                
+                if (nqValue !== undefined && hqValue !== undefined) {
+                  averagePrice = Math.min(nqValue, hqValue);
+                } else if (hqValue !== undefined) {
+                  averagePrice = hqValue;
+                } else if (nqValue !== undefined) {
+                  averagePrice = nqValue;
+                }
+              } else {
+                // When DC is selected, use DC data
+                averagePrice = getValue(
+                  item.nq?.averageSalePrice,
+                  item.hq?.averageSalePrice,
+                  'price'
+                );
+              }
+
+              const minListingPrice = getValue(
+                item.nq?.minListing,
+                item.hq?.minListing,
+                'price'
+              );
+
+              const recentPurchasePrice = getValue(
+                item.nq?.recentPurchase,
+                item.hq?.recentPurchase,
+                'price'
+              );
+
+              // Extract region field when querying a specific world (not DC)
+              let minListing = null;
+              if (minListingPrice !== null && minListingPrice !== undefined) {
+                if (!isDCQuery) {
+                  // When world is selected, only use world data, don't fallback to DC
+                  const nqWorldPrice = item.nq?.minListing?.world?.price;
+                  const hqWorldPrice = item.hq?.minListing?.world?.price;
+                  
+                  // Determine which one (NQ or HQ) has the better price, then get its region
+                  let selectedData = null;
+                  if (nqWorldPrice !== undefined && hqWorldPrice !== undefined) {
+                    selectedData = hqWorldPrice <= nqWorldPrice 
+                      ? item.hq?.minListing?.world
+                      : item.nq?.minListing?.world;
+                  } else if (hqWorldPrice !== undefined) {
+                    selectedData = item.hq?.minListing?.world;
+                  } else if (nqWorldPrice !== undefined) {
+                    selectedData = item.nq?.minListing?.world;
+                  }
+                  
+                  // Only store minListing if world data actually exists
+                  if (selectedData !== null) {
+                    // Extract region if available
+                    const region = selectedData?.region;
+                    minListing = { price: minListingPrice };
+                    if (region !== undefined) {
+                      minListing.region = region;
+                    }
+                  }
+                  // If selectedData is null, minListing remains null (don't store DC prices)
+                } else {
+                  // When DC is selected, just store the price
+                  minListing = minListingPrice;
+                }
+              }
+
+              let recentPurchase = null;
+              if (recentPurchasePrice !== null && recentPurchasePrice !== undefined) {
+                if (!isDCQuery) {
+                  // When world is selected, only use world data, don't fallback to DC
+                  const nqWorldPrice = item.nq?.recentPurchase?.world?.price;
+                  const hqWorldPrice = item.hq?.recentPurchase?.world?.price;
+                  
+                  // Determine which one (NQ or HQ) has the better price, then get its region
+                  let selectedData = null;
+                  if (nqWorldPrice !== undefined && hqWorldPrice !== undefined) {
+                    selectedData = hqWorldPrice <= nqWorldPrice 
+                      ? item.hq?.recentPurchase?.world
+                      : item.nq?.recentPurchase?.world;
+                  } else if (hqWorldPrice !== undefined) {
+                    selectedData = item.hq?.recentPurchase?.world;
+                  } else if (nqWorldPrice !== undefined) {
+                    selectedData = item.nq?.recentPurchase?.world;
+                  }
+                  
+                  // Extract region if available
+                  const region = selectedData?.region;
+                  recentPurchase = { price: recentPurchasePrice };
+                  if (region !== undefined) {
+                    recentPurchase.region = region;
+                  }
+                } else {
+                  // When DC is selected, just store the price
+                  recentPurchase = recentPurchasePrice;
+                }
+              }
+
+              if (velocity !== null && velocity !== undefined) {
+                allVelocities[itemId] = velocity;
+              }
+              if (averagePrice !== null && averagePrice !== undefined) {
+                allAveragePrices[itemId] = Math.round(averagePrice);
+              }
+              if (minListing !== null && minListing !== undefined) {
+                allMinListings[itemId] = minListing;
+              }
+              if (recentPurchase !== null && recentPurchase !== undefined) {
+                allRecentPurchases[itemId] = recentPurchase;
+              }
+              allTradability[itemId] = true;
+            });
+          }
+
+          batch.forEach(itemId => {
+            if (!allTradability.hasOwnProperty(itemId)) {
+              allTradability[itemId] = false;
+            }
+          });
+
+          // Update state after each batch for progressive display
+          setItemVelocities(prev => ({ ...prev, ...allVelocities }));
+          setItemAveragePrices(prev => ({ ...prev, ...allAveragePrices }));
+          setItemMinListings(prev => ({ ...prev, ...allMinListings }));
+          setItemRecentPurchases(prev => ({ ...prev, ...allRecentPurchases }));
+          setItemTradability(prev => ({ ...prev, ...allTradability }));
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            return; // Request was cancelled, ignore
+          }
+          console.error('Error fetching market data:', error);
+          batch.forEach(itemId => {
+            if (!allTradability.hasOwnProperty(itemId)) {
+              allTradability[itemId] = false;
+            }
+          });
+        }
+      };
+
+      // Process batches sequentially
+      let currentIndex = 0;
+      let batchNumber = 0;
+      while (currentIndex < tradeableItemIds.length) {
+        await processBatch(batchNumber, currentIndex);
+        
+        // Check if request was cancelled
+        if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== batchSearchRequestIdRef.current) {
+          setIsLoadingVelocities(false);
+          setIsBatchSearching(false);
+          return;
+        }
+        
+        // Determine next batch size
+        let batchSize;
+        if (batchNumber === 0) {
+          batchSize = 20;
+        } else if (batchNumber === 1) {
+          batchSize = 50;
+        } else {
+          batchSize = 100;
+        }
+        
+        currentIndex += batchSize;
+        batchNumber++;
+      }
+
+      // Final state update
+      setItemVelocities(allVelocities);
+      setItemAveragePrices(allAveragePrices);
+      setItemMinListings(allMinListings);
+      setItemRecentPurchases(allRecentPurchases);
+      setItemTradability(allTradability);
+      // Check if this request was superseded before final state update
+      if (currentRequestId !== batchSearchRequestIdRef.current) {
+        setIsLoadingVelocities(false);
+        setIsBatchSearching(false);
+        return;
+      }
+      
+      setIsLoadingVelocities(false);
+      setIsBatchSearching(false);
+      
+      addToast(`找到 ${tradeableItems.length} 個可交易物品`, 'success');
+    } catch (error) {
+      console.error('Search error:', error);
+      // Only show error if this request wasn't cancelled
+      if (currentRequestId === batchSearchRequestIdRef.current) {
+        addToast('搜索失敗，請稍後再試', 'error');
+        setIsLoadingVelocities(false);
+        setIsBatchSearching(false);
+      }
+    }
+  }, [batchInput, selectedWorld, selectedServerOption, addToast, isSearchButtonDisabled, batchFuzzySearch]);
+
+  // Initialize from URL parameters on mount and when URL changes
+  useEffect(() => {
+    if (!isServerDataLoaded) {
+      return;
+    }
+
+    const currentURLKey = `${location.pathname}?${location.search}`;
+    
+    // Skip if we've already processed this exact URL
+    if (lastProcessedURLRef.current === currentURLKey) {
+      return;
+    }
+
+    // Check if we're on advanced-search page
+    if (location.pathname !== '/advanced-search') {
+      lastProcessedURLRef.current = currentURLKey;
+      return;
+    }
+
+    // Check for search query parameter
+    const searchQuery = searchParams.get('q');
+    if (searchQuery && searchQuery.trim() !== '') {
+      // Batch search is disabled, ignore URL query parameter
+      // Force switch to filter tab if somehow on batch tab
+      if (activeTab === 'batch') {
+        setActiveTab('filter');
+      }
+      hasInitializedFromURLRef.current = false;
+    } else {
+      // No query parameter - clear search if we had results from URL
+      if (hasInitializedFromURLRef.current && searchResults.length > 0) {
+        setSearchResults([]);
+        setItemVelocities({});
+        setItemAveragePrices({});
+        setItemMinListings({});
+        setItemRecentPurchases({});
+        setItemTradability({});
+        setCurrentPage(1);
+      }
+      hasInitializedFromURLRef.current = false;
+    }
+
+    lastProcessedURLRef.current = currentURLKey;
+  }, [location.pathname, location.search, searchParams, isServerDataLoaded, batchInput, activeTab, searchResults.length, isBatchSearching, isFilterSearching, isSearching]);
+
+  // Force switch to filter tab if batch search is disabled and user is on batch tab
+  useEffect(() => {
+    if (BATCH_SEARCH_DISABLED && activeTab === 'batch') {
+      setActiveTab('filter');
+    }
+  }, [activeTab]);
+
+  // Manage loading indicator (same logic as main search page)
+  useEffect(() => {
+    const currentResults = activeTab === 'filter' 
+      ? (showUntradeable ? untradeableResults : searchResults)
+      : searchResults;
+    // Show loading indicator when searching or loading velocities, for >=50 items
+    // Match the logic from main search page
+    const shouldShow = (isLoadingVelocities || isFilterSearching || velocityFetchInProgress) && 
+                       (currentResults.length >= 50 || searchResults.length >= 50 || untradeableResults.length >= 50);
+    
+    if (shouldShow) {
+      // Start showing indicator
+      if (!loadingIndicatorStartTimeRef.current) {
+        loadingIndicatorStartTimeRef.current = Date.now();
+        setShowLoadingIndicator(true);
+      } else {
+        setShowLoadingIndicator(true);
+      }
+    } else {
+      // Hide indicator, but ensure minimum 1s display time
+      if (loadingIndicatorStartTimeRef.current) {
+        const elapsed = Date.now() - loadingIndicatorStartTimeRef.current;
+        const remaining = Math.max(0, 1000 - elapsed);
+        
+        if (remaining > 0) {
+          // Wait for remaining time before hiding
+          const timeout = setTimeout(() => {
+            setShowLoadingIndicator(false);
+            loadingIndicatorStartTimeRef.current = null;
+          }, remaining);
+          
+          return () => clearTimeout(timeout);
+        } else {
+          // Already shown for at least 1s, hide immediately
+          setShowLoadingIndicator(false);
+          loadingIndicatorStartTimeRef.current = null;
+        }
+      } else {
+        setShowLoadingIndicator(false);
+      }
+    }
+  }, [isLoadingVelocities, isFilterSearching, velocityFetchInProgress, showUntradeable, searchResults.length, untradeableResults.length, activeTab]);
+
+  // Job icons mapping with XIVAPI URLs - separated into 生產 and 戰鬥職業
+  // Only show higher tier jobs (exclude base classes 1-7, 26, 29)
+  const { craftingJobs, gatheringJobs, battleJobsByRole } = useMemo(() => {
+    // Mapping of lower tier classes to their higher tier jobs
+    // We'll exclude these lower tier IDs: 1-7 (base classes), 26 (ACN), 29 (ROG)
+    const lowerTierClasses = new Set([1, 2, 3, 4, 5, 6, 7, 26, 29]);
+    
+    // Complete mapping of job IDs to XIVAPI companion icon names
+    const jobNameMap = {
+      // 戰鬥職業 (Battle Jobs) - Only higher tier jobs (19-42, excluding lower tier)
+      19: 'paladin',       // 騎士 (upgrade from GLA/1)
+      20: 'monk',          // 武僧 (upgrade from PGL/2)
+      21: 'warrior',       // 戰士 (upgrade from MRD/3)
+      22: 'dragoon',       // 龍騎士 (upgrade from LNC/4)
+      23: 'bard',          // 吟遊詩人 (upgrade from ARC/5)
+      24: 'whitemage',     // 白魔道士 (upgrade from CNJ/6)
+      25: 'blackmage',     // 黑魔道士 (upgrade from THM/7)
+      27: 'summoner',      // 召喚士 (upgrade from ACN/26)
+      28: 'scholar',       // 學者 (upgrade from ACN/26)
+      30: 'ninja',         // 忍者 (upgrade from ROG/29)
+      31: 'machinist',     // 機工士
+      32: 'darkknight',    // 暗黑騎士
+      33: 'astrologian',   // 占星術師
+      34: 'samurai',       // 武士
+      35: 'redmage',       // 赤魔道士
+      36: 'bluemage',      // 青魔道士
+      37: 'gunbreaker',    // 絕槍戰士
+      38: 'dancer',        // 舞者
+      39: 'reaper',        // 奪魂者
+      40: 'sage',          // 賢者
+      41: 'viper',         // 毒蛇劍士
+      42: 'pictomancer',   // 繪靈法師
+      
+      // 生產職業 (Production Jobs) - Crafting (8-15) and Gathering (16-18)
+      8: 'carpenter',      // 木工師
+      9: 'blacksmith',     // 鍛造師
+      10: 'armorer',       // 甲冑師
+      11: 'goldsmith',     // 金工師
+      12: 'leatherworker', // 皮革師
+      13: 'weaver',        // 裁縫師
+      14: 'alchemist',     // 鍊金術師
+      15: 'culinarian',    // 烹調師
+      16: 'miner',         // 採掘師
+      17: 'botanist',      // 園藝師
+      18: 'fisher',        // 漁師
+    };
+    
+    // Role definitions: 1=Tank, 2=Physical DPS, 3=Ranged Physical DPS, 4=Healer, 5=Magical DPS
+    const jobRoles = {
+      // Tanks (Role 1)
+      19: 'tank',    // PLD
+      21: 'tank',    // WAR
+      32: 'tank',    // DRK
+      37: 'tank',    // GNB
+      
+      // Healers (Role 4)
+      24: 'healer',  // WHM
+      28: 'healer',  // SCH
+      33: 'healer',  // AST
+      40: 'healer',  // SGE
+      
+      // Physical Melee DPS (Role 2)
+      20: 'melee',   // MNK
+      22: 'melee',   // DRG
+      30: 'melee',   // NIN
+      34: 'melee',   // SAM
+      39: 'melee',   // RPR
+      41: 'melee',   // VPR
+      
+      // Physical Ranged DPS (Role 3)
+      23: 'ranged',  // BRD
+      31: 'ranged',  // MCH
+      38: 'ranged',  // DNC
+      
+      // Magical DPS (Role 5)
+      25: 'caster',  // BLM
+      27: 'caster',  // SMN
+      35: 'caster',  // RDM
+      36: 'caster',  // BLU
+      42: 'caster',  // PCT
+    };
+    
+    const crafting = [];
+    const gathering = [];
+    const battleByRole = {
+      tank: [],
+      healer: [],
+      melee: [],
+      ranged: [],
+      caster: [],
+    };
+    
+    Object.entries(twJobAbbrData).forEach(([id, data]) => {
+      const jobId = parseInt(id, 10);
+      
+      // Skip lower tier classes
+      if (lowerTierClasses.has(jobId)) return;
+      
+      const iconName = jobNameMap[jobId];
+      if (!iconName) return; // Skip if no icon mapping
+      
+      const jobData = {
+        id: jobId,
+        name: data.tw,
+        iconUrl: `https://xivapi.com/cj/companion/${iconName}.png`,
+      };
+      
+      // 生產職業: 8-15 (crafting)
+      if (jobId >= 8 && jobId <= 15) {
+        crafting.push(jobData);
+      }
+      // 採集職業: 16-18 (gathering)
+      else if (jobId >= 16 && jobId <= 18) {
+        gathering.push(jobData);
+      }
+      // 戰鬥職業: Only higher tier jobs (19-42, excluding lower tier)
+      else if (jobId >= 19 && jobId <= 42) {
+        const role = jobRoles[jobId];
+        if (role && battleByRole[role]) {
+          battleByRole[role].push(jobData);
+        }
+      }
+    });
+    
+    // Sort by ID within each category
+    crafting.sort((a, b) => a.id - b.id);
+    gathering.sort((a, b) => a.id - b.id);
+    Object.keys(battleByRole).forEach(role => {
+      battleByRole[role].sort((a, b) => a.id - b.id);
+    });
+    
+    return { craftingJobs: crafting, gatheringJobs: gathering, battleJobsByRole: battleByRole };
+  }, []);
+
+  // Map job-specific weapon categories to generic categories
+  // Job-specific weapon categories that should be hidden and mapped to generic ones
+  const jobSpecificWeaponCategories = new Set([
+    1,   // 格鬥武器 (MNK)
+    2,   // 單手劍 (PLD/DRK)
+    3,   // 大斧 (WAR)
+    4,   // 弓 (BRD)
+    5,   // 長槍 (DRG)
+    6,   // 單手咒杖 (BLM)
+    7,   // 雙手咒杖 (BLM)
+    8,   // 單手幻杖 (WHM)
+    9,   // 雙手幻杖 (WHM)
+    10,  // 魔導書 (SMN/SCH)
+    84,  // 雙劍 (NIN)
+    87,  // 雙手劍 (DRK)
+    88,  // 火槍 (MCH)
+    89,  // 天球儀 (AST)
+    96,  // 武士刀 (SAM)
+    97,  // 刺劍 (RDM)
+    98,  // 魔導書（學者專用）(SCH)
+    105, // 青魔杖 (BLU)
+    106, // 槍刃 (GNB)
+    107, // 投擲武器 (DNC)
+    108, // 雙手鐮刀 (RPR)
+    109, // 賢具 (SGE)
+    110, // 二刀流武器 (VPR)
+    111, // 筆 (PCT)
+  ]);
+
+  // Job-specific tool categories that should be hidden and mapped to generic ones
+  const jobSpecificToolCategories = new Set([
+    12,  // 木工工具（主工具）
+    13,  // 木工工具（副工具）
+    14,  // 鍛造工具（主工具）
+    15,  // 鍛造工具（副工具）
+    16,  // 甲冑工具（主工具）
+    17,  // 甲冑工具（副工具）
+    18,  // 金工工具（主工具）
+    19,  // 金工工具（副工具）
+    20,  // 皮革工具（主工具）
+    21,  // 皮革工具（副工具）
+    22,  // 裁縫工具（主工具）
+    23,  // 裁縫工具（副工具）
+    24,  // 鍊金工具（主工具）
+    25,  // 鍊金工具（副工具）
+    26,  // 烹調工具（主工具）
+    27,  // 烹調工具（副工具）
+    28,  // 採掘工具（主工具）
+    29,  // 採掘工具（副工具）
+    30,  // 園藝工具（主工具）
+    31,  // 園藝工具（副工具）
+    32,  // 捕魚用具（主工具）
+    33,  // 釣餌
+    99,  // 捕魚用具（副工具）
+  ]);
+
+  // Map job IDs to their main weapon category IDs
+  const jobToWeaponCategoryMap = {
+    // Battle jobs
+    19: [2],      // PLD - 單手劍
+    20: [1],      // MNK - 格鬥武器
+    21: [3],      // WAR - 大斧
+    22: [5],      // DRG - 長槍
+    23: [4],      // BRD - 弓
+    24: [8, 9],   // WHM - 單手幻杖/雙手幻杖
+    25: [6, 7],   // BLM - 單手咒杖/雙手咒杖
+    27: [10],     // SMN - 魔導書
+    28: [10, 98], // SCH - 魔導書/魔導書（學者專用）
+    30: [84],     // NIN - 雙劍
+    31: [88],     // MCH - 火槍
+    32: [2, 87],  // DRK - 單手劍/雙手劍
+    33: [89],     // AST - 天球儀
+    34: [96],     // SAM - 武士刀
+    35: [97],     // RDM - 刺劍
+    36: [105],    // BLU - 青魔杖
+    37: [106],    // GNB - 槍刃
+    38: [107],    // DNC - 投擲武器
+    39: [108],    // RPR - 雙手鐮刀
+    40: [109],    // SGE - 賢具
+    41: [110],    // VPR - 二刀流武器
+    42: [111],    // PCT - 筆
+  };
+
+  // Map production job IDs to their main tool category IDs (separate maps for main and offhand)
+  const jobToProductionMainToolMap = {
+    8: 12,   // CRP - 木工工具（主工具）
+    9: 14,   // BSM - 鍛造工具（主工具）
+    10: 16,  // ARM - 甲冑工具（主工具）
+    11: 18,  // GSM - 金工工具（主工具）
+    12: 20,  // LTW - 皮革工具（主工具）
+    13: 22,  // WVR - 裁縫工具（主工具）
+    14: 24,  // ALC - 鍊金工具（主工具）
+    15: 26,  // CUL - 烹調工具（主工具）
+  };
+
+  const jobToProductionOffhandToolMap = {
+    8: 13,   // CRP - 木工工具（副工具）
+    9: 15,   // BSM - 鍛造工具（副工具）
+    10: 17,  // ARM - 甲冑工具（副工具）
+    11: 19,  // GSM - 金工工具（副工具）
+    12: 21,  // LTW - 皮革工具（副工具）
+    13: 23,  // WVR - 裁縫工具（副工具）
+    14: 25,  // ALC - 鍊金工具（副工具）
+    15: 27,  // CUL - 烹調工具（副工具）
+  };
+
+  // Map battle job IDs to their offhand weapon category IDs
+  const jobToOffhandWeaponMap = {
+    19: 11,  // PLD - 盾
+  };
+
+  // Map gathering job IDs to their tool category IDs
+  const jobToGatheringMainToolMap = {
+    16: 28,  // MIN - 採掘工具（主工具）
+    17: 30,  // BTN - 園藝工具（主工具）
+    18: 32,  // FSH - 捕魚用具（主工具）
+  };
+
+  const jobToGatheringOffhandToolMap = {
+    16: 29,  // MIN - 採掘工具（副工具）
+    17: 31,  // BTN - 園藝工具（副工具）
+    18: 99,  // FSH - 捕魚用具（副工具）
+  };
+
+  // Generic category groups - unified to main weapon and offhand weapon
+  const genericCategoryGroups = {
+    '主武器': [
+      // Battle weapons
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 84, 87, 88, 89, 96, 97, 98, 105, 106, 107, 108, 109, 110, 111,
+      // Production main tools
+      12, 14, 16, 18, 20, 22, 24, 26,
+      // Gathering main tools
+      28, 30, 32,
+    ],
+    '副手武器': [
+      // Battle offhand
+      11, // 盾
+      // Production offhand tools
+      13, 15, 17, 19, 21, 23, 25, 27,
+      // Gathering offhand tools
+      29, 31, 33, 99,
+    ],
+  };
+
+  // Equipment category IDs (weapons, armor, accessories)
+  const equipmentCategoryIds = new Set([
+    // Weapons (already handled by generic categories)
+    // Armor
+    34, 35, 36, 37, 38, // 頭部防具、身體防具、腿部防具、手部防具、腳部防具
+    // Accessories
+    40, 41, 42, 43, // 項鍊、耳飾、手鐲、戒指
+    // Soul crystal
+    62, // 靈魂水晶
+  ]);
+
+  // Item categories from tw-item-ui-categories.json (filtered to remove job-specific weapon categories)
+  const itemCategories = useMemo(() => {
+    const allCategories = Object.entries(twItemUICategoriesData)
+      .map(([id, data]) => ({
+        id: parseInt(id, 10),
+        name: data.tw,
+      }))
+      .filter(cat => !jobSpecificWeaponCategories.has(cat.id) && !jobSpecificToolCategories.has(cat.id) && !EXCLUDED_CATEGORIES.includes(cat.id)); // Exclude categories in EXCLUDED_CATEGORIES
+    
+    // Separate equipment and miscellaneous categories
+    // Exclude shield (11) from miscellaneous categories
+    const equipmentCategories = allCategories.filter(cat => equipmentCategoryIds.has(cat.id));
+    const miscellaneousCategories = allCategories.filter(cat => !equipmentCategoryIds.has(cat.id) && cat.id !== 11); // Exclude shield (11) from miscellaneous
+    
+    // Sort equipment categories with custom order: head(34), body(35), hand(37), leg(36), feet(38), then accessories (earring, necklace, bracelet, ring)
+    const equipmentOrder = [34, 35, 37, 36, 38, 41, 40, 42, 43, 62];
+    equipmentCategories.sort((a, b) => {
+      const indexA = equipmentOrder.indexOf(a.id);
+      const indexB = equipmentOrder.indexOf(b.id);
+      // If both are in the custom order, sort by their position
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // If only one is in the custom order, it comes first
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      // If neither is in the custom order, sort by ID
+      return a.id - b.id;
+    });
+    // Sort miscellaneous categories by ID, but move "停止流通道具" (39) to the end
+    miscellaneousCategories.sort((a, b) => {
+      // If one is "停止流通道具" (39), it goes to the end
+      if (a.id === 39) return 1;
+      if (b.id === 39) return -1;
+      // Otherwise sort by ID
+      return a.id - b.id;
+    });
+    
+    // Add generic categories - unified to main weapon and offhand weapon
+    const genericCategories = [
+      { id: 'main_weapon', name: '主手', isGeneric: true },
+      { id: 'offhand_weapon', name: '副手', isGeneric: true },
+    ];
+    
+    // Separate equipment into groups:
+    // 1. Armor (head, body, hand, leg, feet): 34, 35, 37, 36, 38
+    // 2. Accessories: 41, 40, 42, 43 (earring, necklace, bracelet, ring)
+    // 3. Others (soul crystal, etc.): 62
+    const armorIds = [34, 35, 37, 36, 38];
+    const accessoryIds = [41, 40, 42, 43];
+    const armorCategories = equipmentCategories.filter(cat => armorIds.includes(cat.id));
+    const accessoryCategories = equipmentCategories.filter(cat => accessoryIds.includes(cat.id));
+    const otherEquipmentCategories = equipmentCategories.filter(cat => !armorIds.includes(cat.id) && !accessoryIds.includes(cat.id));
+    
+    return {
+      weapons: genericCategories, // 主手、副手
+      armor: armorCategories, // 头部、身体、手、腿、脚
+      accessories: accessoryCategories, // 项链、耳饰、手镯、戒指
+      otherEquipment: otherEquipmentCategories, // 其他装备（如灵魂水晶）
+      miscellaneous: miscellaneousCategories,
+    };
+  }, []);
+
+  // Filter categories based on search term
+  const filteredItemCategories = useMemo(() => {
+    if (!categorySearchTerm.trim()) {
+      return itemCategories;
+    }
+
+    const searchTermLower = categorySearchTerm.toLowerCase().trim();
+    const filterCategory = (category) => {
+      return category.name.toLowerCase().includes(searchTermLower);
+    };
+
+    return {
+      weapons: itemCategories.weapons.filter(filterCategory),
+      armor: itemCategories.armor.filter(filterCategory),
+      accessories: itemCategories.accessories.filter(filterCategory),
+      otherEquipment: itemCategories.otherEquipment.filter(filterCategory),
+      miscellaneous: itemCategories.miscellaneous.filter(filterCategory),
+    };
+  }, [itemCategories, categorySearchTerm]);
+
+  // Handle job toggle
+  const handleJobToggle = useCallback((jobId) => {
+    setSelectedJobs(prev => {
+      if (prev.includes(jobId)) {
+        return prev.filter(j => j !== jobId);
+      } else {
+        return [...prev, jobId];
+      }
+    });
+  }, []);
+
+  // Handle category toggle
+  const handleCategoryToggle = useCallback((categoryId) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(c => c !== categoryId);
+      } else {
+        return [...prev, categoryId];
+      }
+    });
+    // Clear the search term after selecting/deselecting a category
+    setCategorySearchTerm('');
+    // Keep focus on the search input so user can continue typing
+    setTimeout(() => {
+      if (categorySearchInputRef.current) {
+        categorySearchInputRef.current.focus();
+      }
+    }, 0);
+  }, []);
+
+  // Handle page change
+  const handlePageChange = useCallback((newPage) => {
+    setCurrentPage(newPage);
+  }, []);
+
+  // Shared function to perform filter search logic
+  // This function contains all the common logic for filtering items by jobs, categories, level, and name
+  // Returns { itemIds, tradeableItemIds, untradeableItemIds } or null if error
+  // skipLimitCheck: if true, skip the MAX_ITEMS_LIMIT check (for "continue search" button)
+  const performFilterSearchLogic = useCallback(async (skipLimitCheck = false) => {
+    if (selectedJobs.length === 0 && selectedCategories.length === 0) {
+      addToast('請至少選擇一個職業或分類', 'warning');
+      return null;
+    }
+
+    if (!selectedWorld || !selectedServerOption) {
+      addToast('請選擇伺服器', 'warning');
+      return null;
+    }
+
+    let itemIds = new Set();
+    
+    // Separate production and battle jobs
+    const productionJobIds = selectedJobs.filter(jobId => jobId >= 8 && jobId <= 18);
+    const battleJobIds = selectedJobs.filter(jobId => (jobId >= 1 && jobId <= 7) || (jobId >= 19 && jobId <= 42));
+
+    // Filter by production jobs (using recipes and equipment.json for tools)
+    if (productionJobIds.length > 0) {
+      const { recipes } = await loadRecipeDatabase();
+      productionJobIds.forEach(jobId => {
+        recipes.forEach(recipe => {
+          if (recipe.job === jobId && recipe.result) {
+            itemIds.add(recipe.result);
+          }
+        });
+      });
+      
+      // Also add production tools from equipment.json
+      const equipmentData = await loadEquipmentData();
+      const productionJobAbbrs = productionJobIds.map(jobId => getJobAbbreviation(jobId)).filter(abbr => abbr);
+      Object.entries(equipmentData).forEach(([itemId, equipment]) => {
+        if (equipment.jobs && Array.isArray(equipment.jobs)) {
+          const hasMatchingJob = productionJobAbbrs.some(abbr => equipment.jobs.includes(abbr));
+          if (hasMatchingJob) {
+            itemIds.add(parseInt(itemId, 10));
+          }
+        }
+      });
+    }
+
+    // Filter by battle jobs (using equipment.json)
+    if (battleJobIds.length > 0) {
+      const equipmentData = await loadEquipmentData();
+      const battleJobAbbrs = battleJobIds.map(jobId => getJobAbbreviation(jobId)).filter(abbr => abbr);
+      
+      // Filter equipment items that match any of the selected battle jobs
+      Object.entries(equipmentData).forEach(([itemId, equipment]) => {
+        if (equipment.jobs && Array.isArray(equipment.jobs)) {
+          // Check if any of the selected job abbreviations match the equipment's jobs
+          const hasMatchingJob = battleJobAbbrs.some(abbr => equipment.jobs.includes(abbr));
+          if (hasMatchingJob) {
+            itemIds.add(parseInt(itemId, 10));
+          }
+        }
+      });
+    }
+
+    // Filter by categories
+    if (selectedCategories.length > 0) {
+      const uiCategoriesData = await loadUICategoriesData();
+      
+      // Map generic categories to specific categories based on selected jobs
+      let categoryIdsToFilter = new Set();
+      
+      selectedCategories.forEach(catId => {
+        if (catId === 'main_weapon') {
+          // Map to job-specific categories based on selected jobs (weapons, production tools, gathering tools)
+          if (selectedJobs.length > 0) {
+            selectedJobs.forEach(jobId => {
+              // Battle weapons
+              const weaponCategories = jobToWeaponCategoryMap[jobId];
+              if (weaponCategories) {
+                weaponCategories.forEach(catId => categoryIdsToFilter.add(catId));
+              }
+              // Production main tools
+              const productionMainTool = jobToProductionMainToolMap[jobId];
+              if (productionMainTool) {
+                categoryIdsToFilter.add(productionMainTool);
+              }
+              // Gathering main tools
+              const gatheringMainTool = jobToGatheringMainToolMap[jobId];
+              if (gatheringMainTool) {
+                categoryIdsToFilter.add(gatheringMainTool);
+              }
+            });
+          } else {
+            // If no jobs selected, include all main weapon/tool categories
+            genericCategoryGroups['主武器'].forEach(catId => categoryIdsToFilter.add(catId));
+          }
+        } else if (catId === 'offhand_weapon') {
+          // Map to job-specific offhand categories based on selected jobs (shields, production tools, gathering tools)
+          if (selectedJobs.length > 0) {
+            selectedJobs.forEach(jobId => {
+              // Battle offhand weapons (e.g., shields for PLD)
+              const battleOffhandWeapon = jobToOffhandWeaponMap[jobId];
+              if (battleOffhandWeapon) {
+                categoryIdsToFilter.add(battleOffhandWeapon);
+              }
+              // Production offhand tools
+              const productionOffhandTool = jobToProductionOffhandToolMap[jobId];
+              if (productionOffhandTool) {
+                categoryIdsToFilter.add(productionOffhandTool);
+              }
+              // Gathering offhand tools
+              const gatheringOffhandTool = jobToGatheringOffhandToolMap[jobId];
+              if (gatheringOffhandTool) {
+                categoryIdsToFilter.add(gatheringOffhandTool);
+              }
+            });
+          } else {
+            // If no jobs selected, include all offhand weapon/tool categories
+            genericCategoryGroups['副手武器'].forEach(catId => categoryIdsToFilter.add(catId));
+          }
+        } else {
+          // Regular category ID
+          categoryIdsToFilter.add(parseInt(catId, 10));
+        }
+      });
+      
+      // If only categories selected (no jobs), get all items from database first
+      if (itemIds.size === 0 && selectedJobs.length === 0) {
+        // Load all items from tw-items.json
+        Object.keys(twItemsData).forEach(itemId => {
+          itemIds.add(parseInt(itemId, 10));
+        });
+      }
+      
+      // Filter items by category
+      if (categoryIdsToFilter.size > 0) {
+        const filteredItemIds = new Set();
+        itemIds.forEach(itemId => {
+          const itemCategoryId = uiCategoriesData[itemId.toString()];
+          // Exclude items in excluded categories
+          if (EXCLUDED_CATEGORIES.includes(itemCategoryId)) {
+            return;
+          }
+          if (itemCategoryId && categoryIdsToFilter.has(itemCategoryId)) {
+            filteredItemIds.add(itemId);
+          }
+        });
+        itemIds = filteredItemIds;
+      } else {
+        // Even if no category filter is selected, exclude items in excluded categories
+        const filteredItemIds = new Set();
+        itemIds.forEach(itemId => {
+          const itemCategoryId = uiCategoriesData[itemId.toString()];
+          if (!EXCLUDED_CATEGORIES.includes(itemCategoryId)) {
+            filteredItemIds.add(itemId);
+          }
+        });
+        itemIds = filteredItemIds;
+      }
+    }
+
+    // Filter by equipment level range if specified (LevelEquip, not ilvl)
+    if (minLevel > 1 || maxLevel < 999) {
+      const equipmentData = await loadEquipmentData();
+      const filteredByLevel = new Set();
+      itemIds.forEach(itemId => {
+        const equipment = equipmentData[itemId.toString()];
+        // Include items without equipment level if range is not restrictive (default range)
+        if (!equipment || equipment.level === undefined || equipment.level === null) {
+          // If no equipment level data, include it only if range is default (1-999)
+          if (minLevel === 1 && maxLevel === 999) {
+            filteredByLevel.add(itemId);
+          }
+        } else {
+          // Include items within equipment level range
+          if (equipment.level >= minLevel && equipment.level <= maxLevel) {
+            filteredByLevel.add(itemId);
+          }
+        }
+      });
+      itemIds = filteredByLevel;
+    }
+
+    // Filter by item name BEFORE checking tradeable status (must be after job/category/level filters)
+    // This ensures we only send matching items to API
+    if (itemNameFilter.trim()) {
+      const filteredByName = new Set();
+      const searchWords = itemNameFilter.trim().split(/\s+/).filter(w => w);
+      
+      // Simple fuzzy matching function (same as in itemDatabase.js)
+      const fuzzyMatch = (searchText, itemName) => {
+        const searchChars = Array.from(searchText.toLowerCase());
+        const itemChars = Array.from(itemName.toLowerCase());
+        
+        // If exact substring match, return true
+        if (itemName.toLowerCase().includes(searchText.toLowerCase())) {
+          return true;
+        }
+        
+        // Check if all search characters appear in item name
+        let matchedChars = 0;
+        let itemIndex = 0;
+        let consecutiveMatches = 0;
+        let maxConsecutive = 0;
+        
+        for (let i = 0; i < searchChars.length; i++) {
+          const searchChar = searchChars[i];
+          let found = false;
+          
+          // Try to find the character in order first
+          for (let j = itemIndex; j < itemChars.length; j++) {
+            if (itemChars[j] === searchChar) {
+              matchedChars++;
+              found = true;
+              if (j === itemIndex) {
+                consecutiveMatches++;
+                maxConsecutive = Math.max(maxConsecutive, consecutiveMatches);
+              } else {
+                consecutiveMatches = 1;
+              }
+              itemIndex = j + 1;
+              break;
+            }
+          }
+          
+          // If not found in order, search from beginning
+          if (!found) {
+            for (let j = 0; j < itemChars.length; j++) {
+              if (itemChars[j] === searchChar) {
+                matchedChars++;
+                found = true;
+                consecutiveMatches = 1;
+                itemIndex = j + 1;
+                break;
+              }
+            }
+          }
+          
+          if (!found) {
+            consecutiveMatches = 0;
+          }
+        }
+        
+        // Calculate similarity score
+        const charMatchRatio = matchedChars / searchChars.length;
+        const orderBonus = maxConsecutive / searchChars.length * 0.3;
+        const similarity = charMatchRatio * 0.7 + orderBonus;
+        
+        // Only return matches with similarity >= 0.6
+        return similarity >= 0.6;
+      };
+      
+      // twItemsData is imported synchronously, so it should always be available
+      // Filter items by name before checking tradeable status
+      itemIds.forEach(itemId => {
+        const item = twItemsData?.[itemId.toString()];
+        // If item has name data, check if it matches
+        if (item && item.tw) {
+          const itemName = item.tw;
+          let matches = false;
+          
+          if (filterFuzzySearch) {
+            // Fuzzy matching: check if all words have fuzzy matches
+            matches = searchWords.every(word => fuzzyMatch(word, itemName));
+          } else {
+            // Exact matching: item name must exactly match the search string (case-insensitive)
+            const itemNameLower = itemName.toLowerCase();
+            const searchStringLower = itemNameFilter.trim().toLowerCase();
+            matches = itemNameLower === searchStringLower;
+          }
+          
+          if (matches) {
+            filteredByName.add(itemId);
+          }
+        }
+        // If item doesn't have name data, exclude it from name-filtered results
+        // (This is intentional - we can't match items without names)
+      });
+      itemIds = filteredByName;
+    }
+
+    if (itemIds.size === 0) {
+      addToast('未找到符合條件的物品', 'warning');
+      return null;
+    }
+
+    // Separate tradeable and untradeable items (AFTER name filtering)
+    const marketableSet = await getMarketableItems();
+    setMarketableItems(marketableSet);
+    const allItemIds = Array.from(itemIds);
+    let tradeableItemIds = allItemIds.filter(id => marketableSet.has(id));
+    const untradeableItemIds = allItemIds.filter(id => !marketableSet.has(id));
+
+    if (tradeableItemIds.length === 0 && untradeableItemIds.length === 0) {
+      addToast('未找到符合條件的物品', 'warning');
+      return null;
+    }
+
+    // If no tradeable items but there are untradeable items, show untradeable by default
+    if (tradeableItemIds.length === 0 && untradeableItemIds.length > 0) {
+      setShowUntradeable(true);
+    }
+
+    // Sort item IDs by ilvl (descending, highest first) before API query
+    const ilvlsData = await loadIlvlsData();
+    tradeableItemIds = tradeableItemIds.sort((a, b) => {
+      const aIlvl = ilvlsData[a?.toString()] || null;
+      const bIlvl = ilvlsData[b?.toString()] || null;
+      
+      // If both have ilvl, sort by ilvl descending (highest first)
+      if (aIlvl !== null && bIlvl !== null) {
+        return bIlvl - aIlvl;
+      }
+      // If only one has ilvl, prioritize it
+      if (aIlvl !== null) return -1;
+      if (bIlvl !== null) return 1;
+      // If neither has ilvl, sort by ID descending
+      return b - a;
+    });
+
+    // Check if too many items (only check tradeable items for limit)
+    // Skip this check if skipLimitCheck is true (for "continue search" button)
+    if (!skipLimitCheck && tradeableItemIds.length > MAX_ITEMS_LIMIT) {
+      setTooManyItemsWarning({
+        total: tradeableItemIds.length,
+        limit: MAX_ITEMS_LIMIT
+      });
+      return null; // Return null to indicate warning was set
+    }
+
+    return { itemIds, tradeableItemIds, untradeableItemIds };
+  }, [selectedJobs, selectedCategories, selectedWorld, selectedServerOption, minLevel, maxLevel, itemNameFilter, filterFuzzySearch, addToast, loadRecipeDatabase, loadEquipmentData, loadUICategoriesData, loadIlvlsData, getJobAbbreviation]);
+
+  // Handle filter search
+  const handleFilterSearch = useCallback(async () => {
+    // Clear warning first, even if button is disabled, so button can be enabled after timeout
+    setTooManyItemsWarning(null);
+    
+    // Prevent multiple clicks within 1.5 seconds
+    if (isSearchButtonDisabled) return;
+
+    // Cancel any ongoing search requests
+    const currentRequestId = ++filterSearchRequestIdRef.current;
+    
+    // Cancel all ongoing market data fetches
+    if (velocityFetchAbortControllerRef.current) {
+      velocityFetchAbortControllerRef.current.abort();
+      velocityFetchAbortControllerRef.current = null;
+    }
+    
+    // Increment velocity fetch request ID to cancel any ongoing market data requests
+    velocityFetchRequestIdRef.current++;
+    velocityFetchInProgressRef.current = false;
+    setVelocityFetchInProgress(false);
+    setIsLoadingVelocities(false);
+
+    // Clear table immediately at the start of search
+    setSearchResults([]);
+    setUntradeableResults([]);
+    setShowUntradeable(false);
+    setItemVelocities({});
+    setItemAveragePrices({});
+    setItemMinListings({});
+    setItemRecentPurchases({});
+    setItemTradability({});
+    setSelectedRarities([]); // Reset rarity filter on new search
+    setCurrentPage(1); // Reset to first page on new search
+
+    // Disable search button for 1.5 seconds
+    setIsSearchButtonDisabled(true);
+    setTimeout(() => {
+      setIsSearchButtonDisabled(false);
+    }, 1500);
+
+    try {
+      setIsFilterSearching(true);
+
+      // Check if this request was superseded
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        setIsFilterSearching(false);
+        return;
+      }
+
+      // Use shared filter search logic
+      const result = await performFilterSearchLogic();
+      
+      // Check if this request was superseded
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        setIsFilterSearching(false);
+        return;
+      }
+      
+      if (!result) {
+        setIsFilterSearching(false);
+        return; // Error or warning already handled in performFilterSearchLogic
+      }
+
+      const { tradeableItemIds, untradeableItemIds } = result;
+      
+      // Check if this request was superseded
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        setIsFilterSearching(false);
+        return;
+      }
+      
+      setTooManyItemsWarning(null);
+
+      // CRITICAL: Get marketableItems from performFilterSearchLogic (it was set there)
+      // We need to ensure it's available for filtering in ItemTable
+      // performFilterSearchLogic already called setMarketableItems, but React state updates are async
+      // So we get it directly from getMarketableItems to ensure it's available immediately
+      const currentMarketableSet = await getMarketableItems();
+      
+      // Check again if this request was superseded
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        setIsFilterSearching(false);
+        return;
+      }
+      
+      setMarketableItems(currentMarketableSet);
+
+      // CRITICAL: Double-check that tradeableItemIds only contains tradeable items
+      // This matches handleBatchSearch behavior - filter BEFORE setting searchResults
+      // performFilterSearchLogic already filtered, but we ensure consistency here
+      const verifiedTradeableItemIds = tradeableItemIds.filter(id => currentMarketableSet.has(id));
+
+      // Load ilvls data for sorting
+      const ilvlsData = await loadIlvlsData();
+      
+      // Check again if this request was superseded
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        setIsFilterSearching(false);
+        return;
+      }
+
+      // Unified progressive loading function for both <500 and >500 items
+      // This function handles progressive item loading and market data fetching
+      const loadItemsProgressively = async (itemIds, isTradeable) => {
+        // Check if this search request was superseded
+        if (currentRequestId !== filterSearchRequestIdRef.current) {
+          return;
+        }
+        
+        // Use ilvlsData (already loaded above)
+        const ilvlsDataForSort = ilvlsData;
+        
+        // CRITICAL: For tradeable items, itemIds should already be filtered by performFilterSearchLogic
+        // But we double-check here to ensure consistency (matching handleBatchSearch behavior)
+        // For untradeable items, no filtering needed
+        const filteredItemIds = isTradeable 
+          ? itemIds.filter(id => currentMarketableSet.has(id))
+          : itemIds;
+        
+        const sortedItemIds = [...filteredItemIds].sort((a, b) => {
+          const aIlvl = ilvlsDataForSort[a?.toString()] || null;
+          const bIlvl = ilvlsDataForSort[b?.toString()] || null;
+          
+          // Sort by ilvl descending (highest first)
+          if (aIlvl !== null && bIlvl !== null) {
+            return bIlvl - aIlvl;
+          }
+          // If only one has ilvl, prioritize it
+          if (aIlvl !== null) return -1;
+          if (bIlvl !== null) return 1;
+          // If neither has ilvl, sort by ID descending
+          return b - a;
+        });
+
+        // Load first batch (20 items) immediately for fast display
+        const INITIAL_BATCH_SIZE = 20;
+        const initialBatch = sortedItemIds.slice(0, INITIAL_BATCH_SIZE);
+        
+        // CRITICAL: Double-check that initialBatch only contains tradeable items
+        const verifiedInitialBatch = isTradeable 
+          ? initialBatch.filter(id => currentMarketableSet.has(id))
+          : initialBatch;
+        
+        // Create items with names from twItemsData for immediate display
+        const tempItems = verifiedInitialBatch.map(id => {
+          const itemData = twItemsData[id?.toString()];
+          const itemName = itemData?.tw || `物品 (ID: ${id})`;
+          return {
+            id: id,
+            name: itemName,
+            itemLevel: '',
+            shopPrice: '',
+            description: '',
+            inShop: false,
+            canBeHQ: true,
+            isTradable: true,
+          };
+        });
+        
+        // Sort temp items by ilvl (descending, highest first)
+        const tempItemsSorted = tempItems.sort((a, b) => {
+          const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
+          const bIlvl = ilvlsDataForSort[b.id?.toString()] || null;
+          
+          if (aIlvl !== null && bIlvl !== null) {
+            return bIlvl - aIlvl;
+          }
+          if (aIlvl !== null) return -1;
+          if (bIlvl !== null) return 1;
+          return b.id - a.id;
+        });
+
+        // Display initial batch immediately with temporary items
+        if (isTradeable) {
+          // CRITICAL: Clear old searchResults BEFORE setting new searchResults
+          // But keep untradeableResults if they exist (for the button)
+          setSearchResults([]);
+          // Don't clear untradeableResults here - they should be preserved if they exist
+          // setShowUntradeable(false); // Already set in handleFilterSearch
+          // Use flushSync to ensure state updates are applied synchronously before setting new results
+          flushSync(() => {
+            setSearchResults(tempItemsSorted);
+          });
+          
+                                  // Load full item details for initial batch asynchronously
+                                  (async () => {
+                                    const initialPromises = verifiedInitialBatch.map(id => getItemById(id));
+                                    const initialItems = (await Promise.all(initialPromises)).filter(item => item !== null);
+                                    
+                                    // Check if search was cancelled or superseded
+                                    if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    // CRITICAL: Filter items using currentMarketableSet to ensure only tradeable items
+                                    const filteredInitialItems = initialItems.filter(item => currentMarketableSet.has(item.id));
+                                    
+                                    // Sort initial items by ilvl (descending, highest first)
+                                    const initialItemsSorted = filteredInitialItems.sort((a, b) => {
+                                      const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
+                                      const bIlvl = ilvlsDataForSort[b.id?.toString()] || null;
+                                      
+                                      if (aIlvl !== null && bIlvl !== null) {
+                                        return bIlvl - aIlvl;
+                                      }
+                                      if (aIlvl !== null) return -1;
+                                      if (bIlvl !== null) return 1;
+                                      return b.id - a.id;
+                                    });
+                                    
+                                    // Check again before updating state
+                                    if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    // Update with full item details
+                                    setSearchResults(initialItemsSorted);
+                                  })().catch(error => {
+                                    console.error('Error loading initial item details:', error);
+                                  });
+        } else {
+          // For untradeable items, load them even if there are tradeable items
+          // This allows users to view untradeable items via the button
+          setUntradeableResults(tempItemsSorted);
+          
+                                  // Load full details asynchronously
+                                  (async () => {
+                                    const initialPromises = initialBatch.map(id => getItemById(id));
+                                    const initialItems = (await Promise.all(initialPromises)).filter(item => item !== null);
+                                    
+                                    // Check if search was cancelled or superseded
+                                    if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    const initialItemsSorted = initialItems.sort((a, b) => {
+                                      const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
+                                      const bIlvl = ilvlsDataForSort[b.id?.toString()] || null;
+                                      
+                                      if (aIlvl !== null && bIlvl !== null) {
+                                        return bIlvl - aIlvl;
+                                      }
+                                      if (aIlvl !== null) return -1;
+                                      if (bIlvl !== null) return 1;
+                                      return b.id - a.id;
+                                    });
+                                    
+                                    // Check again before updating state
+                                    if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    // Always set untradeable results, even if tradeable items exist
+                                    setUntradeableResults(initialItemsSorted);
+                                  })().catch(error => {
+                                    console.error('Error loading untradeable item details:', error);
+                                  });
+        }
+
+                                // Start loading market data immediately (non-blocking)
+                                if (selectedWorld && selectedServerOption && sortedItemIds.length > 0 && isTradeable) {
+                                  // Check if this search request was superseded
+                                  if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+                                  
+                                  // Cancel any previous fetch
+                                  if (velocityFetchAbortControllerRef.current) {
+                                    velocityFetchAbortControllerRef.current.abort();
+                                  }
+
+                                  const marketDataRequestId = ++velocityFetchRequestIdRef.current;
+                                  velocityFetchAbortControllerRef.current = new AbortController();
+                                  const abortSignal = velocityFetchAbortControllerRef.current.signal;
+                                  velocityFetchInProgressRef.current = true;
+                                  setVelocityFetchInProgress(true);
+                                  setIsLoadingVelocities(true);
+
+          // Start market data fetch in background (non-blocking)
+          (async () => {
+            const isDCQuery = selectedServerOption === selectedWorld.section;
+            const queryTarget = isDCQuery ? selectedWorld.section : selectedServerOption;
+            
+            // Helper function to get value from market data
+            const getValue = (nqData, hqData, field) => {
+              const nqWorld = nqData?.world?.[field];
+              const hqWorld = hqData?.world?.[field];
+              const nqDc = nqData?.dc?.[field];
+              const hqDc = hqData?.dc?.[field];
+              const nqValue = isDCQuery ? (nqDc !== undefined ? nqDc : nqWorld) : (nqWorld !== undefined ? nqWorld : undefined);
+              const hqValue = isDCQuery ? (hqDc !== undefined ? hqDc : hqWorld) : (hqWorld !== undefined ? hqWorld : undefined);
+              if (field === 'quantity') {
+                if (nqValue !== undefined || hqValue !== undefined) {
+                  return (nqValue || 0) + (hqValue || 0);
+                }
+              } else {
+                if (nqValue !== undefined && hqValue !== undefined) {
+                  return Math.min(nqValue, hqValue);
+                } else if (hqValue !== undefined) {
+                  return hqValue;
+                } else if (nqValue !== undefined) {
+                  return nqValue;
+                }
+              }
+              return null;
+            };
+
+            // Process a single batch of market data
+            const processMarketBatch = async (batchNumber, startIndex) => {
+              // Check if request was cancelled or superseded
+              if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== filterSearchRequestIdRef.current) {
+                return;
+              }
+              
+              // Determine batch size: first batch = 20, second batch = 50, rest = 100
+              let batchSize;
+              if (batchNumber === 0) {
+                batchSize = 20;
+              } else if (batchNumber === 1) {
+                batchSize = 50;
+              } else {
+                batchSize = 100;
+              }
+              
+              const batch = sortedItemIds.slice(startIndex, startIndex + batchSize);
+              if (batch.length === 0) {
+                return;
+              }
+              
+              const itemIdsString = batch.join(',');
+              
+              try {
+                const response = await fetch(`https://universalis.app/api/v2/aggregated/${encodeURIComponent(queryTarget)}/${itemIdsString}`, {
+                  signal: abortSignal
+                });
+                
+                if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== filterSearchRequestIdRef.current) {
+                  return;
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.results) {
+                  const batchVelocities = {};
+                  const batchAveragePrices = {};
+                  const batchMinListings = {};
+                  const batchRecentPurchases = {};
+                  const batchTradability = {};
+                  
+                  data.results.forEach(item => {
+                    const itemId = item.itemId;
+                    
+                    const velocity = getValue(item.nq?.dailySaleVelocity, item.hq?.dailySaleVelocity, 'quantity');
+                    let averagePrice = null;
+                    if (!isDCQuery) {
+                      const nqWorld = item.nq?.averageSalePrice?.world?.price;
+                      const hqWorld = item.hq?.averageSalePrice?.world?.price;
+                      const nqDc = item.nq?.averageSalePrice?.dc?.price;
+                      const hqDc = item.hq?.averageSalePrice?.dc?.price;
+                      const nqValue = nqWorld !== undefined ? nqWorld : nqDc;
+                      const hqValue = hqWorld !== undefined ? hqWorld : hqDc;
+                      if (nqValue !== undefined && hqValue !== undefined) {
+                        averagePrice = Math.min(nqValue, hqValue);
+                      } else if (hqValue !== undefined) {
+                        averagePrice = hqValue;
+                      } else if (nqValue !== undefined) {
+                        averagePrice = nqValue;
+                      }
+                    } else {
+                      averagePrice = getValue(item.nq?.averageSalePrice, item.hq?.averageSalePrice, 'price');
+                    }
+                    
+                    const minListingPrice = getValue(item.nq?.minListing, item.hq?.minListing, 'price');
+                    const recentPurchasePrice = getValue(item.nq?.recentPurchase, item.hq?.recentPurchase, 'price');
+                    
+                    let minListing = null;
+                    if (minListingPrice !== null && minListingPrice !== undefined) {
+                      if (!isDCQuery) {
+                        const nqWorldPrice = item.nq?.minListing?.world?.price;
+                        const hqWorldPrice = item.hq?.minListing?.world?.price;
+                        let selectedData = null;
+                        if (nqWorldPrice !== undefined && hqWorldPrice !== undefined) {
+                          selectedData = hqWorldPrice <= nqWorldPrice ? item.hq?.minListing?.world : item.nq?.minListing?.world;
+                        } else if (hqWorldPrice !== undefined) {
+                          selectedData = item.hq?.minListing?.world;
+                        } else if (nqWorldPrice !== undefined) {
+                          selectedData = item.nq?.minListing?.world;
+                        }
+                        if (selectedData !== null) {
+                          const region = selectedData?.region;
+                          minListing = { price: minListingPrice };
+                          if (region !== undefined) {
+                            minListing.region = region;
+                          }
+                        }
+                      } else {
+                        minListing = minListingPrice;
+                      }
+                    }
+                    
+                    let recentPurchase = null;
+                    if (recentPurchasePrice !== null && recentPurchasePrice !== undefined) {
+                      if (!isDCQuery) {
+                        const nqWorldPrice = item.nq?.recentPurchase?.world?.price;
+                        const hqWorldPrice = item.hq?.recentPurchase?.world?.price;
+                        let selectedData = null;
+                        if (nqWorldPrice !== undefined && hqWorldPrice !== undefined) {
+                          selectedData = hqWorldPrice <= nqWorldPrice ? item.hq?.recentPurchase?.world : item.nq?.recentPurchase?.world;
+                        } else if (hqWorldPrice !== undefined) {
+                          selectedData = item.hq?.recentPurchase?.world;
+                        } else if (nqWorldPrice !== undefined) {
+                          selectedData = item.nq?.recentPurchase?.world;
+                        }
+                        const region = selectedData?.region;
+                        recentPurchase = { price: recentPurchasePrice };
+                        if (region !== undefined) {
+                          recentPurchase.region = region;
+                        }
+                      } else {
+                        recentPurchase = recentPurchasePrice;
+                      }
+                    }
+                    
+                    if (velocity !== null && velocity !== undefined) {
+                      batchVelocities[itemId] = velocity;
+                    }
+                    if (averagePrice !== null && averagePrice !== undefined) {
+                      batchAveragePrices[itemId] = Math.round(averagePrice);
+                    }
+                    if (minListing !== null && minListing !== undefined) {
+                      batchMinListings[itemId] = minListing;
+                    }
+                    if (recentPurchase !== null && recentPurchase !== undefined) {
+                      batchRecentPurchases[itemId] = recentPurchase;
+                    }
+                    batchTradability[itemId] = true;
+                  });
+                  
+                  batch.forEach(itemId => {
+                    if (!batchTradability.hasOwnProperty(itemId)) {
+                      batchTradability[itemId] = false;
+                    }
+                  });
+                  
+                  // Update state progressively after each batch
+                  if (!abortSignal.aborted && marketDataRequestId === velocityFetchRequestIdRef.current && currentRequestId === filterSearchRequestIdRef.current) {
+                    flushSync(() => {
+                      setItemVelocities(prev => ({ ...prev, ...batchVelocities }));
+                      setItemAveragePrices(prev => ({ ...prev, ...batchAveragePrices }));
+                      setItemMinListings(prev => ({ ...prev, ...batchMinListings }));
+                      setItemRecentPurchases(prev => ({ ...prev, ...batchRecentPurchases }));
+                      setItemTradability(prev => ({ ...prev, ...batchTradability }));
+                    });
+                    
+                    // Set loading to false after first batch completes
+                    if (batchNumber === 0) {
+                      setIsLoadingVelocities(false);
+                    }
+                  }
+                }
+              } catch (error) {
+                if (error.name === 'AbortError' || abortSignal.aborted) {
+                  return;
+                }
+                console.error('Error fetching market data:', error);
+                // Mark batch items as non-tradable on error
+                const batchTradability = {};
+                batch.forEach(itemId => {
+                  batchTradability[itemId] = false;
+                });
+                if (!abortSignal.aborted && marketDataRequestId === velocityFetchRequestIdRef.current && currentRequestId === filterSearchRequestIdRef.current) {
+                  flushSync(() => {
+                    setItemTradability(prev => ({ ...prev, ...batchTradability }));
+                  });
+                }
+              }
+            };
+
+            // Process batches recursively with non-blocking delays
+            const processBatchesRecursively = async (batchNumber, startIndex) => {
+              if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== filterSearchRequestIdRef.current) {
+                return;
+              }
+              
+              if (startIndex >= sortedItemIds.length) {
+                // Mark fetch as complete
+                if (marketDataRequestId === velocityFetchRequestIdRef.current && currentRequestId === filterSearchRequestIdRef.current && !abortSignal.aborted) {
+                  setIsLoadingVelocities(false);
+                  velocityFetchInProgressRef.current = false;
+                  setVelocityFetchInProgress(false);
+                }
+                return;
+              }
+              
+              // Process this batch
+              await processMarketBatch(batchNumber, startIndex);
+              
+              // Check if we should continue
+              if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || currentRequestId !== filterSearchRequestIdRef.current) {
+                return;
+              }
+              
+              // Determine batch size for next batch
+              let batchSize;
+              if (batchNumber === 0) {
+                batchSize = 20;
+              } else if (batchNumber === 1) {
+                batchSize = 50;
+              } else {
+                batchSize = 100;
+              }
+              
+              const nextIndex = startIndex + batchSize;
+              
+              // Schedule next batch in next event loop tick to break React batching
+              if (nextIndex < sortedItemIds.length) {
+                await new Promise(resolve => {
+                  setTimeout(() => {
+                    processBatchesRecursively(batchNumber + 1, nextIndex).then(resolve);
+                  }, batchNumber === 0 ? 0 : 100); // No delay for first batch, 100ms for others
+                });
+              } else {
+                // Mark fetch as complete
+                if (marketDataRequestId === velocityFetchRequestIdRef.current && currentRequestId === filterSearchRequestIdRef.current && !abortSignal.aborted) {
+                  setIsLoadingVelocities(false);
+                  velocityFetchInProgressRef.current = false;
+                  setVelocityFetchInProgress(false);
+                }
+              }
+            };
+            
+            // Start processing batches
+            try {
+              await processBatchesRecursively(0, 0);
+            } catch (error) {
+              if (error.name !== 'AbortError') {
+                console.error('Error in market data fetch:', error);
+              }
+            }
+          })().catch(error => {
+            if (error.name !== 'AbortError') {
+              console.error('Error in market data fetch:', error);
+            }
+          });
+        }
+
+                                // Load remaining items in batches (non-blocking progressive loading)
+                                const REMAINING_BATCH_SIZE = 50;
+                                
+                                // Process remaining batches progressively (non-blocking)
+                                const processRemainingBatches = async (batchIndex) => {
+                                  // Check if search was cancelled or superseded
+                                  if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+                                  
+                                  const startIndex = INITIAL_BATCH_SIZE + (batchIndex * REMAINING_BATCH_SIZE);
+                                  
+                                  if (startIndex >= sortedItemIds.length) {
+                                    return; // All batches processed
+                                  }
+                                  
+                                  const batch = sortedItemIds.slice(startIndex, startIndex + REMAINING_BATCH_SIZE);
+                                  if (batch.length === 0) {
+                                    return;
+                                  }
+                                  
+                                  // Load batch items
+                                  const batchPromises = batch.map(id => getItemById(id));
+                                  const batchItems = (await Promise.all(batchPromises)).filter(item => item !== null);
+                                  
+                                  // Check again if search was cancelled
+                                  if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+                                  
+                                  // CRITICAL: Filter items using currentMarketableSet to ensure only tradeable items
+                                  const filteredBatchItems = isTradeable 
+                                    ? batchItems.filter(item => currentMarketableSet.has(item.id))
+                                    : batchItems;
+                                  
+                                  // Sort batch items
+                                  const batchItemsSorted = filteredBatchItems.sort((a, b) => {
+                                    const aIlvl = ilvlsData[a.id?.toString()] || null;
+                                    const bIlvl = ilvlsData[b.id?.toString()] || null;
+                                    
+                                    if (aIlvl !== null && bIlvl !== null) {
+                                      return bIlvl - aIlvl;
+                                    }
+                                    if (aIlvl !== null) return -1;
+                                    if (bIlvl !== null) return 1;
+                                    return b.id - a.id;
+                                  });
+
+                                  // Check again before updating state
+                                  if (currentRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+
+                                  // Update results with new batch
+                                  if (isTradeable) {
+                                    setSearchResults(prev => {
+                                      const combined = [...prev, ...batchItemsSorted];
+                                      // Re-sort combined results
+                                      return combined.sort((a, b) => {
+                                        const aIlvl = ilvlsData[a.id?.toString()] || null;
+                                        const bIlvl = ilvlsData[b.id?.toString()] || null;
+                                        
+                                        if (aIlvl !== null && bIlvl !== null) {
+                                          return bIlvl - aIlvl;
+                                        }
+                                        if (aIlvl !== null) return -1;
+                                        if (bIlvl !== null) return 1;
+                                        return b.id - a.id;
+                                      });
+                                    });
+                                  } else {
+                                    // Load untradeable items even if there are tradeable items
+                                    // This allows users to view untradeable items via the button
+                                    setUntradeableResults(prev => {
+                                      const combined = [...prev, ...batchItemsSorted];
+                                      // Re-sort combined results
+                                      return combined.sort((a, b) => {
+                                        const aIlvl = ilvlsData[a.id?.toString()] || null;
+                                        const bIlvl = ilvlsData[b.id?.toString()] || null;
+                                        
+                                        if (aIlvl !== null && bIlvl !== null) {
+                                          return bIlvl - aIlvl;
+                                        }
+                                        if (aIlvl !== null) return -1;
+                                        if (bIlvl !== null) return 1;
+                                        return b.id - a.id;
+                                      });
+                                    });
+                                  }
+                                  
+                                  // Schedule next batch in next event loop tick (non-blocking)
+                                  await new Promise(resolve => {
+                                    setTimeout(() => {
+                                      processRemainingBatches(batchIndex + 1).then(resolve);
+                                    }, 50); // Small delay to allow browser to paint
+                                  });
+                                };
+                                
+                                // Start processing remaining batches (non-blocking)
+                                if (sortedItemIds.length > INITIAL_BATCH_SIZE) {
+                                  processRemainingBatches(0).catch(error => {
+                                    console.error('Error loading remaining batches:', error);
+                                  });
+                                }
+      };
+
+      // Start loading tradeable items progressively
+      // Market data will start loading as soon as first batch is displayed (inside loadItemsProgressively)
+      // Don't await - let it run in background so temp items display immediately
+      // CRITICAL: Use verifiedTradeableItemIds (already filtered) instead of tradeableItemIds
+      if (verifiedTradeableItemIds.length > 0) {
+        // Keep track of untradeable items even when we have tradeable items
+        // This allows users to view untradeable items via the button
+        setShowUntradeable(false); // Show tradeable by default
+        
+        // Start loading tradeable items in background (non-blocking) so temp items display immediately
+        // CRITICAL: Use verifiedTradeableItemIds instead of tradeableItemIds
+        loadItemsProgressively(verifiedTradeableItemIds, true).catch(error => {
+          console.error('Error loading tradeable items progressively:', error);
+        });
+        
+        // Also load untradeable items in background if they exist
+        if (untradeableItemIds.length > 0) {
+          loadItemsProgressively(untradeableItemIds, false).catch(error => {
+            console.error('Error loading untradeable items:', error);
+          });
+        }
+      } else if (untradeableItemIds.length > 0) {
+        // Only show untradeable items if there are NO tradeable items
+        loadItemsProgressively(untradeableItemIds, false).catch(error => {
+          console.error('Error loading untradeable items:', error);
+        });
+      }
+
+      // Check if this request was superseded before showing toast
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        setIsFilterSearching(false);
+        return;
+      }
+
+      // Show toast with results count
+      // CRITICAL: Use verifiedTradeableItemIds instead of tradeableItemIds to match the fix above
+      if (verifiedTradeableItemIds.length > 0 || untradeableItemIds.length > 0) {
+        addToast(`找到 ${verifiedTradeableItemIds.length} 個可交易物品${untradeableItemIds.length > 0 ? `、${untradeableItemIds.length} 個不可交易物品` : ''}`, 'success');
+      }
+
+      // Market data fetching is already started inside loadItemsProgressively when first batch is displayed
+      // No need to fetch again here - it's already running in the background
+      setIsFilterSearching(false);
+    } catch (error) {
+      // Check if this request was superseded
+      if (currentRequestId !== filterSearchRequestIdRef.current) {
+        return;
+      }
+      console.error('Filter search error:', error);
+      addToast('搜索失敗，請稍後再試', 'error');
+      setIsLoadingVelocities(false);
+      setIsFilterSearching(false);
+    }
+  }, [selectedJobs, selectedCategories, selectedWorld, selectedServerOption, addToast, isFilterSearching, isSearching, itemNameFilter, minLevel, maxLevel, filterFuzzySearch, isSearchButtonDisabled]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 via-purple-950/30 to-slate-950 text-white">
+      <TopBar
+        onSearch={onSearch}
+        isSearching={isSearching}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        isServerDataLoaded={isServerDataLoaded}
+        selectedDcName={selectedWorld?.section}
+        onItemSelect={onItemSelect}
+        showNavigationButtons={true}
+        activePage="advanced-search"
+        onTaxRatesClick={onTaxRatesClick}
+        onAdvancedSearchClick={() => {
+          setSearchText('');
+          navigate('/advanced-search');
+        }}
+        onMSQPriceCheckerClick={() => {
+          setSearchText('');
+          navigate('/msq-price-checker');
+        }}
+        onUltimatePriceKingClick={() => {
+          setSearchText('');
+          navigate('/ultimate-price-king');
+        }}
+      />
+
+      {/* Toast Notifications */}
+      <div className="fixed right-2 mid:right-4 left-2 mid:left-auto z-50 space-y-2 max-w-sm mid:max-w-none top-[60px] mid:top-4">
+        {toasts.map(toast => (
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
+      </div>
+
+      <div className="pt-24 pb-8">
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl sm:text-4xl font-bold text-ffxiv-gold mb-2">
+              進階搜尋
+            </h1>
+            <p className="text-gray-400 text-sm sm:text-base">
+              批量搜尋多個物品的市場價格，或使用篩選條件進行搜尋。
+            </p>
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="mb-6 flex gap-2 border-b border-purple-500/30">
+            <button
+              onClick={() => {
+                setActiveTab('filter');
+                // Clear batch input when switching to filter tab
+                setBatchInput('');
+                setTooManyItemsWarning(null);
+                // Reset level range to default
+                setMinLevel(1);
+                setMaxLevel(999);
+                // Reset item name filter
+                setItemNameFilter('');
+                // Reset untradeable display state
+                setShowUntradeable(false);
+                // Clear all search results and market data
+                setSearchResults([]);
+                setUntradeableResults([]);
+                setItemVelocities({});
+                setItemAveragePrices({});
+                setItemMinListings({});
+                setItemRecentPurchases({});
+                setItemTradability({});
+                setCurrentPage(1);
+                // Cancel any ongoing requests
+                if (velocityFetchAbortControllerRef.current) {
+                  velocityFetchAbortControllerRef.current.abort();
+                }
+                setIsLoadingVelocities(false);
+              }}
+              className={`px-4 py-2 font-semibold transition-all border-b-2 ${
+                activeTab === 'filter'
+                  ? 'text-ffxiv-gold border-ffxiv-gold'
+                  : 'text-gray-400 border-transparent hover:text-gray-300'
+              }`}
+            >
+              篩選搜尋
+            </button>
+            <div 
+              className="relative"
+              title={BATCH_SEARCH_DISABLED ? "敬请期待" : ""}
+            >
+              <button
+                onClick={() => {
+                  // Batch search is disabled
+                  if (BATCH_SEARCH_DISABLED) {
+                    return;
+                  }
+                  setActiveTab('batch');
+                  // Clear filter selections when switching to batch tab
+                  setSelectedJobs([]);
+                  setSelectedCategories([]);
+                  setTooManyItemsWarning(null);
+                  // Reset level range to default
+                  setMinLevel(1);
+                  setMaxLevel(999);
+                  // Reset item name filter
+                  setItemNameFilter('');
+                  // Reset untradeable display state
+                  setShowUntradeable(false);
+                  setUntradeableResults([]);
+                  // Clear all search results and market data
+                  setSearchResults([]);
+                  setItemVelocities({});
+                  setItemAveragePrices({});
+                  setItemMinListings({});
+                  setItemRecentPurchases({});
+                  setItemTradability({});
+                  setCurrentPage(1);
+                  // Cancel any ongoing requests
+                  if (velocityFetchAbortControllerRef.current) {
+                    velocityFetchAbortControllerRef.current.abort();
+                  }
+                  setIsLoadingVelocities(false);
+                }}
+                disabled={BATCH_SEARCH_DISABLED}
+                className={`px-4 py-2 font-semibold transition-all border-b-2 ${
+                  BATCH_SEARCH_DISABLED
+                    ? 'text-gray-500 border-transparent cursor-not-allowed opacity-50'
+                    : activeTab === 'batch'
+                      ? 'text-ffxiv-gold border-ffxiv-gold'
+                      : 'text-gray-400 border-transparent hover:text-gray-300'
+                }`}
+              >
+                批量搜尋（開發中）
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'batch' && !BATCH_SEARCH_DISABLED && (
+            <div className="bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-4 sm:p-6 mb-6">
+              {/* Batch Input */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-ffxiv-gold mb-2">
+                  物品名稱列表（每行一個或逗號分隔）
+                </label>
+                <textarea
+                  value={batchInput}
+                  onChange={(e) => setBatchInput(e.target.value)}
+                  placeholder="輸入物品名稱，例如：&#10;精金錠&#10;秘銀錠&#10;山銅錠&#10;或：精金錠, 秘銀錠, 山銅錠"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-ffxiv-gold min-h-[200px] text-sm"
+                />
+                <div className="mt-2 text-xs text-gray-400">
+                  一次最多可搜尋100個物品名稱（支援繁體/簡體中文）
+                </div>
+              </div>
+
+              {/* Exact Search Toggle */}
+              <div className="mb-6">
+                <label className="flex items-center cursor-pointer group" title={!batchFuzzySearch ? "關閉精確搜尋" : "開啟精確搜尋"}>
+                  <input
+                    type="checkbox"
+                    checked={!batchFuzzySearch}
+                    onChange={(e) => setBatchFuzzySearch(!e.target.checked)}
+                    disabled={isBatchSearching || isSearching}
+                    className="sr-only"
+                  />
+                  <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${
+                    isBatchSearching || isSearching
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer'
+                  } ${
+                    !batchFuzzySearch
+                      ? 'bg-ffxiv-gold/80'
+                      : 'bg-slate-600/60'
+                  }`}>
+                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                      !batchFuzzySearch ? 'translate-x-4' : 'translate-x-0'
+                    }`}></div>
+                  </div>
+                  <span className={`ml-2 text-sm whitespace-nowrap select-none ${
+                    isBatchSearching || isSearching
+                      ? 'text-gray-500'
+                      : !batchFuzzySearch
+                        ? 'text-ffxiv-gold'
+                        : 'text-gray-300'
+                  }`}>
+                    精確搜尋
+                  </span>
+                </label>
+              </div>
+
+              {/* Server Selector */}
+              {selectedWorld && (
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-ffxiv-gold mb-2">
+                    伺服器選擇
+                  </label>
+                  <ServerSelector
+                    datacenters={datacenters}
+                    worlds={worlds}
+                    selectedWorld={selectedWorld}
+                    onWorldChange={onWorldChange}
+                    selectedServerOption={selectedServerOption}
+                    onServerOptionChange={onServerOptionChange}
+                    serverOptions={serverOptions}
+                    disabled={isLoadingVelocities}
+                  />
+                </div>
+              )}
+
+              {/* Search Button */}
+              <button
+                onClick={() => handleBatchSearch()}
+                disabled={isBatchSearching || isSearching || isSearchButtonDisabled || !batchInput.trim() || BATCH_SEARCH_DISABLED}
+                className={`w-full py-3 rounded-lg font-semibold transition-all ${
+                  isBatchSearching || isSearching || !batchInput.trim() || BATCH_SEARCH_DISABLED
+                    ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                    : 'bg-gradient-to-r from-ffxiv-gold to-yellow-500 text-slate-900 hover:shadow-[0_0_20px_rgba(212,175,55,0.5)]'
+                }`}
+              >
+                {isBatchSearching || isSearching ? '搜索中...' : '搜索'}
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'filter' && (
+            <div className="bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-4 sm:p-6 mb-6">
+              {/* Bug Report Notice */}
+              <div className="bg-slate-700/80 border border-slate-500/50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-200 leading-relaxed">
+                  這個頁面測試量過於龐大，作者個人時間有限。各位使用大大有發現bug歡迎參考主頁上的巴哈或dc方式回報，感激感激
+                </p>
+              </div>
+              
+              {/* Job Icons and Categories Selection - Side by Side, Height Determined by Crafting Jobs */}
+              <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                {/* Job Icons Selection - Left Side */}
+                <div>
+                  <label className="block text-sm font-semibold text-ffxiv-gold mb-4">
+                    選擇職業
+                  </label>
+                  
+                  {/* 戰鬥職業 - 4 rows, all left-aligned */}
+                  <div className="space-y-[0.86821875rem]">
+                    {/* Row 1: Tanks and Healers */}
+                    <div className="flex flex-wrap gap-2">
+                      {battleJobsByRole.tank.map(job => {
+                        const isSelected = selectedJobs.includes(job.id);
+                        return (
+                          <button
+                            key={job.id}
+                            onClick={() => handleJobToggle(job.id)}
+                            title={job.name}
+                            className={`p-2 rounded-lg border transition-all ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                            }`}
+                          >
+                            {failedIcons.has(job.id) ? (
+                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                            ) : (
+                              <img 
+                                src={job.iconUrl} 
+                                alt={job.name}
+                                className="w-8 h-8 object-contain"
+                                onError={() => handleIconError(job.id)}
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                      {battleJobsByRole.tank.length > 0 && battleJobsByRole.healer.length > 0 && (
+                        <div className="w-px h-8 bg-purple-500/20 mx-1"></div>
+                      )}
+                      {battleJobsByRole.healer.map(job => {
+                        const isSelected = selectedJobs.includes(job.id);
+                        return (
+                          <button
+                            key={job.id}
+                            onClick={() => handleJobToggle(job.id)}
+                            title={job.name}
+                            className={`p-2 rounded-lg border transition-all ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                            }`}
+                          >
+                            {failedIcons.has(job.id) ? (
+                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                            ) : (
+                              <img 
+                                src={job.iconUrl} 
+                                alt={job.name}
+                                className="w-8 h-8 object-contain"
+                                onError={() => handleIconError(job.id)}
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Row 2: Melee and Ranged Physical */}
+                    <div className="flex flex-wrap gap-2 pt-[0.5788125rem] border-t border-purple-500/10">
+                      {battleJobsByRole.melee.map(job => {
+                        const isSelected = selectedJobs.includes(job.id);
+                        return (
+                          <button
+                            key={job.id}
+                            onClick={() => handleJobToggle(job.id)}
+                            title={job.name}
+                            className={`p-2 rounded-lg border transition-all ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                            }`}
+                          >
+                            {failedIcons.has(job.id) ? (
+                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                            ) : (
+                              <img 
+                                src={job.iconUrl} 
+                                alt={job.name}
+                                className="w-8 h-8 object-contain"
+                                onError={() => handleIconError(job.id)}
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                      {battleJobsByRole.melee.length > 0 && battleJobsByRole.ranged.length > 0 && (
+                        <div className="w-px h-8 bg-purple-500/20 mx-1"></div>
+                      )}
+                      {battleJobsByRole.ranged.map(job => {
+                        const isSelected = selectedJobs.includes(job.id);
+                        return (
+                          <button
+                            key={job.id}
+                            onClick={() => handleJobToggle(job.id)}
+                            title={job.name}
+                            className={`p-2 rounded-lg border transition-all ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                            }`}
+                          >
+                            {failedIcons.has(job.id) ? (
+                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                            ) : (
+                              <img 
+                                src={job.iconUrl} 
+                                alt={job.name}
+                                className="w-8 h-8 object-contain"
+                                onError={() => handleIconError(job.id)}
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Row 3: Magical DPS and Gathering Jobs */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-[0.5788125rem] border-t border-purple-500/10">
+                      {/* Magical DPS */}
+                      {battleJobsByRole.caster.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {battleJobsByRole.caster.map(job => {
+                            const isSelected = selectedJobs.includes(job.id);
+                            return (
+                              <button
+                                key={job.id}
+                                onClick={() => handleJobToggle(job.id)}
+                                title={job.name}
+                                className={`p-2 rounded-lg border transition-all ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                    : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                                }`}
+                              >
+                                {failedIcons.has(job.id) ? (
+                                  <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                                ) : (
+                                  <img 
+                                    src={job.iconUrl} 
+                                    alt={job.name}
+                                    className="w-8 h-8 object-contain"
+                                    onError={() => handleIconError(job.id)}
+                                  />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Gathering Jobs */}
+                      <div className="flex flex-wrap gap-2">
+                        {gatheringJobs.map(job => {
+                          const isSelected = selectedJobs.includes(job.id);
+                          return (
+                            <button
+                              key={job.id}
+                              onClick={() => handleJobToggle(job.id)}
+                              title={job.name}
+                              className={`p-2 rounded-lg border transition-all ${
+                                isSelected
+                                  ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                  : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                              }`}
+                            >
+                              {failedIcons.has(job.id) ? (
+                                <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                              ) : (
+                                <img 
+                                  src={job.iconUrl} 
+                                  alt={job.name}
+                                  className="w-8 h-8 object-contain"
+                                  onError={() => handleIconError(job.id)}
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Row 4: Crafting Jobs */}
+                    <div className="flex flex-wrap gap-2 pt-[0.5788125rem] border-t border-purple-500/20">
+                      {craftingJobs.map(job => {
+                        const isSelected = selectedJobs.includes(job.id);
+                        return (
+                          <button
+                            key={job.id}
+                            onClick={() => handleJobToggle(job.id)}
+                            title={job.name}
+                            className={`p-2 rounded-lg border transition-all ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border-ffxiv-gold'
+                                : 'bg-slate-900/50 border-purple-500/30 hover:border-purple-500/50'
+                            }`}
+                          >
+                            {failedIcons.has(job.id) ? (
+                              <span className="w-8 h-8 flex items-center justify-center text-[10px] font-semibold text-gray-300 leading-tight text-center px-1">{job.name}</span>
+                            ) : (
+                              <img 
+                                src={job.iconUrl} 
+                                alt={job.name}
+                                className="w-8 h-8 object-contain"
+                                onError={() => handleIconError(job.id)}
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {selectedJobs.length > 0 && (
+                    <div className="mt-2 text-xs text-gray-400">
+                      已選擇 {selectedJobs.length} 個職業
+                    </div>
+                  )}
+                </div>
+
+                {/* Item Categories Selection - Right Side */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-semibold text-ffxiv-gold mb-4">
+                    選擇物品分類
+                  </label>
+                  <div className="border border-purple-500/30 rounded-lg p-3 bg-slate-900/30 h-[290px] flex flex-col">
+                    {/* Category Search Bar - Inside the box */}
+                    <div className="mb-3 flex-shrink-0">
+                      <div className="relative">
+                        <div className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 z-10">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </div>
+                        <input
+                          ref={categorySearchInputRef}
+                          type="text"
+                          value={categorySearchTerm}
+                          onChange={(e) => setCategorySearchTerm(e.target.value)}
+                          placeholder="篩選搜尋分類"
+                          className="w-full pl-9 pr-3 py-2 bg-slate-800/60 backdrop-blur-sm border border-purple-500/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:border-ffxiv-gold focus:ring-ffxiv-gold/50 transition-all text-xs"
+                        />
+                        {categorySearchTerm && (
+                          <button
+                            onClick={() => setCategorySearchTerm('')}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                            title="清除"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                      <div className="space-y-3">
+                      {/* Equipment Categories Section */}
+                      {([...filteredItemCategories.weapons, ...filteredItemCategories.armor, ...filteredItemCategories.otherEquipment, ...filteredItemCategories.accessories].length > 0) && (
+                      <div>
+                        <div className="text-xs font-semibold text-ffxiv-gold mb-2 px-1">裝備類</div>
+                        
+                        {/* First row: 主手、副手、其他裝備 */}
+                        {([...filteredItemCategories.weapons, ...filteredItemCategories.armor, ...filteredItemCategories.otherEquipment].length > 0) && (
+                        <div className="grid grid-cols-4 gap-2 mb-2">
+                          {[...filteredItemCategories.weapons, ...filteredItemCategories.armor, ...filteredItemCategories.otherEquipment].map(category => {
+                            const categoryId = typeof category.id === 'string' ? category.id : category.id.toString();
+                            const isSelected = selectedCategories.some(selectedId => {
+                              const selectedIdStr = typeof selectedId === 'string' ? selectedId : selectedId.toString();
+                              return selectedIdStr === categoryId;
+                            });
+                            return (
+                              <button
+                                key={category.id}
+                                onClick={() => handleCategoryToggle(category.id)}
+                                className={`px-2 py-1.5 rounded text-xs transition-all text-center ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border border-ffxiv-gold text-ffxiv-gold'
+                                    : 'bg-slate-800/50 border border-purple-500/20 text-gray-300 hover:border-purple-500/40'
+                                }`}
+                              >
+                                {category.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        )}
+                        
+                        {/* Second row: 飾品類 */}
+                        {filteredItemCategories.accessories.length > 0 && (
+                        <div className="grid grid-cols-4 gap-2">
+                          {filteredItemCategories.accessories.map(category => {
+                            const categoryId = typeof category.id === 'string' ? category.id : category.id.toString();
+                            const isSelected = selectedCategories.some(selectedId => {
+                              const selectedIdStr = typeof selectedId === 'string' ? selectedId : selectedId.toString();
+                              return selectedIdStr === categoryId;
+                            });
+                            return (
+                              <button
+                                key={category.id}
+                                onClick={() => handleCategoryToggle(category.id)}
+                                className={`px-2 py-1.5 rounded text-xs transition-all text-center ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border border-ffxiv-gold text-ffxiv-gold'
+                                    : 'bg-slate-800/50 border border-purple-500/20 text-gray-300 hover:border-purple-500/40'
+                                }`}
+                              >
+                                {category.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        )}
+                      </div>
+                      )}
+                      
+                      {/* Separator - only show if both sections have content */}
+                      {([...filteredItemCategories.weapons, ...filteredItemCategories.armor, ...filteredItemCategories.otherEquipment, ...filteredItemCategories.accessories].length > 0) && 
+                       filteredItemCategories.miscellaneous.length > 0 && (
+                      <div className="border-t border-purple-500/30 my-2"></div>
+                      )}
+                      
+                      {/* Miscellaneous Categories Section */}
+                      {filteredItemCategories.miscellaneous.length > 0 && (
+                      <div>
+                        <div className="text-xs font-semibold text-gray-400 mb-2 px-1">雜物類</div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {filteredItemCategories.miscellaneous.map(category => {
+                            // Handle both string IDs (generic categories) and number IDs
+                            const categoryId = typeof category.id === 'string' ? category.id : category.id.toString();
+                            const isSelected = selectedCategories.some(selectedId => {
+                              const selectedIdStr = typeof selectedId === 'string' ? selectedId : selectedId.toString();
+                              return selectedIdStr === categoryId;
+                            });
+                            return (
+                              <button
+                                key={category.id}
+                                onClick={() => handleCategoryToggle(category.id)}
+                                className={`px-2 py-1.5 rounded text-xs transition-all text-center ${
+                                  isSelected
+                                    ? 'bg-gradient-to-r from-ffxiv-gold/20 to-yellow-500/20 border border-ffxiv-gold text-ffxiv-gold'
+                                    : 'bg-slate-800/50 border border-purple-500/20 text-gray-300 hover:border-purple-500/40'
+                                }`}
+                              >
+                                {category.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      )}
+                      
+                      {/* Empty state when no categories match search */}
+                      {categorySearchTerm.trim() && 
+                       filteredItemCategories.weapons.length === 0 &&
+                       filteredItemCategories.armor.length === 0 &&
+                       filteredItemCategories.accessories.length === 0 &&
+                       filteredItemCategories.otherEquipment.length === 0 &&
+                       filteredItemCategories.miscellaneous.length === 0 && (
+                        <div className="py-8 text-center">
+                          <div className="text-sm text-gray-400">
+                            沒有找到匹配「{categorySearchTerm}」的分類
+                          </div>
+                        </div>
+                      )}
+                      </div>
+                    </div>
+                  </div>
+                  {selectedCategories.length > 0 && (
+                    <div className="mt-2 text-xs text-gray-400">
+                      已選擇 {selectedCategories.length} 個分類
+                    </div>
+                  )}
+                  <div className="mt-2 text-xs text-yellow-400">
+                  </div>
+                </div>
+              </div>
+
+              {/* Level Range and Server Selector */}
+              {selectedWorld && (
+                <div className="mb-6 flex flex-col lg:flex-row lg:justify-between gap-8 lg:gap-10">
+                  {/* Level Range Input */}
+                  <div className="flex-shrink-0">
+                    <label className="block text-sm font-semibold text-ffxiv-gold mb-2">
+                      裝備等級範圍
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        min="1"
+                        max="999"
+                        value={minLevelFocused ? (minLevel === 1 ? '' : minLevel) : minLevel}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (inputValue === '') {
+                            setMinLevel(1);
+                            return;
+                          }
+                          const value = parseInt(inputValue);
+                          if (!isNaN(value)) {
+                            const clampedValue = Math.max(1, Math.min(999, value));
+                            setMinLevel(clampedValue);
+                            if (clampedValue > maxLevel) {
+                              setMaxLevel(clampedValue);
+                            }
+                          }
+                        }}
+                        onFocus={() => {
+                          setMinLevelFocused(true);
+                        }}
+                        onBlur={(e) => {
+                          setMinLevelFocused(false);
+                          if (e.target.value === '' || e.target.value === '1') {
+                            setMinLevel(1);
+                          }
+                        }}
+                        disabled={isLoadingVelocities || isFilterSearching}
+                        placeholder="1"
+                        className="w-40 px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-ffxiv-gold disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      />
+                      <div className="text-gray-400">~</div>
+                      <input
+                        type="number"
+                        min="1"
+                        max="999"
+                        value={maxLevelFocused ? (maxLevel === 999 ? '' : maxLevel) : maxLevel}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (inputValue === '') {
+                            setMaxLevel(999);
+                            return;
+                          }
+                          const value = parseInt(inputValue);
+                          if (!isNaN(value)) {
+                            const clampedValue = Math.max(1, Math.min(999, value));
+                            setMaxLevel(clampedValue);
+                            if (clampedValue < minLevel) {
+                              setMinLevel(clampedValue);
+                            }
+                          }
+                        }}
+                        onFocus={() => {
+                          setMaxLevelFocused(true);
+                        }}
+                        onBlur={(e) => {
+                          setMaxLevelFocused(false);
+                          if (e.target.value === '' || e.target.value === '999') {
+                            setMaxLevel(999);
+                          }
+                        }}
+                        disabled={isLoadingVelocities || isFilterSearching}
+                        placeholder="999"
+                        className="w-40 px-3 py-2 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-ffxiv-gold disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Server Selector */}
+                  <div className="w-full lg:w-auto lg:ml-auto">
+                    <label className="block text-sm font-semibold text-ffxiv-gold mb-2">
+                      伺服器選擇
+                    </label>
+                    <ServerSelector
+                      datacenters={datacenters}
+                      worlds={worlds}
+                      selectedWorld={selectedWorld}
+                      onWorldChange={onWorldChange}
+                      selectedServerOption={selectedServerOption}
+                      onServerOptionChange={onServerOptionChange}
+                      serverOptions={serverOptions}
+                      disabled={isLoadingVelocities || isFilterSearching}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Too Many Items Warning */}
+              {tooManyItemsWarning && (
+                <div className="mb-4 p-4 bg-yellow-900/40 border-2 border-yellow-500/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">⚠️</div>
+                    <div className="flex-1">
+                      <h3 className="text-yellow-400 font-semibold mb-2">
+                        找到的物品過多
+                      </h3>
+                      <p className="text-sm text-gray-300 mb-3">
+                        找到 <span className="text-yellow-400 font-bold">{tooManyItemsWarning.total}</span> 個可交易物品，
+                        超過建議上限 <span className="text-yellow-400 font-bold">{tooManyItemsWarning.limit}</span> 個。
+                        處理過多物品可能會導致搜索時間過長或性能問題。
+                      </p>
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={async () => {
+                            // Cancel any ongoing search requests
+                            const continueSearchRequestId = ++filterSearchRequestIdRef.current;
+                            
+                            // Cancel all ongoing market data fetches
+                            if (velocityFetchAbortControllerRef.current) {
+                              velocityFetchAbortControllerRef.current.abort();
+                              velocityFetchAbortControllerRef.current = null;
+                            }
+                            
+                            // Increment velocity fetch request ID to cancel any ongoing market data requests
+                            velocityFetchRequestIdRef.current++;
+                            velocityFetchInProgressRef.current = false;
+                            setVelocityFetchInProgress(false);
+                            setIsLoadingVelocities(false);
+
+                            setTooManyItemsWarning(null);
+                            setIsFilterSearching(true);
+                            setIsSearchButtonDisabled(false); // Clear disabled state for continue search
+                            setSearchResults([]);
+                            setUntradeableResults([]);
+                            setShowUntradeable(false);
+                            setItemVelocities({});
+                            setItemAveragePrices({});
+                            setItemMinListings({});
+                            setItemRecentPurchases({});
+                            setItemTradability({});
+                            setSelectedRarities([]); // Reset rarity filter on continue search
+
+                            // Disable search button for 1.5 seconds
+                            setIsSearchButtonDisabled(true);
+                            setTimeout(() => {
+                              setIsSearchButtonDisabled(false);
+                            }, 1500);
+
+                            try {
+                              // Use shared filter search logic with skipLimitCheck=true
+                              // This allows continuing search even when over limit (user already confirmed)
+                              const result = await performFilterSearchLogic(true);
+                              
+                              // Check if this request was superseded
+                              if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                setIsFilterSearching(false);
+                                return;
+                              }
+                              
+                              if (!result) {
+                                setIsFilterSearching(false);
+                                return; // Error already handled in performFilterSearchLogic
+                              }
+
+                              let { tradeableItemIds, untradeableItemIds } = result;
+                              
+                              // Check if this request was superseded
+                              if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                setIsFilterSearching(false);
+                                return;
+                              }
+
+                              // CRITICAL: Get marketableItems to verify tradeableItemIds
+                              // This matches handleFilterSearch behavior - verify BEFORE loading items
+                              const currentMarketableSet = await getMarketableItems();
+                              
+                              // Check again if this request was superseded
+                              if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                setIsFilterSearching(false);
+                                return;
+                              }
+                              
+                              setMarketableItems(currentMarketableSet);
+                              
+                              // CRITICAL: Double-check that tradeableItemIds only contains tradeable items
+                              // This matches handleBatchSearch behavior - filter BEFORE setting searchResults
+                              const verifiedTradeableItemIds = tradeableItemIds.filter(id => currentMarketableSet.has(id));
+
+                              // Limit to MAX_ITEMS_LIMIT (this is the "continue search" path)
+                              // Use verifiedTradeableItemIds instead of tradeableItemIds
+                              const limitedTradeableItemIds = verifiedTradeableItemIds.slice(0, MAX_ITEMS_LIMIT);
+                              addToast(`已限制為前 ${limitedTradeableItemIds.length} 個物品，正在獲取市場數據...`, 'warning');
+
+                              // Load ilvls data for sorting
+                              const ilvlsData = await loadIlvlsData();
+                              
+                              // Check again if this request was superseded
+                              if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                setIsFilterSearching(false);
+                                return;
+                              }
+
+                              // Use the same unified progressive loading function as handleFilterSearch
+                              // This ensures consistent behavior for both <500 and >500 items
+                              // The only difference is the input: limitedTradeableItemIds (limited to MAX_ITEMS_LIMIT)
+                              const loadItemsProgressively = async (itemIds, isTradeable) => {
+                                // Check if this search request was superseded
+                                if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                  return;
+                                }
+                                
+                                // Use ilvlsData (already loaded above)
+                                const ilvlsDataForSort = ilvlsData;
+                                
+                                // CRITICAL: For tradeable items, itemIds should already be filtered
+                                const filteredItemIds = isTradeable 
+                                  ? itemIds.filter(id => currentMarketableSet.has(id))
+                                  : itemIds;
+                                
+                                const sortedItemIds = [...filteredItemIds].sort((a, b) => {
+                                  const aIlvl = ilvlsDataForSort[a?.toString()] || null;
+                                  const bIlvl = ilvlsDataForSort[b?.toString()] || null;
+                                  
+                                  if (aIlvl !== null && bIlvl !== null) {
+                                    return bIlvl - aIlvl;
+                                  }
+                                  if (aIlvl !== null) return -1;
+                                  if (bIlvl !== null) return 1;
+                                  return b - a;
+                                });
+
+                                // Load first batch (20 items) immediately for fast display
+                                const INITIAL_BATCH_SIZE = 20;
+                                const initialBatch = sortedItemIds.slice(0, INITIAL_BATCH_SIZE);
+                                
+                                const verifiedInitialBatch = isTradeable 
+                                  ? initialBatch.filter(id => currentMarketableSet.has(id))
+                                  : initialBatch;
+                                
+                                // Create items with names from twItemsData for immediate display
+                                const tempItems = verifiedInitialBatch.map(id => {
+                                  const itemData = twItemsData[id?.toString()];
+                                  const itemName = itemData?.tw || `物品 (ID: ${id})`;
+                                  return {
+                                    id: id,
+                                    name: itemName,
+                                    itemLevel: '',
+                                    shopPrice: '',
+                                    description: '',
+                                    inShop: false,
+                                    canBeHQ: true,
+                                    isTradable: true,
+                                  };
+                                });
+                                
+                                const tempItemsSorted = tempItems.sort((a, b) => {
+                                  const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
+                                  const bIlvl = ilvlsDataForSort[b.id?.toString()] || null;
+                                  
+                                  if (aIlvl !== null && bIlvl !== null) {
+                                    return bIlvl - aIlvl;
+                                  }
+                                  if (aIlvl !== null) return -1;
+                                  if (bIlvl !== null) return 1;
+                                  return b.id - a.id;
+                                });
+
+                                // Display initial batch immediately with temporary items
+                                if (isTradeable) {
+                                  setSearchResults([]);
+                                  // Don't clear untradeableResults here - they should be preserved if they exist
+                                  setShowUntradeable(false);
+                                  flushSync(() => {
+                                    setSearchResults(tempItemsSorted);
+                                  });
+                                  
+                                  // Load full item details for initial batch asynchronously
+                                  (async () => {
+                                    const initialPromises = verifiedInitialBatch.map(id => getItemById(id));
+                                    const initialItems = (await Promise.all(initialPromises)).filter(item => item !== null);
+                                    
+                                    // Check if search was cancelled or superseded
+                                    if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    const filteredInitialItems = initialItems.filter(item => currentMarketableSet.has(item.id));
+                                    
+                                    const initialItemsSorted = filteredInitialItems.sort((a, b) => {
+                                      const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
+                                      const bIlvl = ilvlsDataForSort[b.id?.toString()] || null;
+                                      
+                                      if (aIlvl !== null && bIlvl !== null) {
+                                        return bIlvl - aIlvl;
+                                      }
+                                      if (aIlvl !== null) return -1;
+                                      if (bIlvl !== null) return 1;
+                                      return b.id - a.id;
+                                    });
+                                    
+                                    // Check again before updating state
+                                    if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    setSearchResults(initialItemsSorted);
+                                  })().catch(error => {
+                                    console.error('Error loading initial item details:', error);
+                                  });
+                                } else {
+                                  // Load untradeable items even if there are tradeable items
+                                  // This allows users to view untradeable items via the button
+                                  setUntradeableResults(tempItemsSorted);
+                                  
+                                  (async () => {
+                                    const initialPromises = initialBatch.map(id => getItemById(id));
+                                    const initialItems = (await Promise.all(initialPromises)).filter(item => item !== null);
+                                    
+                                    // Check if search was cancelled or superseded
+                                    if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    const initialItemsSorted = initialItems.sort((a, b) => {
+                                      const aIlvl = ilvlsDataForSort[a.id?.toString()] || null;
+                                      const bIlvl = ilvlsDataForSort[b.id?.toString()] || null;
+                                      
+                                      if (aIlvl !== null && bIlvl !== null) {
+                                        return bIlvl - aIlvl;
+                                      }
+                                      if (aIlvl !== null) return -1;
+                                      if (bIlvl !== null) return 1;
+                                      return b.id - a.id;
+                                    });
+                                    
+                                    // Check again before updating state
+                                    if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                      return;
+                                    }
+                                    
+                                    // Always set untradeable results, even if tradeable items exist
+                                    setUntradeableResults(initialItemsSorted);
+                                  })().catch(error => {
+                                    console.error('Error loading untradeable item details:', error);
+                                  });
+                                }
+
+                                // Start loading market data immediately (non-blocking)
+                                if (selectedWorld && selectedServerOption && sortedItemIds.length > 0 && isTradeable) {
+                                  if (velocityFetchAbortControllerRef.current) {
+                                    velocityFetchAbortControllerRef.current.abort();
+                                  }
+
+                                  const marketDataRequestId = ++velocityFetchRequestIdRef.current;
+                                  velocityFetchAbortControllerRef.current = new AbortController();
+                                  const abortSignal = velocityFetchAbortControllerRef.current.signal;
+                                  velocityFetchInProgressRef.current = true;
+                                  setVelocityFetchInProgress(true);
+                                  setIsLoadingVelocities(true);
+
+                                  // Start market data fetch in background (non-blocking)
+                                  (async () => {
+                                    const isDCQuery = selectedServerOption === selectedWorld.section;
+                                    const queryTarget = isDCQuery ? selectedWorld.section : selectedServerOption;
+                                    
+                                    // Helper function to get value from market data
+                                    const getValue = (nqData, hqData, field) => {
+                                      const nqWorld = nqData?.world?.[field];
+                                      const hqWorld = hqData?.world?.[field];
+                                      const nqDc = nqData?.dc?.[field];
+                                      const hqDc = hqData?.dc?.[field];
+                                      const nqValue = isDCQuery ? (nqDc !== undefined ? nqDc : nqWorld) : (nqWorld !== undefined ? nqWorld : undefined);
+                                      const hqValue = isDCQuery ? (hqDc !== undefined ? hqDc : hqWorld) : (hqWorld !== undefined ? hqWorld : undefined);
+                                      if (field === 'quantity') {
+                                        if (nqValue !== undefined || hqValue !== undefined) {
+                                          return (nqValue || 0) + (hqValue || 0);
+                                        }
+                                      } else {
+                                        if (nqValue !== undefined && hqValue !== undefined) {
+                                          return Math.min(nqValue, hqValue);
+                                        } else if (hqValue !== undefined) {
+                                          return hqValue;
+                                        } else if (nqValue !== undefined) {
+                                          return nqValue;
+                                        }
+                                      }
+                                      return null;
+                                    };
+
+                                    // Process a single batch of market data
+                                    const processMarketBatch = async (batchNumber, startIndex) => {
+                                      // Check if search was cancelled or superseded
+                                      if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                        return;
+                                      }
+                                      
+                                      let batchSize;
+                                      if (batchNumber === 0) {
+                                        batchSize = 20;
+                                      } else if (batchNumber === 1) {
+                                        batchSize = 50;
+                                      } else {
+                                        batchSize = 100;
+                                      }
+                                      
+                                      const batch = sortedItemIds.slice(startIndex, startIndex + batchSize);
+                                      if (batch.length === 0) {
+                                        return;
+                                      }
+                                      
+                                      const itemIdsString = batch.join(',');
+                                      
+                                      try {
+                                        const response = await fetch(`https://universalis.app/api/v2/aggregated/${encodeURIComponent(queryTarget)}/${itemIdsString}`, {
+                                          signal: abortSignal
+                                        });
+                                        
+                                        if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                          return;
+                                        }
+                                        
+                                        const data = await response.json();
+                                        
+                                        if (data && data.results) {
+                                          const batchVelocities = {};
+                                          const batchAveragePrices = {};
+                                          const batchMinListings = {};
+                                          const batchRecentPurchases = {};
+                                          const batchTradability = {};
+                                          
+                                          data.results.forEach(item => {
+                                            const itemId = item.itemId;
+                                            
+                                            const velocity = getValue(item.nq?.dailySaleVelocity, item.hq?.dailySaleVelocity, 'quantity');
+                                            let averagePrice = null;
+                                            if (!isDCQuery) {
+                                              const nqWorld = item.nq?.averageSalePrice?.world?.price;
+                                              const hqWorld = item.hq?.averageSalePrice?.world?.price;
+                                              const nqDc = item.nq?.averageSalePrice?.dc?.price;
+                                              const hqDc = item.hq?.averageSalePrice?.dc?.price;
+                                              const nqValue = nqWorld !== undefined ? nqWorld : nqDc;
+                                              const hqValue = hqWorld !== undefined ? hqWorld : hqDc;
+                                              if (nqValue !== undefined && hqValue !== undefined) {
+                                                averagePrice = Math.min(nqValue, hqValue);
+                                              } else if (hqValue !== undefined) {
+                                                averagePrice = hqValue;
+                                              } else if (nqValue !== undefined) {
+                                                averagePrice = nqValue;
+                                              }
+                                            } else {
+                                              averagePrice = getValue(item.nq?.averageSalePrice, item.hq?.averageSalePrice, 'price');
+                                            }
+                                            
+                                            const minListingPrice = getValue(item.nq?.minListing, item.hq?.minListing, 'price');
+                                            const recentPurchasePrice = getValue(item.nq?.recentPurchase, item.hq?.recentPurchase, 'price');
+                                            
+                                            let minListing = null;
+                                            if (minListingPrice !== null && minListingPrice !== undefined) {
+                                              if (!isDCQuery) {
+                                                const nqWorldPrice = item.nq?.minListing?.world?.price;
+                                                const hqWorldPrice = item.hq?.minListing?.world?.price;
+                                                let selectedData = null;
+                                                if (nqWorldPrice !== undefined && hqWorldPrice !== undefined) {
+                                                  selectedData = hqWorldPrice <= nqWorldPrice ? item.hq?.minListing?.world : item.nq?.minListing?.world;
+                                                } else if (hqWorldPrice !== undefined) {
+                                                  selectedData = item.hq?.minListing?.world;
+                                                } else if (nqWorldPrice !== undefined) {
+                                                  selectedData = item.nq?.minListing?.world;
+                                                }
+                                                if (selectedData !== null) {
+                                                  const region = selectedData?.region;
+                                                  minListing = { price: minListingPrice };
+                                                  if (region !== undefined) {
+                                                    minListing.region = region;
+                                                  }
+                                                }
+                                              } else {
+                                                minListing = minListingPrice;
+                                              }
+                                            }
+                                            
+                                            let recentPurchase = null;
+                                            if (recentPurchasePrice !== null && recentPurchasePrice !== undefined) {
+                                              if (!isDCQuery) {
+                                                const nqWorldPrice = item.nq?.recentPurchase?.world?.price;
+                                                const hqWorldPrice = item.hq?.recentPurchase?.world?.price;
+                                                let selectedData = null;
+                                                if (nqWorldPrice !== undefined && hqWorldPrice !== undefined) {
+                                                  selectedData = hqWorldPrice <= nqWorldPrice ? item.hq?.recentPurchase?.world : item.nq?.recentPurchase?.world;
+                                                } else if (hqWorldPrice !== undefined) {
+                                                  selectedData = item.hq?.recentPurchase?.world;
+                                                } else if (nqWorldPrice !== undefined) {
+                                                  selectedData = item.nq?.recentPurchase?.world;
+                                                }
+                                                const region = selectedData?.region;
+                                                recentPurchase = { price: recentPurchasePrice };
+                                                if (region !== undefined) {
+                                                  recentPurchase.region = region;
+                                                }
+                                              } else {
+                                                recentPurchase = recentPurchasePrice;
+                                              }
+                                            }
+                                            
+                                            if (velocity !== null && velocity !== undefined) {
+                                              batchVelocities[itemId] = velocity;
+                                            }
+                                            if (averagePrice !== null && averagePrice !== undefined) {
+                                              batchAveragePrices[itemId] = Math.round(averagePrice);
+                                            }
+                                            if (minListing !== null && minListing !== undefined) {
+                                              batchMinListings[itemId] = minListing;
+                                            }
+                                            if (recentPurchase !== null && recentPurchase !== undefined) {
+                                              batchRecentPurchases[itemId] = recentPurchase;
+                                            }
+                                            batchTradability[itemId] = true;
+                                          });
+                                          
+                                          batch.forEach(itemId => {
+                                            if (!batchTradability.hasOwnProperty(itemId)) {
+                                              batchTradability[itemId] = false;
+                                            }
+                                          });
+                                          
+                                          if (!abortSignal.aborted && marketDataRequestId === velocityFetchRequestIdRef.current && continueSearchRequestId === filterSearchRequestIdRef.current) {
+                                            flushSync(() => {
+                                              setItemVelocities(prev => ({ ...prev, ...batchVelocities }));
+                                              setItemAveragePrices(prev => ({ ...prev, ...batchAveragePrices }));
+                                              setItemMinListings(prev => ({ ...prev, ...batchMinListings }));
+                                              setItemRecentPurchases(prev => ({ ...prev, ...batchRecentPurchases }));
+                                              setItemTradability(prev => ({ ...prev, ...batchTradability }));
+                                            });
+                                            
+                                            if (batchNumber === 0) {
+                                              setIsLoadingVelocities(false);
+                                            }
+                                          }
+                                        }
+                                      } catch (error) {
+                                        if (error.name === 'AbortError' || abortSignal.aborted) {
+                                          return;
+                                        }
+                                        console.error('Error fetching market data:', error);
+                                        const batchTradability = {};
+                                        batch.forEach(itemId => {
+                                          batchTradability[itemId] = false;
+                                        });
+                                        if (!abortSignal.aborted && marketDataRequestId === velocityFetchRequestIdRef.current && continueSearchRequestId === filterSearchRequestIdRef.current) {
+                                          flushSync(() => {
+                                            setItemTradability(prev => ({ ...prev, ...batchTradability }));
+                                          });
+                                        }
+                                      }
+                                    };
+
+                                    // Process batches recursively with non-blocking delays
+                                    const processBatchesRecursively = async (batchNumber, startIndex) => {
+                                      if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                        return;
+                                      }
+                                      
+                                      if (startIndex >= sortedItemIds.length) {
+                                        if (marketDataRequestId === velocityFetchRequestIdRef.current && continueSearchRequestId === filterSearchRequestIdRef.current && !abortSignal.aborted) {
+                                          setIsLoadingVelocities(false);
+                                          velocityFetchInProgressRef.current = false;
+                                          setVelocityFetchInProgress(false);
+                                        }
+                                        return;
+                                      }
+                                      
+                                      await processMarketBatch(batchNumber, startIndex);
+                                      
+                                      if (abortSignal.aborted || marketDataRequestId !== velocityFetchRequestIdRef.current || continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                        return;
+                                      }
+                                      
+                                      let batchSize;
+                                      if (batchNumber === 0) {
+                                        batchSize = 20;
+                                      } else if (batchNumber === 1) {
+                                        batchSize = 50;
+                                      } else {
+                                        batchSize = 100;
+                                      }
+                                      
+                                      const nextIndex = startIndex + batchSize;
+                                      
+                                      if (nextIndex < sortedItemIds.length) {
+                                        await new Promise(resolve => {
+                                          setTimeout(() => {
+                                            processBatchesRecursively(batchNumber + 1, nextIndex).then(resolve);
+                                          }, batchNumber === 0 ? 0 : 100);
+                                        });
+                                      } else {
+                                        if (marketDataRequestId === velocityFetchRequestIdRef.current && continueSearchRequestId === filterSearchRequestIdRef.current && !abortSignal.aborted) {
+                                          setIsLoadingVelocities(false);
+                                          velocityFetchInProgressRef.current = false;
+                                          setVelocityFetchInProgress(false);
+                                        }
+                                      }
+                                    };
+                                    
+                                    try {
+                                      await processBatchesRecursively(0, 0);
+                                    } catch (error) {
+                                      if (error.name !== 'AbortError') {
+                                        console.error('Error in market data fetch:', error);
+                                      }
+                                    }
+                                  })().catch(error => {
+                                    if (error.name !== 'AbortError') {
+                                      console.error('Error in market data fetch:', error);
+                                    }
+                                  });
+                                }
+
+                                // Load remaining items in batches (non-blocking progressive loading)
+                                const REMAINING_BATCH_SIZE = 50;
+                                
+                                const processRemainingBatches = async (batchIndex) => {
+                                  // Check if search was cancelled or superseded
+                                  if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+                                  
+                                  const startIndex = INITIAL_BATCH_SIZE + (batchIndex * REMAINING_BATCH_SIZE);
+                                  
+                                  if (startIndex >= sortedItemIds.length) {
+                                    return;
+                                  }
+                                  
+                                  const batch = sortedItemIds.slice(startIndex, startIndex + REMAINING_BATCH_SIZE);
+                                  if (batch.length === 0) {
+                                    return;
+                                  }
+                                  
+                                  const batchPromises = batch.map(id => getItemById(id));
+                                  const batchItems = (await Promise.all(batchPromises)).filter(item => item !== null);
+                                  
+                                  // Check again if search was cancelled
+                                  if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+                                  
+                                  const filteredBatchItems = isTradeable 
+                                    ? batchItems.filter(item => currentMarketableSet.has(item.id))
+                                    : batchItems;
+                                  
+                                  const batchItemsSorted = filteredBatchItems.sort((a, b) => {
+                                    const aIlvl = ilvlsData[a.id?.toString()] || null;
+                                    const bIlvl = ilvlsData[b.id?.toString()] || null;
+                                    
+                                    if (aIlvl !== null && bIlvl !== null) {
+                                      return bIlvl - aIlvl;
+                                    }
+                                    if (aIlvl !== null) return -1;
+                                    if (bIlvl !== null) return 1;
+                                    return b.id - a.id;
+                                  });
+
+                                  // Check again before updating state
+                                  if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                    return;
+                                  }
+
+                                  if (isTradeable) {
+                                    setSearchResults(prev => {
+                                      const combined = [...prev, ...batchItemsSorted];
+                                      return combined.sort((a, b) => {
+                                        const aIlvl = ilvlsData[a.id?.toString()] || null;
+                                        const bIlvl = ilvlsData[b.id?.toString()] || null;
+                                        
+                                        if (aIlvl !== null && bIlvl !== null) {
+                                          return bIlvl - aIlvl;
+                                        }
+                                        if (aIlvl !== null) return -1;
+                                        if (bIlvl !== null) return 1;
+                                        return b.id - a.id;
+                                      });
+                                    });
+                                  } else {
+                                    // Load untradeable items even if there are tradeable items
+                                    // This allows users to view untradeable items via the button
+                                    setUntradeableResults(prev => {
+                                      const combined = [...prev, ...batchItemsSorted];
+                                      return combined.sort((a, b) => {
+                                        const aIlvl = ilvlsData[a.id?.toString()] || null;
+                                        const bIlvl = ilvlsData[b.id?.toString()] || null;
+                                        
+                                        if (aIlvl !== null && bIlvl !== null) {
+                                          return bIlvl - aIlvl;
+                                        }
+                                        if (aIlvl !== null) return -1;
+                                        if (bIlvl !== null) return 1;
+                                        return b.id - a.id;
+                                      });
+                                    });
+                                  }
+                                  
+                                  await new Promise(resolve => {
+                                    setTimeout(() => {
+                                      processRemainingBatches(batchIndex + 1).then(resolve);
+                                    }, 50);
+                                  });
+                                };
+                                
+                                if (sortedItemIds.length > INITIAL_BATCH_SIZE) {
+                                  processRemainingBatches(0).catch(error => {
+                                    console.error('Error loading remaining batches:', error);
+                                  });
+                                }
+                              };
+
+                              // Start loading tradeable items progressively using unified function
+                              if (limitedTradeableItemIds.length > 0) {
+                                // Keep track of untradeable items even when we have tradeable items
+                                setShowUntradeable(false);
+                                
+                                loadItemsProgressively(limitedTradeableItemIds, true).catch(error => {
+                                  console.error('Error loading tradeable items progressively:', error);
+                                });
+                                
+                                // Also load untradeable items in background if they exist
+                                if (untradeableItemIds.length > 0) {
+                                  loadItemsProgressively(untradeableItemIds, false).catch(error => {
+                                    console.error('Error loading untradeable items:', error);
+                                  });
+                                }
+                              } else if (untradeableItemIds.length > 0) {
+                                loadItemsProgressively(untradeableItemIds, false).catch(error => {
+                                  console.error('Error loading untradeable items:', error);
+                                });
+                              }
+
+                              // Check if this request was superseded before showing toast
+                              if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                setIsFilterSearching(false);
+                                return;
+                              }
+
+                              // Show toast with results count
+                              if (limitedTradeableItemIds.length > 0 || untradeableItemIds.length > 0) {
+                                addToast(`找到 ${limitedTradeableItemIds.length} 個可交易物品${untradeableItemIds.length > 0 ? `、${untradeableItemIds.length} 個不可交易物品` : ''}`, 'success');
+                              }
+
+                              setIsFilterSearching(false);
+                            } catch (error) {
+                              // Check if this request was superseded
+                              if (continueSearchRequestId !== filterSearchRequestIdRef.current) {
+                                return;
+                              }
+                              console.error('Continue search error:', error);
+                              addToast('搜索失敗，請稍後再試', 'error');
+                              setIsLoadingVelocities(false);
+                              setIsFilterSearching(false);
+                            }
+                          }}
+                          className="confirm-button-attention py-3"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span>確認</span>
+                            <span>繼續搜索（限制為前 {MAX_ITEMS_LIMIT} 個）</span>
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => setTooManyItemsWarning(null)}
+                          className="px-4 py-2 bg-slate-700/50 border border-gray-500/50 rounded-lg text-gray-300 hover:bg-slate-700/70 transition-all text-sm font-medium"
+                        >
+                          取消
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Item Name Filter, Search Button and Clear Filters Button */}
+              <div className="flex gap-3">
+                {/* Item Name Filter Input */}
+                <div className="w-[40%] relative">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={itemNameFilter}
+                    onChange={(e) => setItemNameFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !isFilterSearching && !isSearching && (selectedJobs.length > 0 || selectedCategories.length > 0) && !tooManyItemsWarning) {
+                        handleFilterSearch();
+                      }
+                    }}
+                    placeholder="物品名篩選（多關鍵詞用空格分隔）"
+                    disabled={isFilterSearching || isSearching}
+                    className={`w-full py-3 pl-10 pr-20 rounded-lg bg-slate-900/90 backdrop-blur-sm border text-white placeholder-gray-400 focus:outline-none focus:ring-1 transition-all text-sm shadow-lg ${
+                      isFilterSearching || isSearching
+                        ? 'border-slate-700/30 cursor-not-allowed opacity-60'
+                        : 'border-purple-500/40 focus:border-ffxiv-gold focus:ring-ffxiv-gold/50 shadow-purple-500/20'
+                    }`}
+                  />
+                  {/* Exact Search Toggle Button - positioned on the right side of input */}
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 flex items-center gap-1.5">
+                    <label className="flex items-center cursor-pointer group" title={!filterFuzzySearch ? "關閉精準搜尋" : "開啟精準搜尋"}>
+                      <input
+                        type="checkbox"
+                        checked={!filterFuzzySearch}
+                        onChange={(e) => setFilterFuzzySearch(!e.target.checked)}
+                        disabled={isFilterSearching || isSearching}
+                        className="sr-only"
+                      />
+                      <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${
+                        isFilterSearching || isSearching
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'cursor-pointer'
+                      } ${
+                        !filterFuzzySearch
+                          ? 'bg-ffxiv-gold/80'
+                          : 'bg-slate-600/60'
+                      }`}>
+                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                          !filterFuzzySearch ? 'translate-x-4' : 'translate-x-0'
+                        }`}></div>
+                      </div>
+                    </label>
+                    <span className={`text-xs whitespace-nowrap select-none ${
+                      isFilterSearching || isSearching
+                        ? 'text-gray-500'
+                        : !filterFuzzySearch
+                          ? 'text-ffxiv-gold'
+                          : 'text-gray-400'
+                    }`}>
+                      精準
+                    </span>
+                  </div>
+                </div>
+                  <button
+                    onClick={handleFilterSearch}
+                    disabled={isFilterSearching || isSearching || isSearchButtonDisabled || (selectedJobs.length === 0 && selectedCategories.length === 0) || tooManyItemsWarning !== null}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                      isFilterSearching || isSearching || isSearchButtonDisabled || (selectedJobs.length === 0 && selectedCategories.length === 0) || tooManyItemsWarning !== null
+                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                        : 'bg-gradient-to-r from-ffxiv-gold to-yellow-500 text-slate-900 hover:shadow-[0_0_20px_rgba(212,175,55,0.5)]'
+                    }`}
+                  >
+                    {isFilterSearching || isSearching ? '搜索中...' : '搜索'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Clear all filter selections
+                      setSelectedJobs([]);
+                      setSelectedCategories([]);
+                      setMinLevel(1);
+                      setMaxLevel(999);
+                      setItemNameFilter('');
+                      setSearchResults([]);
+                      setUntradeableResults([]);
+                      setShowUntradeable(false);
+                      setItemVelocities({});
+                      setItemAveragePrices({});
+                      setItemMinListings({});
+                      setItemRecentPurchases({});
+                      setItemTradability({});
+                      setCurrentPage(1);
+                      setTooManyItemsWarning(null);
+                      // Cancel any ongoing requests
+                      if (velocityFetchAbortControllerRef.current) {
+                        velocityFetchAbortControllerRef.current.abort();
+                      }
+                      setIsLoadingVelocities(false);
+                      setIsFilterSearching(false);
+                    }}
+                    disabled={isFilterSearching || isSearching}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                      isFilterSearching || isSearching
+                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                        : 'bg-red-600/60 text-white border border-red-500/50 hover:bg-red-600/80 hover:border-red-400/70 hover:shadow-[0_0_20px_rgba(220,38,38,0.5)]'
+                    }`}
+                  >
+                  清空篩選
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {(() => {
+            // CRITICAL: Only render if we have tradeable items OR (no tradeable items AND untradeable items)
+            // This prevents untradeable items from being displayed when tradeable items exist
+            const hasTradeableItems = searchResults.length > 0;
+            const shouldRender = activeTab === 'filter' 
+              ? (hasTradeableItems || (!hasTradeableItems && untradeableResults.length > 0))
+              : (activeTab === 'batch' && !BATCH_SEARCH_DISABLED && searchResults.length > 0);
+            
+            if (!shouldRender) return null;
+            
+            // Determine which results to show based on activeTab and showUntradeable
+            // Allow user to toggle between tradeable and untradeable items via button
+            const shouldShowUntradeable = showUntradeable;
+            const allResultsForRarityCount = activeTab === 'filter' 
+              ? (shouldShowUntradeable ? untradeableResults : searchResults)
+              : (activeTab === 'batch' && !BATCH_SEARCH_DISABLED ? searchResults : []);
+            
+            // Calculate rarity counts for ALL results (before filtering)
+            // This allows users to see all available rarities regardless of current page
+            const allResultsRarityCounts = (() => {
+              if (!raritiesData) return {};
+              const counts = {};
+              allResultsForRarityCount.forEach(item => {
+                const rarity = raritiesData[item.id?.toString()] !== undefined 
+                  ? raritiesData[item.id.toString()] 
+                  : 0;
+                counts[rarity] = (counts[rarity] || 0) + 1;
+              });
+              return counts;
+            })();
+            
+            let currentResults = allResultsForRarityCount;
+            
+            // Calculate filtered items count (same logic as ItemTable)
+            // This simulates the filtering that happens inside ItemTable
+            let filteredResults = currentResults;
+            if (marketableItems) {
+              const hasTradeableItems = currentResults.some(item => {
+                const tradable = itemTradability?.[item.id];
+                return tradable === true;
+              });
+              
+              if (hasTradeableItems) {
+                filteredResults = currentResults.filter(item => {
+                  const tradable = itemTradability?.[item.id];
+                  return tradable === true;
+                });
+              }
+            }
+            
+            // Filter by rarity BEFORE pagination (so it applies to all pages)
+            // Multi-select: filter items that match any selected rarity
+            if (selectedRarities.length > 0 && raritiesData) {
+              currentResults = currentResults.filter(item => {
+                const itemRarity = raritiesData[item.id?.toString()] !== undefined 
+                  ? raritiesData[item.id.toString()] 
+                  : 0;
+                return selectedRarities.includes(itemRarity);
+              });
+              // Also filter filteredResults by rarity
+              filteredResults = filteredResults.filter(item => {
+                const itemRarity = raritiesData[item.id?.toString()] !== undefined 
+                  ? raritiesData[item.id.toString()] 
+                  : 0;
+                return selectedRarities.includes(itemRarity);
+              });
+            }
+            
+            // Pagination calculations (after rarity filtering)
+            const totalPages = Math.ceil(currentResults.length / itemsPerPage);
+            // Ensure currentPage doesn't exceed totalPages (safety check)
+            const safeCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
+            const startIndex = (safeCurrentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedResults = currentResults.slice(startIndex, endIndex);
+            
+            return (
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                  <h2 className="text-xl sm:text-2xl font-bold text-ffxiv-gold">
+                    搜索結果 ({currentResults.length} 個物品{filteredResults.length !== currentResults.length ? `，顯示 ${filteredResults.length} 個` : ''})
+                  </h2>
+                  {selectedWorld && selectedServerOption && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-indigo-900/40 border border-purple-500/30 rounded-lg backdrop-blur-sm">
+                      <div className="w-1.5 h-1.5 rounded-full bg-ffxiv-gold animate-pulse"></div>
+                      <span className="text-xs sm:text-sm font-semibold text-ffxiv-gold">
+                        {selectedServerOption === selectedWorld.section
+                          ? `${selectedWorld.section} (全服)`
+                          : worlds[selectedServerOption] || `伺服器 ${selectedServerOption}`
+                        }
+                      </span>
+                    </div>
+                  )}
+                  {/* Show untradeable items button - positioned to the right of server display */}
+                  {/* Only show button when loading is complete and we have both tradeable and untradeable items */}
+                  {/* Use same logic as rarity selector disabled state */}
+                  {activeTab === 'filter' && untradeableResults.length > 0 && searchResults.length > 0 && isServerDataLoaded && !isLoadingVelocities && !velocityFetchInProgress && !isBatchSearching && !isFilterSearching && (
+                    <button
+                      onClick={() => {
+                        setShowUntradeable(!showUntradeable);
+                        setCurrentPage(1); // Reset to first page when switching between tradeable/untradeable
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 backdrop-blur-sm shadow-sm ${
+                        showUntradeable
+                          ? 'bg-gradient-to-r from-slate-700/70 via-slate-600/60 to-slate-700/70 text-gray-200 border border-slate-500/50 hover:from-slate-600/80 hover:via-slate-500/70 hover:to-slate-600/80 hover:border-slate-400/60 hover:shadow-md'
+                          : 'bg-gradient-to-r from-slate-800/70 via-slate-700/60 to-slate-800/70 text-gray-300 border border-slate-600/50 hover:from-slate-700/80 hover:via-slate-600/70 hover:to-slate-700/80 hover:border-slate-500/60 hover:shadow-md hover:text-gray-200'
+                      }`}
+                    >
+                      {showUntradeable ? `隱藏不可交易物品` : `顯示不可以交易物品${untradeableResults.length}個`}
+                    </button>
+                  )}
+                  {/* Loading Indicator - show when searching or loading velocities */}
+                  {showLoadingIndicator && (
+                    <div className="flex items-center gap-2 px-2 py-1 bg-slate-800/50 border border-purple-500/30 rounded-lg">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-ffxiv-gold"></div>
+                      <span className="text-xs text-gray-300">載入中...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pagination Controls */}
+                {currentResults.length > itemsPerPage && (
+                  <div className="mb-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
+                    <div className="flex items-center gap-3">
+                      <label className="text-sm text-gray-300">每頁顯示:</label>
+                      <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                          const newItemsPerPage = parseInt(e.target.value, 10);
+                          setItemsPerPage(newItemsPerPage);
+                          setCurrentPage(1); // Reset to first page
+                        }}
+                        className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
+                      >
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                        <option value={200}>200</option>
+                      </select>
+                      <span className="text-sm text-gray-400">
+                        顯示 {startIndex + 1}-{Math.min(endIndex, currentResults.length)} / {currentResults.length}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handlePageChange(1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === 1
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        首頁
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === 1
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        上一頁
+                      </button>
+                      <span className="px-3 py-1.5 text-sm text-gray-300">
+                        第 {currentPage} / {totalPages} 頁
+                      </span>
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === totalPages
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        下一頁
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === totalPages
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        末頁
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <ItemTable
+                  items={paginatedResults}
+                  onSelect={(item) => {
+                    if (onItemSelect) {
+                      const params = new URLSearchParams();
+                      if (selectedServerOption) {
+                        params.set('server', selectedServerOption);
+                      }
+                      const queryString = params.toString();
+                      const itemUrl = `/item/${item.id}${queryString ? '?' + queryString : ''}`;
+                      
+                      onItemSelect(item);
+                      
+                      // Open in new tab
+                      window.open(itemUrl, '_blank');
+                    }
+                  }}
+                  selectedItem={null}
+                  marketableItems={marketableItems}
+                  itemVelocities={itemVelocities}
+                  itemAveragePrices={itemAveragePrices}
+                  itemMinListings={itemMinListings}
+                  itemRecentPurchases={itemRecentPurchases}
+                  itemTradability={itemTradability}
+                  isLoadingVelocities={isLoadingVelocities}
+                  averagePriceHeader="平均價格"
+                  getSimplifiedChineseName={getSimplifiedChineseName}
+                  addToast={addToast}
+                  selectedRarities={selectedRarities}
+                  setSelectedRarities={setSelectedRarities}
+                  raritiesData={raritiesData}
+                  externalRarityFilter={true}
+                  externalRarityCounts={allResultsRarityCounts}
+                  isServerDataLoaded={isServerDataLoaded}
+                  isRaritySelectorDisabled={!isServerDataLoaded || isLoadingVelocities || velocityFetchInProgress || isBatchSearching || isFilterSearching}
+                />
+
+                {/* Pagination Controls - Bottom */}
+                {currentResults.length > itemsPerPage && (
+                  <div className="mt-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
+                    <div className="flex items-center gap-3">
+                      <label className="text-sm text-gray-300">每頁顯示:</label>
+                      <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                          const newItemsPerPage = parseInt(e.target.value, 10);
+                          setItemsPerPage(newItemsPerPage);
+                          setCurrentPage(1); // Reset to first page
+                        }}
+                        className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
+                      >
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                        <option value={200}>200</option>
+                      </select>
+                      <span className="text-sm text-gray-400">
+                        顯示 {startIndex + 1}-{Math.min(endIndex, currentResults.length)} / {currentResults.length}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handlePageChange(1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === 1
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        首頁
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === 1
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        上一頁
+                      </button>
+                      <span className="px-3 py-1.5 text-sm text-gray-300">
+                        第 {currentPage} / {totalPages} 頁
+                      </span>
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === totalPages
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        下一頁
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === totalPages
+                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
+                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
+                        }`}
+                      >
+                        末頁
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+
+      {/* Tax Rates Modal */}
+      <TaxRatesModal
+        isOpen={isTaxRatesModalOpen}
+        onClose={() => setIsTaxRatesModalOpen(false)}
+        taxRates={taxRates}
+        worlds={worlds}
+        isLoading={isLoadingTaxRates}
+        selectedWorld={selectedWorld}
+        selectedServerOption={selectedServerOption}
+      />
+    </div>
+  );
+}

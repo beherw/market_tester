@@ -1,0 +1,44 @@
+@import "../../../../common";
+
+:host ::ng-deep .ant-collapse-header {
+  .fork-count > sup {
+    background-color: rgb(150, 150, 150);
+    right: 5px !important;
+    min-width: 16px;
+    height: 16px;
+    line-height: 16px;
+    top: -4px;
+  }
+
+  .ant-badge {
+    overflow: hidden;
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding-right: 20px;
+
+  .panel-middle-content {
+    padding: 0 10px;
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .name {
+    white-space: nowrap;
+    height: 1.1em;
+    margin-top: .1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.odd {
+  background-color: rgba(77, 77, 77, .5);
+}
+
+.list-item-row {
+  padding: 5px;
+}

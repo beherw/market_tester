@@ -1,0 +1,40 @@
+<div fxLayout="column">
+  <div fxLayout="row">
+    <div fxFlex="0 0 20%" fxLayoutAlign="flex-start center">{{ 'VOYAGE_TRACKER.Name_column' | translate }}</div>
+    <div fxFlex="0 0 20%" fxLayoutAlign="center center">{{ 'VOYAGE_TRACKER.Return_time_column' | translate }}</div>
+    <div fxFlex="0 0 20%" fxLayoutAlign="center center">{{ 'VOYAGE_TRACKER.Remaining_time_column' | translate }}</div>
+    <div fxFlex="0 0 90px" fxLayoutAlign="center center">{{ 'VOYAGE_TRACKER.Rank_column' | translate }}</div>
+    <div fxFlex="0 0 120px" fxLayoutAlign="center center">{{ 'VOYAGE_TRACKER.Build_column' | translate }}</div>
+    <div fxFlex="0" fxLayoutAlign="center center">{{ 'VOYAGE_TRACKER.Voyage_column' | translate }}</div>
+  </div>
+</div>
+<div class="separator"></div>
+
+<ng-container *ngTemplateOutlet="isAirshipsEmpty ? noVessel : airshipsTpl; context: {$implicit: vesselTypeEnum.AIRSHIP}"></ng-container>
+<ng-template #airshipsTpl>
+  @for (vessel of airships; track vessel) {
+    <div class="vessels-list" fxLayout="column">
+      @if (vessel?.rank > 0) {
+        <app-vessel-row [vessel]="vessel" [maxRank]="airshipMaxRank"></app-vessel-row>
+      }
+    </div>
+  }
+</ng-template>
+
+<div class="separator"></div>
+<ng-container *ngTemplateOutlet="isSubmarinesEmpty ? noVessel : submarinesTpl; context: {$implicit: vesselTypeEnum.SUBMARINE}"></ng-container>
+<ng-template #submarinesTpl>
+  @for (vessel of submarines; track vessel) {
+    <div class="vessels-list" fxLayout="column">
+      @if (vessel?.rank > 0) {
+        <app-vessel-row [vessel]="vessel" [maxRank]="submarineMaxRank"></app-vessel-row>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #noVessel let-type>
+  <div class="no-vessel" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="5px">
+    {{ getNoVesselMessageByVesselType(type) }}
+  </div>
+</ng-template>

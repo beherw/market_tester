@@ -1,0 +1,9 @@
+<nz-card [nzTitle]="'DB.FISH.Baits' | translate"
+  [nzLoading]="loading$ | async"
+  [style.width.px]="480 + 48">
+  @if (options$ | async; as options) {
+    <div echarts theme="dark" [options]="options" [initOpts]="{height: '300px'}"></div>
+  } @else {
+    <nz-spin></nz-spin>
+  }
+</nz-card>

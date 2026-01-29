@@ -1,0 +1,11 @@
+@if (recipe$ | async; as recipe) {
+  <app-simulator
+    [itemId]="itemId$ | async"
+    [recipe]="recipe"
+    [thresholds]="thresholds$ | async"
+    [routeStats]="stats$ | async"
+    [routeConsumables]="consumables$ | async">
+  </app-simulator>
+} @else {
+  <app-page-loader></app-page-loader>
+}

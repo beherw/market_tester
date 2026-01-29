@@ -1,0 +1,102 @@
+@import "../../../../common";
+
+.alarms-container {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  will-change: transform;
+  height: 100%;
+
+  &.sidebar {
+    max-height: ~'calc(100vh - 88px)';
+  }
+
+  .ant-divider {
+    margin: 0;
+  }
+
+  .done-button {
+    height: 21px;
+    width: 100%;
+  }
+
+  .alarm-row {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 5px;
+
+    .item-icon {
+      position: relative;
+
+      .img-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+      }
+
+      .node-type {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    &.spawned {
+      background-color: fade(@primary-color, 50%);
+    }
+
+    &.played {
+      background-color: fade(@highlight-color, 50%);
+    }
+
+    .top-right-icons {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      > div {
+        cursor: pointer;
+      }
+    }
+
+    .hookset-icon {
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+    }
+
+    .folder-icon {
+      margin-right: 5px;
+    }
+
+    .note-icon {
+      margin-left: 5px;
+    }
+
+    .ephemeral {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .center-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+
+      .item-name {
+        margin-right: 2px;
+        line-height: 16px;
+      }
+    }
+  }
+}
+
+:host ::ng-deep h2 {
+  font-size: 2rem !important;
+}
+

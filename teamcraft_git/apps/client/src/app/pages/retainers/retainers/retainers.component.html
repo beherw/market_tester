@@ -1,0 +1,128 @@
+<h2>{{'RETAINERS.Title' | translate}}</h2>
+
+<app-page-loader [loading]="loading">
+  <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="flex-start center">
+    <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+      <nz-switch [(ngModel)]="settings.retainerTaskAlarms"></nz-switch>
+      <div>{{'RETAINERS.Task_completion_alarm' | translate}}</div>
+    </div>
+    <div>
+      <button nz-button (click)="resetRetainers()">{{'RETAINERS.Reset_retainers' | translate}}</button>
+    </div>
+  </div>
+
+  @if (display$ | async; as display) {
+    @if (display.length === 0) {
+      <ng-container *ngTemplateOutlet="noRetainers"></ng-container>
+    }
+    @for (row of display; track trackByRow($index, row)) {
+      <nz-divider nzOrientation="left" [nzText]="characterTitle">
+        <ng-template #characterTitle>
+          <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+            <div>{{row.characterName}}</div>
+            @if (fetchStatus$ | async; as fetchStatus) {
+              <div nz-tooltip
+                [nzTooltipTitle]="fetchStatus.canFetch ? null : ('RETAINERS.Cannot_fetch' | translate: {date: fetchStatus.lastFetch | date:'medium':null:settings.dateFormat})">
+                <button nz-button nzShape="circle" nzSize="small" nzType="primary"
+                  nz-tooltip [nzTooltipTitle]="fetchStatus.canFetch? ('RETAINERS.Check_prices' | translate) : null"
+                  [disabled]="!fetchStatus.canFetch || row.server === 'Unknown'"
+                  (click)="checkPrices(row.characterName, row.server, row.retainers)">
+                  <i nz-icon nzType="fund" nzTheme="outline"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </nz-divider>
+      @if (panelsState$ | async; as panelsState) {
+        <div fxLayout="column" fxLayoutGap="10px">
+          @for (retainer of row.retainers; track trackByRetainer($index, retainer)) {
+            <div>
+              <nz-collapse>
+                <nz-collapse-panel [nzHeader]="retainerHeader" [nzActive]="panelsState[retainer.name]"
+                  (nzActiveChange)="updatePanelsState(panelsState,retainer.name, $event)">
+                  <ng-template #retainerHeader>
+                    <div nz-row class="retainer-panel-header">
+                      <div nz-col nzMd="4" fxLayout="row" fxLayoutAlign="flex-start center">
+                        {{retainer.name}}
+                      </div>
+                      <div nz-col nzMd="2" fxLayout="row" fxLayoutAlign="flex-start center">
+                        {{'RETAINERS.Selling' | translate:{ amount: retainer.itemSellingCount } }}
+                        ({{retainer.totalSellingPrice | number:'1.0-0':translate.currentLang}}gil)
+                      </div>
+                      <div nz-col nzMd="2" fxLayout="row" fxLayoutAlign="flex-start center">
+                        <span class="companion-svg" [innerHTML]="retainer.job | jobUnicode"></span>
+                        {{retainer.level}}
+                      </div>
+                      <div nz-col nzMd="2" fxLayout="row" fxLayoutAlign="flex-start center">
+                        <app-item-icon [disableClick]="true" [itemId]="1" width="32"></app-item-icon>
+                        {{retainer.gil | number:'1.0-0':translate.currentLang}}
+                      </div>
+                      <div nz-col nzMd="2" fxLayout="row" fxLayoutAlign="flex-start center">
+                        {{'RETAINERS.X_items' | translate:{ amount: retainer.itemCount } }}
+                      </div>
+                      <div nz-col nzMd="8" fxLayout="row" fxLayoutAlign="flex-start center">
+                        @if (retainer.task) {
+                          <span>{{retainer.task | i18nRow:'ventures' | i18n}}</span>
+                        }
+                        @if (!retainer.task) {
+                          <span>{{'RETAINERS.No_task' | translate}}</span>
+                        }
+                      </div>
+                      <div nz-col nzMd="4" fxLayout="row" fxLayoutAlign="flex-start center">
+                        @if (retainer.taskDone) {
+                          <i nz-icon nzType="check-circle" nzTheme="outline" class="task-icon complete"></i> {{'RETAINERS.Task_complete' | translate}}
+                        } @else {
+                          <i nz-icon nzType="field-time" nzTheme="outline" class="task-icon"></i> {{retainer.remainingTime | timer}}
+                        }
+                      </div>
+                    </div>
+                  </ng-template>
+                  <div class="market-items" nz-row>
+                    @for (item of retainer.marketItems; track trackByItemId($index, item); let oddItem = $odd) {
+                      <div nz-col nzOffset="2" nzMd="22" [class.odd]="oddItem"
+                        class="market-item-row">
+                        <div nz-row>
+                          <div nz-col nzMd="6" fxLayoutAlign="flex-start center">
+                            <app-item-icon [width]="24" [itemId]="item.itemId" [hq]="item.hq" class="task-icon"></app-item-icon>
+                            <div>{{item.itemId | itemName | i18n}}</div>
+                            <div>&nbsp;x{{item.quantity}}</div>
+                          </div>
+                          <div nz-col nzMd="4" fxLayout="row" fxLayoutGap="5px">
+                            <app-item-icon width="24" itemId="1"></app-item-icon>
+                            <div>{{item.unitMbPrice ? (item.unitMbPrice | number:'1.0-0':translate.currentLang) : '???'}}</div>
+                          </div>
+                          @if (item.mbStatus) {
+                            <div nz-col nzMd="6">
+                              <nz-tag class="custom-tag"
+                                [style.border-color]="getDiffTagColor(item.mbStatus.diff)"
+                                nz-tooltip
+                                [nzTooltipTitle]="(item.mbStatus.diff > 0 ? 'RETAINERS.X%_above' : 'RETAINERS.X%_below') | translate:{diff: item.mbStatus.diff}">
+                                {{item.mbStatus.diff > 0 ? '+' : ''}}{{item.mbStatus.diff}}%
+                              </nz-tag>
+                              <nz-tag>{{'RETAINERS.Lowest_price' | translate}}: {{item.mbStatus.lowest | number:'1.0-0':translate.currentLang}}</nz-tag>
+                              <a href="https://universalis.app/market/{{item.itemId}}" target="_blank">{{'MARKETBOARD.More_on_universalis' | translate}}</a>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </nz-collapse-panel>
+              </nz-collapse>
+            </div>
+          }
+        </div>
+      }
+    }
+  } @else {
+    @if (!loading) {
+      <app-fullpage-message>{{'RETAINERS.No_retainers' | translate}}</app-fullpage-message>
+    }
+  }
+  <ng-template #noRetainers>
+    @if (!loading) {
+      <app-fullpage-message>{{'RETAINERS.No_retainers' | translate}}</app-fullpage-message>
+    }
+  </ng-template>
+</app-page-loader>

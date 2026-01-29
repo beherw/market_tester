@@ -1,0 +1,22 @@
+<div fxLayout="{{flex}} wrap" fxLayoutAlign="flex-start">
+  @for (bait of baits; track bait; let index = $index; let last = $last) {
+    <div [fxLayout]="flex" fxLayoutAlign="center center"
+      fxLayoutGap="5px">
+      <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+        <app-item-icon [itemId]="bait.id"
+        [width]="iconWidth"></app-item-icon>
+        @if (!hideNames) {
+          <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="2px">
+            <div>{{bait.id | itemName | i18n}}</div>
+            @if (index > 0 && bait.tug !== undefined) {
+              <i class="tug">{{bait.tug | tugName | translate}}</i>
+            }
+          </div>
+        }
+      </div>
+      @if (!last) {
+        <i [nzType]="flex === 'column'?'caret-down':'caret-right'" nz-icon theme="outline"></i>
+      }
+    </div>
+  }
+</div>

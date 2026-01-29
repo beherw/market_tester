@@ -1,0 +1,39 @@
+<div class="tooltip-container">
+  <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="10px">
+    <div class="icon">
+      <img alt="{{action | i18n}}" src="https://xivapi.com{{action.icon}}">
+    </div>
+    <div class="name">
+      <div>{{action | i18n}}</div>
+      @if (state > 1) {
+        <i class="state" [style.color]="stateColor">{{('SIMULATOR.STATE.' + stateName) | translate}}</i>
+      }
+    </div>
+  </div>
+  <div class="description">
+    <span [innerHtml]="action.description | i18n | nzSanitizer:'html'"></span>
+  </div>
+  <div class="details">
+    @for (row of details; track row) {
+      <div nz-row nzGutter="10">
+        <div [nzXs]="12" nz-col>
+          <p class="detail-name">
+            {{row.name | translate}}
+          </p>
+        </div>
+        <div [nzXs]="12" nz-col>
+          @if (!row.requiresPipe) {
+            <p class="detail-value">
+              {{row.value}}
+            </p>
+          }
+          @if (row.requiresPipe) {
+            <p class="detail-value">
+              {{row.value | i18n}}
+            </p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

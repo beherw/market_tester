@@ -1,0 +1,29 @@
+@if (results$ | async; as results) {
+  <ul class="result-list">
+    @for (row of results; track row.label) {
+      <li fxLayout="row" fxLayoutGap="5px">
+        <div>
+          @switch (row.result) {
+            @case ('loading') {
+              <i nz-icon nzType="loading"></i>
+            }
+            @case (null) {
+              <i nz-icon nzType="check-circle" nzTheme="twotone" nzTwotoneColor="#52c41a"></i>
+            }
+            @default {
+              <i nz-icon nzType="close-circle" nzTheme="twotone" nzTwotoneColor="#eb2f96"></i>
+            }
+          }
+        </div>
+        <div>{{('ADMIN.USERS.INTEGRITY_CHECK.' + row.label) | translate}}</div>
+        @if (!row.fixing && row.result !== null && row.result !== 'loading') {
+          <button nz-button nzSize="small" nzShape="circle" nzType="primary"
+            nz-tooltip [nzTooltipTitle]="'ADMIN.Autofix_error' | translate"
+            (click)="row.fixing = true;fix(row.check, row.result)">
+            <i nz-icon nzType="tool"></i>
+          </button>
+        }
+      </li>
+    }
+  </ul>
+}

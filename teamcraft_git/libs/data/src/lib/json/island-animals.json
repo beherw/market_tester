@@ -1,0 +1,475 @@
+{
+  "1": {
+    "id": 1,
+    "rewards": [
+      37603,
+      37611
+    ],
+    "icon": "/i/070000/070121_hr1.png",
+    "bnpcName": 392,
+    "bnpcBase": 14906,
+    "size": 1
+  },
+  "2": {
+    "id": 2,
+    "rewards": [
+      37611,
+      37603
+    ],
+    "icon": "/i/070000/070122_hr1.png",
+    "bnpcName": 795,
+    "bnpcBase": 14907,
+    "size": 1
+  },
+  "3": {
+    "id": 3,
+    "rewards": [
+      37604,
+      37605
+    ],
+    "icon": "/i/070000/070123_hr1.png",
+    "bnpcName": 5,
+    "bnpcBase": 14908,
+    "size": 1
+  },
+  "4": {
+    "id": 4,
+    "rewards": [
+      37605,
+      37604
+    ],
+    "icon": "/i/070000/070124_hr1.png",
+    "bnpcName": 6,
+    "bnpcBase": 14909,
+    "size": 1
+  },
+  "5": {
+    "id": 5,
+    "rewards": [
+      37603,
+      37607
+    ],
+    "icon": "/i/070000/070125_hr1.png",
+    "bnpcName": 341,
+    "bnpcBase": 14910,
+    "size": 1
+  },
+  "6": {
+    "id": 6,
+    "rewards": [
+      37607,
+      37603
+    ],
+    "icon": "/i/070000/070126_hr1.png",
+    "bnpcName": 11448,
+    "bnpcBase": 14911,
+    "size": 1
+  },
+  "7": {
+    "id": 7,
+    "rewards": [
+      37604,
+      37605
+    ],
+    "icon": "/i/070000/070127_hr1.png",
+    "bnpcName": 37,
+    "bnpcBase": 14912,
+    "size": 1
+  },
+  "8": {
+    "id": 8,
+    "rewards": [
+      37605,
+      37604
+    ],
+    "icon": "/i/070000/070128_hr1.png",
+    "bnpcName": 262,
+    "bnpcBase": 14913,
+    "size": 1
+  },
+  "9": {
+    "id": 9,
+    "rewards": [
+      37609,
+      37608
+    ],
+    "icon": "/i/070000/070129_hr1.png",
+    "bnpcName": 11449,
+    "bnpcBase": 14914,
+    "size": 1
+  },
+  "10": {
+    "id": 10,
+    "rewards": [
+      37608,
+      37609
+    ],
+    "icon": "/i/070000/070130_hr1.png",
+    "bnpcName": 11450,
+    "bnpcBase": 14915,
+    "size": 1
+  },
+  "11": {
+    "id": 11,
+    "rewards": [
+      37607,
+      37606
+    ],
+    "icon": "/i/070000/070131_hr1.png",
+    "bnpcName": 393,
+    "bnpcBase": 14916,
+    "size": 2
+  },
+  "12": {
+    "id": 12,
+    "rewards": [
+      37606,
+      37607
+    ],
+    "icon": "/i/070000/070132_hr1.png",
+    "bnpcName": 11451,
+    "bnpcBase": 14917,
+    "size": 2
+  },
+  "13": {
+    "id": 13,
+    "rewards": [
+      37605,
+      37611
+    ],
+    "icon": "/i/070000/070133_hr1.png",
+    "bnpcName": 11452,
+    "bnpcBase": 14918,
+    "size": 2
+  },
+  "14": {
+    "id": 14,
+    "rewards": [
+      37605,
+      37610
+    ],
+    "icon": "/i/070000/070134_hr1.png",
+    "bnpcName": 11453,
+    "bnpcBase": 14919,
+    "size": 2
+  },
+  "15": {
+    "id": 15,
+    "rewards": [
+      37605,
+      37606
+    ],
+    "icon": "/i/070000/070135_hr1.png",
+    "bnpcName": 780,
+    "bnpcBase": 14920,
+    "size": 2
+  },
+  "16": {
+    "id": 16,
+    "rewards": [
+      37606,
+      37605
+    ],
+    "icon": "/i/070000/070136_hr1.png",
+    "bnpcName": 6942,
+    "bnpcBase": 14921,
+    "size": 2
+  },
+  "17": {
+    "id": 17,
+    "rewards": [
+      37608,
+      37604
+    ],
+    "icon": "/i/070000/070137_hr1.png",
+    "bnpcName": 11454,
+    "bnpcBase": 14922,
+    "size": 2
+  },
+  "18": {
+    "id": 18,
+    "rewards": [
+      37604,
+      37608
+    ],
+    "icon": "/i/070000/070138_hr1.png",
+    "bnpcName": 10173,
+    "bnpcBase": 14923,
+    "size": 2
+  },
+  "19": {
+    "id": 19,
+    "rewards": [
+      37611,
+      37610
+    ],
+    "icon": "/i/070000/070139_hr1.png",
+    "bnpcName": 357,
+    "bnpcBase": 14924,
+    "size": 3
+  },
+  "20": {
+    "id": 20,
+    "rewards": [
+      37610,
+      37611
+    ],
+    "icon": "/i/070000/070140_hr1.png",
+    "bnpcName": 11455,
+    "bnpcBase": 14925,
+    "size": 3
+  },
+  "21": {
+    "id": 21,
+    "rewards": [
+      37611,
+      37610
+    ],
+    "icon": "/i/070000/070141_hr1.png",
+    "bnpcName": 11456,
+    "bnpcBase": 14926,
+    "size": 3
+  },
+  "22": {
+    "id": 22,
+    "rewards": [
+      37610,
+      37603
+    ],
+    "icon": "/i/070000/070142_hr1.png",
+    "bnpcName": 11457,
+    "bnpcBase": 14927,
+    "size": 3
+  },
+  "23": {
+    "id": 23,
+    "rewards": [
+      37607,
+      37606
+    ],
+    "icon": "/i/070000/070143_hr1.png",
+    "bnpcName": 1281,
+    "bnpcBase": 14928,
+    "size": 3
+  },
+  "24": {
+    "id": 24,
+    "rewards": [
+      37606,
+      37607
+    ],
+    "icon": "/i/070000/070144_hr1.png",
+    "bnpcName": 2769,
+    "bnpcBase": 14929,
+    "size": 3
+  },
+  "25": {
+    "id": 25,
+    "rewards": [
+      37603,
+      37605
+    ],
+    "icon": "/i/070000/070145_hr1.png",
+    "bnpcName": 11458,
+    "bnpcBase": 14930,
+    "size": 1
+  },
+  "26": {
+    "id": 26,
+    "rewards": [
+      37608,
+      37604
+    ],
+    "icon": "/i/070000/070146_hr1.png",
+    "bnpcName": 11459,
+    "bnpcBase": 14931,
+    "size": 1
+  },
+  "27": {
+    "id": 27,
+    "rewards": [
+      37604,
+      37603
+    ],
+    "icon": "/i/070000/070147_hr1.png",
+    "bnpcName": 3499,
+    "bnpcBase": 14932,
+    "size": 2
+  },
+  "28": {
+    "id": 28,
+    "rewards": [
+      37604,
+      37609
+    ],
+    "icon": "/i/070000/070148_hr1.png",
+    "bnpcName": 11460,
+    "bnpcBase": 14933,
+    "size": 3
+  },
+  "29": {
+    "id": 29,
+    "rewards": [
+      37609,
+      37604
+    ],
+    "icon": "/i/070000/070149_hr1.png",
+    "bnpcName": 353,
+    "bnpcBase": 14934,
+    "size": 3
+  },
+  "30": {
+    "id": 30,
+    "rewards": [
+      37606,
+      37604
+    ],
+    "icon": "/i/070000/070150_hr1.png",
+    "bnpcName": 12313,
+    "bnpcBase": 14935,
+    "size": 3
+  },
+  "31": {
+    "id": 31,
+    "rewards": [
+      37609,
+      37605
+    ],
+    "icon": "/i/070000/070151_hr1.png",
+    "bnpcName": 12314,
+    "bnpcBase": 16068,
+    "size": 2
+  },
+  "32": {
+    "id": 32,
+    "rewards": [
+      37608,
+      37609
+    ],
+    "icon": "/i/070000/070152_hr1.png",
+    "bnpcName": 12315,
+    "bnpcBase": 16069,
+    "size": 1
+  },
+  "33": {
+    "id": 33,
+    "rewards": [
+      37609,
+      37605
+    ],
+    "icon": "/i/070000/070153_hr1.png",
+    "bnpcName": 12456,
+    "bnpcBase": 14936,
+    "size": 1
+  },
+  "34": {
+    "id": 34,
+    "rewards": [
+      37605,
+      37609
+    ],
+    "icon": "/i/070000/070154_hr1.png",
+    "bnpcName": 12457,
+    "bnpcBase": 14937,
+    "size": 1
+  },
+  "35": {
+    "id": 35,
+    "rewards": [
+      37609,
+      37610
+    ],
+    "icon": "/i/070000/070155_hr1.png",
+    "bnpcName": 12458,
+    "bnpcBase": 14938,
+    "size": 3
+  },
+  "36": {
+    "id": 36,
+    "rewards": [
+      37610,
+      37609
+    ],
+    "icon": "/i/070000/070156_hr1.png",
+    "bnpcName": 12459,
+    "bnpcBase": 14939,
+    "size": 3
+  },
+  "37": {
+    "id": 37,
+    "rewards": [
+      37609,
+      37605
+    ],
+    "icon": "/i/070000/070157_hr1.png",
+    "bnpcName": 12460,
+    "bnpcBase": 14940,
+    "size": 3
+  },
+  "38": {
+    "id": 38,
+    "rewards": [
+      37603,
+      37605
+    ],
+    "icon": "/i/070000/070158_hr1.png",
+    "bnpcName": 12461,
+    "bnpcBase": 16340,
+    "size": 1
+  },
+  "39": {
+    "id": 39,
+    "rewards": [
+      37606,
+      37607
+    ],
+    "icon": "/i/070000/070159_hr1.png",
+    "bnpcName": 12462,
+    "bnpcBase": 16341,
+    "size": 2
+  },
+  "40": {
+    "id": 40,
+    "rewards": [
+      37609,
+      37608
+    ],
+    "icon": "/i/070000/070163_hr1.png",
+    "bnpcName": 12627,
+    "bnpcBase": 16628,
+    "size": 3
+  },
+  "41": {
+    "id": 41,
+    "rewards": [
+      37608,
+      37604
+    ],
+    "icon": "/i/070000/070160_hr1.png",
+    "bnpcName": 12628,
+    "bnpcBase": 16629,
+    "size": 3
+  },
+  "42": {
+    "id": 42,
+    "rewards": [
+      37604,
+      37610
+    ],
+    "icon": "/i/070000/070162_hr1.png",
+    "bnpcName": 12629,
+    "bnpcBase": 16630,
+    "size": 3
+  },
+  "43": {
+    "id": 43,
+    "rewards": [
+      37609,
+      37608
+    ],
+    "icon": "/i/070000/070161_hr1.png",
+    "bnpcName": 12630,
+    "bnpcBase": 16631,
+    "size": 3
+  }
+}

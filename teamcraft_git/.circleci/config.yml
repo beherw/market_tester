@@ -1,0 +1,238 @@
+defaults: &defaults
+  working_directory: ~/ffxiv-teamcraft
+  docker:
+    - image: cimg/node:20.14-browsers
+
+
+version: 2.1
+orbs:
+  win: circleci/windows@5.0.0
+jobs:
+  setup:
+    <<: *defaults
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run:
+          name: Show current branch
+          command: echo ${CIRCLE_BRANCH}
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install local dependencies
+          command: yarn install --immutable --ignore-scripts
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ffxiv-teamcraft/*
+            - .cache/*
+
+
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Lint code and JSON
+          command: yarn run lint
+
+
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Testing
+          command: yarn run test
+      - run:
+          name: Codecov upload
+          command: yarn run codecov
+
+
+  build:
+    <<: *defaults
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Building
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+                yarn run build:prod
+            else
+                yarn run build:beta
+            fi
+          no_output_timeout: 30m
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ffxiv-teamcraft/dist/*
+            - .cache/*
+
+
+  build-api:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Building
+          command: yarn api:build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ffxiv-teamcraft/dist/*
+            - .cache/*
+
+
+  deploy-hosting:
+    working_directory: ~/ffxiv-teamcraft
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - attach_workspace:
+          at: ~/
+      - add_ssh_keys:
+          fingerprints:
+            - "fe:16:5e:5a:4c:4a:3e:36:80:a7:13:5b:1f:64:7b:e0"
+      - run:
+          name: Deploying cdn to OVH server
+          command: bash tools/cdn/deploy.sh
+      - store_artifacts:
+          path: ./rsync.log
+
+
+  deploy-firebase-hosting:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Deploying web
+          command: ./node_modules/.bin/firebase deploy -P default --only hosting --token "$FIREBASE_TOKEN"
+
+  deploy-api:
+    working_directory: ~/ffxiv-teamcraft
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Authorize GCloud Command Line Tool
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+      - run:
+          name: Deploy Could Run TC API
+          command: gcloud builds submit --config ./apps/api/cloudbuild.yaml . && gcloud beta run deploy api --image gcr.io/ffxivteamcraft/api --region us-central1 --allow-unauthenticated --update-secrets=XIVAPI_KEY=XIVAPI_KEY:latest --update-secrets=FFCAFE_KEY=FFCAFE_KEY:latest
+
+
+  release-desktop:
+    executor:
+      name: win/default
+    working_directory: ~/ffxiv-teamcraft
+    steps:
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys:
+            - v2-deps-{ .Branch }-{ checksum "yarn.lock" }
+      - run: choco install wget -y
+      - run:
+          command: wget https://bootstrap.pypa.io/get-pip.py -P C:\Users\circleci\Downloads\
+          shell: cmd.exe
+      - run:
+          command: python C:\Users\circleci\Downloads\get-pip.py
+          shell: cmd.exe
+      - run:
+          command: pip install setuptools
+          shell: cmd.exe
+      - run:
+          command: wget https://nodejs.org/dist/v20.14.0/node-v20.14.0-x64.msi -P C:\Users\circleci\Downloads\
+          shell: cmd.exe
+      - run: MsiExec.exe /i C:\Users\circleci\Downloads\node-v20.14.0-x64.msi /qn
+      - run:
+          name: Install yarn
+          command: |
+             Start-Process powershell -verb runAs -Args "-start GeneralProfile"
+             nvm install 20.14.0
+             nvm use 20.14.0
+             npm i -g yarn
+      - run:
+          name: Reinstalling dependencies for windows
+          command: yarn install --immutable
+      - run:
+          name: Deploying desktop on github
+          no_output_timeout: 30m
+          command: yarn run electron:setup:publish
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ffxiv-teamcraft/release/*
+
+
+  deploy-staging:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Deploying web
+          command: ./node_modules/.bin/firebase deploy -P beta --only hosting --token "$FIREBASE_TOKEN"
+
+
+workflows:
+  version: 2
+  flow:
+    jobs:
+      - setup
+      - lint:
+          requires:
+            - setup
+      - build:
+          requires:
+            - lint
+      - build-api:
+          requires:
+            - lint
+      - deploy-hosting:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy-api:
+          requires:
+            - build-api
+          filters:
+            branches:
+              only: master
+      - deploy-firebase-hosting:
+          requires:
+            - deploy-hosting
+          filters:
+            branches:
+              only: master
+      - release-desktop:
+          requires:
+            - lint
+          filters:
+            branches:
+              only: master
+      - deploy-staging:
+          requires:
+            - build
+          filters:
+            branches:
+              only: staging
+

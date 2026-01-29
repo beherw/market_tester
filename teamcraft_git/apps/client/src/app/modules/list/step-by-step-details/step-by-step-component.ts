@@ -1,0 +1,231 @@
+import { TeamcraftComponent } from '../../../core/component/teamcraft-component';
+import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
+import { StepByStepDisplayData } from './step-by-step-display-data';
+import { debounceTime, filter, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
+import { DataType, getItemSource, Vector2 } from '@ffxiv-teamcraft/types';
+import { NodeTypeIconPipe } from '../../../pipes/pipes/node-type-icon.pipe';
+import { MapMarker } from '../../map/map-marker';
+import { NavigationObjective } from '../../map/navigation-objective';
+import { EorzeaFacade } from '../../eorzea/+state/eorzea.facade';
+import { IpcService } from '../../../core/electron/ipc.service';
+import { ListsFacade } from '../+state/lists.facade';
+import { LayoutsFacade } from '../../../core/layout/+state/layouts.facade';
+import { SettingsService } from '../../settings/settings.service';
+import { LazyDataFacade } from '../../../lazy-data/+state/lazy-data.facade';
+import { MapService } from '../../map/map.service';
+import { EorzeanTimeService } from '../../../core/eorzea/eorzean-time.service';
+import { AlarmsFacade } from '../../../core/alarms/+state/alarms.facade';
+import { MapData } from '../../map/map-data';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { StepByStepList } from './model/step-by-step-list';
+import { ListDisplay } from '../../../core/layout/list-display';
+import { MapListStep } from './model/map-list-step';
+import { uniqBy } from 'lodash';
+
+@Component({ template: '' })
+export abstract class StepByStepComponent extends TeamcraftComponent implements OnInit {
+
+  selectedMap$ = new BehaviorSubject(0);
+
+  DataType = DataType;
+
+  public containerRef: ElementRef;
+
+  @ViewChild('container', { static: false })
+  public set _containerRef(ref: ElementRef) {
+    setTimeout(() => {
+      this.containerRef = ref;
+    }, 500);
+  }
+
+  public loading = true;
+
+  public stepByStep$: Observable<StepByStepList>;
+
+  public currentMapDisplay$: Observable<MapListStep>;
+
+  public currentPath$: Observable<StepByStepDisplayData>;
+
+  protected overlay = false;
+
+  protected constructor(protected eorzeaFacade: EorzeaFacade, protected ipc: IpcService,
+                        protected listsFacade: ListsFacade, protected layoutsFacade: LayoutsFacade,
+                        protected settings: SettingsService, protected lazyData: LazyDataFacade,
+                        protected mapService: MapService, protected etime: EorzeanTimeService, protected alarmsFacade: AlarmsFacade) {
+    super();
+  }
+
+  ngOnInit(): void {
+    this.stepByStep$ = combineLatest([
+      this.listsFacade.selectedList$,
+      this.getDisplay(),
+      this.settings.watchSetting('housingMap', this.settings.housingMap),
+      this.lazyData.getEntry('maps')
+    ]).pipe(
+      debounceTime(10),
+      map(([list, display, housingMap, maps]) => {
+        return new StepByStepList(list, display, housingMap, maps, this.settings);
+      }),
+      switchMap(list => {
+        return this.mapService.sortMapIdsByTpCost(list.maps).pipe(
+          map(sortedMaps => {
+            list.maps = sortedMaps;
+            return list;
+          })
+        );
+      }),
+      tap((list) => this.onNewStepByStep(list)),
+      shareReplay(1)
+    );
+
+    this.currentMapDisplay$ = combineLatest([this.stepByStep$, this.getMapId()]).pipe(
+      map(([stepByStep, mapId]) => {
+        this.loading = false;
+        // Island: 773
+        return stepByStep.steps[mapId];
+      })
+    );
+
+    // This resets position on map change
+    const position$ = combineLatest([
+        this.selectedMap$,
+        this.ipc.updatePositionHandlerPackets$,
+        this.eorzeaFacade.mapId$
+      ]
+    ).pipe(
+      map(([selectedMap, position, currentMapId]) => {
+        if (selectedMap === currentMapId || this.overlay) {
+          return position;
+        }
+        return null;
+      }),
+      startWith(null)
+    );
+
+    this.currentPath$ = combineLatest([
+      this.currentMapDisplay$,
+      position$,
+      this.stepByStep$,
+      this.etime.getEorzeanTime()
+    ]).pipe(
+      filter(([display]) => Boolean(display)),
+      switchMap(([display, position, stepByStep, etime]) => {
+        const alarmMarkers = stepByStep.alarms.filter(row => {
+          const alarms = getItemSource(row, DataType.ALARMS);
+          return row.done < row.amount && alarms.some(a => a.mapId === display.mapId);
+        }).map(row => {
+          return getItemSource(row, DataType.ALARMS).filter(a => a.mapId === display.mapId)
+            .map(alarm => {
+              const display = this.alarmsFacade.createDisplay(alarm, etime);
+              return {
+                row: row,
+                marker: {
+                  x: alarm.coords.x,
+                  y: alarm.coords.y,
+                  iconType: 'img',
+                  zIndex: 55,
+                  iconImg: NodeTypeIconPipe.timed_icons[alarm.type],
+                  subtitle: this.etime.toStringTimer(display.remainingTime),
+                  subtitleStyle: display.spawned ? {
+                    'text-shadow': `2px 0 0 #4880b1, -2px 0 0 #4880b1, 0 2px 0 #4880b1, 0 -2px 0 #4880b1, 1px 1px #4880b1, -1px -1px 0 #4880b1, 1px -1px 0 #4880b1, -1px 1px 0 #4880b1;`
+                  } : {}
+                } as MapMarker
+              };
+            });
+        }).flat();
+        const markers: NavigationObjective[] = display.sources.map(source => {
+          return display[source]
+            .filter(row => row.row.amount > row.row.done)
+            .map(row => {
+              return {
+                ...row.coords,
+                itemId: row.row.id,
+                type: row.type,
+                listRow: row.row,
+                icon: row.icon,
+                monster: row.monster,
+                fate: row.fate,
+                additionalStyle: {
+                  width: row.type === 'Hunting' ? '24px' : '32px',
+                  height: row.type === 'Hunting' ? '24px' : '32px'
+                }
+              };
+            });
+        }).flat().filter(Boolean);
+        return this.mapService.getMapById(display.mapId).pipe(
+          switchMap(mapData => {
+            const startingPoint = position ? this.mapService.getCoordsOnMap(mapData, {
+              x: position.pos.x,
+              y: position.pos.z
+            }) : null;
+            return this.mapService.getOptimizedPathOnMap(display.mapId, markers, startingPoint).pipe(
+              map(steps => {
+                return {
+                  path: {
+                    map: mapData,
+                    // Removing first step as it's the starting point.
+                    steps: steps || [],
+                    alarms: alarmMarkers
+                  },
+                  additionalMarkers: [
+                    startingPoint ? {
+                      ...startingPoint,
+                      iconType: 'img',
+                      zIndex: 55,
+                      iconImg: './assets/icons/map/cursor.png',
+                      additionalStyle: {
+                        transform: `rotate(${(position.rotation - Math.PI) * -1}rad)`,
+                        'margin-top': '-16px',
+                        'margin-left': '-16px'
+                      }
+                    } as MapMarker : null,
+                    ...uniqBy(alarmMarkers.map(m => m.marker), (marker) => `${marker.x}:${marker.y}`),
+                    ...display.sources
+                      .filter(s => s !== DataType.ALARMS)
+                      .map(source => {
+                        return display[source]
+                          .filter(row => row.row.done < row.row.amount)
+                          .map(row => {
+                            return {
+                              ...row.coords,
+                              zIndex: 55,
+                              iconType: 'img',
+                              iconImg: row.icon,
+                              additionalStyle: {
+                                width: row.type === 'Hunting' ? '24px' : '32px',
+                                height: row.type === 'Hunting' ? '24px' : '32px'
+                              }
+                            } as MapMarker;
+                          });
+                      }).flat()
+                  ].filter(Boolean)
+                };
+              })
+            );
+          })
+        );
+      })
+    );
+  }
+
+  protected abstract getDisplay(): Observable<ListDisplay>;
+
+  protected abstract getMapId(): Observable<number>;
+
+  protected onNewStepByStep(list: StepByStepList): void {
+    return;
+  }
+
+
+  getPositionPercent(mapData: MapData, coords: Vector2): Vector2 {
+    const positionPercents = this.mapService.getPositionPercentOnMap(mapData, coords);
+    return {
+      x: positionPercents.x * this.containerRef.nativeElement.offsetWidth / 100,
+      y: positionPercents.y * this.containerRef.nativeElement.offsetHeight / 100
+    };
+  }
+
+  trackById(index: number, item: { id: number }): number {
+    return item.id;
+  }
+}

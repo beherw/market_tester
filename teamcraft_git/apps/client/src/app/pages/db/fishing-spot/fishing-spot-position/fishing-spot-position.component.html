@@ -1,0 +1,16 @@
+<nz-card [nzTitle]="'DB.Position' | translate" class="card-with-list expanded" [style.max-width.px]="360" [nzLoading]="loading">
+  @if (spot.coords) {
+    <app-map
+      [hideDbButton]="true"
+      [mapId]="spot.mapId"
+    [markers]="[
+      {
+        x: spot.coords.x,
+        y: spot.coords.y
+      }
+    ]"
+  ></app-map>
+} @else {
+  <nz-empty [nzNotFoundContent]="'DB.FISHING_SPOT.Position_unknown' | translate"></nz-empty>
+}
+</nz-card>

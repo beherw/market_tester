@@ -1,0 +1,80 @@
+<div fxLayout="column" fxLayoutGap="10px">
+  <nz-collapse class="custom-config">
+    <nz-collapse-panel [nzActive]="true" [nzHeader]="'SIMULATOR.CUSTOM.Recipe_configuration' | translate">
+      <form [formGroup]="recipeForm" [nzLayout]="'inline'" nz-form>
+        <nz-form-item>
+          <nz-form-label nzFor="rlvl">rlvl</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="rlvl" id="rlvl" name="rlvl" type="text" [nzMin]="1"
+            (mouseWheelUp)="adjust('rlvl', 1)" (mouseWheelDown)="adjust('rlvl', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="durability">lvl</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="level" id="level" name="level" [nzMin]="1" [nzMax]="curMaxLevel"
+            (mouseWheelUp)="adjust('level', 1)" (mouseWheelDown)="adjust('level', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="progress">progress</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="progress" id="progress" name="progress" type="text" [nzMin]="1"
+            (mouseWheelUp)="adjust('progress', 1)" (mouseWheelDown)="adjust('progress', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="quality">quality</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="quality" id="quality" name="quality" type="text" [nzMin]="1"
+            (mouseWheelUp)="adjust('quality', 1)" (mouseWheelDown)="adjust('quality', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="durability">durability</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="durability" id="durability" name="durability" type="text" [nzMin]="1"
+            (mouseWheelUp)="adjust('durability', 1)" (mouseWheelDown)="adjust('durability', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="progressDivider">progressDivider</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="progressDivider" id="progressDivider" name="progressDivider" type="text" [nzMin]="1"
+                             (mouseWheelUp)="adjust('progressDivider', 1)" (mouseWheelDown)="adjust('progressDivider', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="progressModifier">progressModifier</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="progressModifier" id="progressModifier" name="progressModifier" type="text" [nzMin]="1"
+                             (mouseWheelUp)="adjust('progressModifier', 1)" (mouseWheelDown)="adjust('progressModifier', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="qualityDivider">qualityDivider</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="qualityDivider" id="qualityDivider" name="qualityDivider" type="text" [nzMin]="1"
+                             (mouseWheelUp)="adjust('qualityDivider', 1)" (mouseWheelDown)="adjust('qualityDivider', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="qualityModifier">qualityModifier</nz-form-label>
+          <nz-form-control>
+            <nz-input-number mouseWheel formControlName="qualityModifier" id="qualityModifier" name="qualityModifier" type="text" [nzMin]="1"
+                             (mouseWheelUp)="adjust('qualityModifier', 1)" (mouseWheelDown)="adjust('qualityModifier', -1)"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="expert">Expert</nz-form-label>
+          <nz-form-control>
+            <label nz-checkbox formControlName="expert" id="expert" name="expert"></label>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </nz-collapse-panel>
+  </nz-collapse>
+  @if (recipe$ | async; as recipe) {
+    <app-simulator [custom]="true" [recipe]="recipe" [routeStats]="stats$ | async"></app-simulator>
+  }
+</div>

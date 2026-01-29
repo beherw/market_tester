@@ -1,0 +1,49 @@
+<div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px" class="source">
+  <div>
+    @switch (source) {
+      @case (AllaganReportSource.DEPRECATED) {
+        <i nz-icon nzType="close-circle" nzTheme="twotone" [nzTwotoneColor]="'#F5222DFF'"></i>
+      }
+      @case (AllaganReportSource.GARDENING) {
+        <img class="img-icon gardening-icon" src="./assets/icons/Gardening.png">
+      }
+      @case (AllaganReportSource.DESYNTH) {
+        <i nzIconfont="icon-vectorcombine" nz-icon></i>
+      }
+      @case (AllaganReportSource.DROP) {
+        <img alt="Drops" class="img-icon" src="./assets/icons/mob.png">
+      }
+      @case (AllaganReportSource.QUEST) {
+        <img alt="Quests" class="img-icon" src="./assets/icons/quest.png">
+      }
+      @case (AllaganReportSource.INSTANCE) {
+        <img src="./assets/icons/instance.png" class="img-icon">
+      }
+      @case (AllaganReportSource.REDUCTION) {
+        <img class="img-icon round-icon" src="./assets/icons/Reduce.png">
+      }
+      @case (AllaganReportSource.VOYAGE) {
+        <img alt="Voyages" class="img-icon" src="./assets/icons/Voyage.png">
+      }
+      @case (AllaganReportSource.VENTURE) {
+        <img [src]="21072 | lazyIcon" alt="Ventures" class="img-icon round-icon">
+      }
+      @case (AllaganReportSource.LOOT) {
+        <img alt="Loot" class="img-icon round-icon" src="./assets/icons/chest_open.png">
+      }
+      @case (AllaganReportSource.FISHING) {
+        <img alt="Fishing" class="img-icon round-icon" [src]="4 | nodeTypeIcon">
+      }
+      @case (AllaganReportSource.SPEARFISHING) {
+        <img alt="Fishing" class="img-icon round-icon" [src]="5 | nodeTypeIcon">
+      }
+      @case (AllaganReportSource.FATE) {
+        <img alt="FATE" class="img-icon round-icon" src="https://xivapi.com/i/060000/060501.png">
+      }
+      @case (AllaganReportSource.MOGSTATION) {
+        <img alt="MOGSTATION" class="img-icon round-icon" src="./assets/icons/mogstation.ico">
+      }
+    }
+  </div>
+  <div>{{('ALLAGAN_REPORTS.SOURCE.' + source) | translate}}</div>
+</div>

@@ -1,0 +1,66 @@
+<nz-card
+  [nzTitle]="title"
+  class="expanded mw-400"
+  [nzLoading]="loading$ | async"
+  [class.card-with-list]="!(loading$ | async)"
+  >
+  <ng-template #title>
+    <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
+      <div>{{'DB.FISHING_SPOT.Fish_per_bait' | translate}}</div>
+      <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+        <div>
+          <nz-select [nzPlaceHolder]="'DB.FISHING_SPOT.Lure_filter' | translate" class="lure-filter" [ngModel]="lureFilter$ | async" (ngModelChange)="lureFilter$.next($event)" [compareWith]="compareLures">
+            <nz-option nzLabel="{{'DB.FISHING_SPOT.No_lure_filter' | translate}}" [nzValue]="null"></nz-option>
+            <nz-option nzLabel="{{'DB.FISHING_SPOT.Exclude_all_lures' | translate}}" [nzValue]="{excludeAll:  true}"></nz-option>
+            <nz-option nzLabel="{{3972 | i18nRow: 'statuses' | i18n}} 1" [nzValue]="{prop: 'aLure', value: 1}"></nz-option>
+            <nz-option nzLabel="{{3972 | i18nRow: 'statuses' | i18n}} 2" [nzValue]="{prop: 'aLure', value: 2}"></nz-option>
+            <nz-option nzLabel="{{3972 | i18nRow: 'statuses' | i18n}} 3" [nzValue]="{prop: 'aLure', value: 3}"></nz-option>
+            <nz-option nzLabel="{{3973 | i18nRow: 'statuses' | i18n}} 1" [nzValue]="{prop: 'mLure', value: 1}"></nz-option>
+            <nz-option nzLabel="{{3973 | i18nRow: 'statuses' | i18n}} 2" [nzValue]="{prop: 'mLure', value: 2}"></nz-option>
+            <nz-option nzLabel="{{3973 | i18nRow: 'statuses' | i18n}} 3" [nzValue]="{prop: 'mLure', value: 3}"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+        <div>
+          {{'DB.FISHING_SPOT.Include_misses' | translate}}
+        </div>
+        <div>
+          <nz-switch [ngModel]="showMisses$ | async" (ngModelChange)="showMisses$.next($event)"></nz-switch>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #colIconRender let-id>
+    @if (id > 0) {
+      <app-item-icon [itemId]="id" width="32"></app-item-icon>
+    }
+    @if (id === -1) {
+      <span>{{'DB.FISHING_SPOT.Miss' | translate}}</span>
+    }
+  </ng-template>
+  <ng-template #rowIconRender let-id let-percent="percent" let-total="total">
+    <div class="icon-render-container">
+      @if (id > 0) {
+        <app-item-icon [itemId]="id" width="32"></app-item-icon>
+      }
+      @if ((isAllaganChecker$ | async) === true && percent <= 0.02) {
+        <button nz-button nzSize="small" nzDanger nzShape="circle" class="delete-button"
+          nz-tooltip [nzTooltipTitle]="'DB.FISHING_SPOT.Remove_this_bait' | translate"
+          nz-popconfirm [nzPopconfirmTitle]="'Confirmation' | translate" (nzOnConfirm)="deleteBait(id)">
+          <span nz-icon nzType="close"></span>
+        </button>
+      }
+      @if (id === -1) {
+        <span>{{'DB.FISHING_SPOT.Miss' | translate}}</span>
+      }
+    </div>
+  </ng-template>
+  <app-fishing-spot-datagrid
+    [activeFish]="activeFish"
+    (activeFishChange)="activeFishChange.next($event)"
+    [rowIconRender]="rowIconRender"
+    [colIconRender]="colIconRender"
+    [table]="table$ | async"
+  ></app-fishing-spot-datagrid>
+</nz-card>

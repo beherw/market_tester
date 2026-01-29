@@ -1,0 +1,1134 @@
+{
+  "2": {
+    "seedItemId": 15865,
+    "duration": 18,
+    "crossBreeds": []
+  },
+  "3": {
+    "seedItemId": 15866,
+    "duration": 18,
+    "crossBreeds": []
+  },
+  "4": {
+    "seedItemId": 15867,
+    "duration": 18,
+    "crossBreeds": []
+  },
+  "5": {
+    "seedItemId": 15868,
+    "duration": 18,
+    "crossBreeds": []
+  },
+  "6": {
+    "seedItemId": 15869,
+    "duration": 18,
+    "crossBreeds": []
+  },
+  "7": {
+    "seedItemId": 15870,
+    "duration": 18,
+    "crossBreeds": []
+  },
+  "4777": {
+    "seedItemId": 7716,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4778": {
+    "seedItemId": 7717,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7715,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7717,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7715
+      }
+    ]
+  },
+  "4782": {
+    "seedItemId": 7718,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4785": {
+    "seedItemId": 7715,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7720,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7720,
+        "baseSeed": 8182
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7720
+      }
+    ]
+  },
+  "4787": {
+    "seedItemId": 7720,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7721,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7721
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 7721
+      }
+    ]
+  },
+  "4788": {
+    "seedItemId": 7722,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7722
+      },
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 8182
+      }
+    ]
+  },
+  "4789": {
+    "seedItemId": 7723,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7723,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 13767,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7723
+      }
+    ]
+  },
+  "4804": {
+    "seedItemId": 7719,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4808": {
+    "seedItemId": 7726,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4809": {
+    "seedItemId": 7725,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4810": {
+    "seedItemId": 7727,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4811": {
+    "seedItemId": 7728,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7728,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7729,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7721,
+        "baseSeed": 17547
+      }
+    ]
+  },
+  "4812": {
+    "seedItemId": 7729,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7738
+      },
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7740
+      },
+      {
+        "adjacentSeed": 7725,
+        "baseSeed": 17547
+      }
+    ]
+  },
+  "4814": {
+    "seedItemId": 7730,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7730
+      },
+      {
+        "adjacentSeed": 7723,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 17547
+      }
+    ]
+  },
+  "4815": {
+    "seedItemId": 7732,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7733,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7734
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 7734
+      }
+    ]
+  },
+  "4816": {
+    "seedItemId": 7734,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7734,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 7734,
+        "baseSeed": 7730
+      },
+      {
+        "adjacentSeed": 7734,
+        "baseSeed": 7731
+      }
+    ]
+  },
+  "4821": {
+    "seedItemId": 7721,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4829": {
+    "seedItemId": 7735,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4830": {
+    "seedItemId": 7737,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "4835": {
+    "seedItemId": 7738,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7738
+      },
+      {
+        "adjacentSeed": 7739,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8182,
+        "baseSeed": 7738
+      }
+    ]
+  },
+  "4836": {
+    "seedItemId": 7739,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7740
+      },
+      {
+        "adjacentSeed": 8182,
+        "baseSeed": 7740
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7740
+      }
+    ]
+  },
+  "4837": {
+    "seedItemId": 7742,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7742,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7742
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 7742
+      }
+    ]
+  },
+  "4842": {
+    "seedItemId": 7744,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 7717
+      },
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 7737
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7738
+      }
+    ]
+  },
+  "4868": {
+    "seedItemId": 8572,
+    "duration": 72,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 8182
+      },
+      {
+        "adjacentSeed": 8176,
+        "baseSeed": 8182
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 8182
+      }
+    ]
+  },
+  "5346": {
+    "seedItemId": 7741,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7741,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8182,
+        "baseSeed": 7741
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7741
+      }
+    ]
+  },
+  "5539": {
+    "seedItemId": 7736,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "5542": {
+    "seedItemId": 7740,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "5543": {
+    "seedItemId": 7743,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7744
+      },
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 8179
+      }
+    ]
+  },
+  "6146": {
+    "seedItemId": 7731,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7732,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8182,
+        "baseSeed": 7733
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7733
+      }
+    ]
+  },
+  "6147": {
+    "seedItemId": 7733,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7734,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 17547,
+        "baseSeed": 7751
+      },
+      {
+        "adjacentSeed": 7732,
+        "baseSeed": 7723
+      }
+    ]
+  },
+  "6148": {
+    "seedItemId": 7724,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7723,
+        "baseSeed": 7717
+      },
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 7721
+      },
+      {
+        "adjacentSeed": 7715,
+        "baseSeed": 7723
+      }
+    ]
+  },
+  "7591": {
+    "seedItemId": 7753,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7742
+      },
+      {
+        "adjacentSeed": 7741,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 7743
+      }
+    ]
+  },
+  "7592": {
+    "seedItemId": 7751,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 8182
+      },
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 8175
+      }
+    ]
+  },
+  "7593": {
+    "seedItemId": 7752,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7749,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7721,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 7723
+      }
+    ]
+  },
+  "7602": {
+    "seedItemId": 7748,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7742,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 7742,
+        "baseSeed": 7744
+      },
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 13768
+      }
+    ]
+  },
+  "7603": {
+    "seedItemId": 7749,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13767,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 13767
+      },
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 7724
+      }
+    ]
+  },
+  "7604": {
+    "seedItemId": 7750,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 7721
+      },
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 7741
+      }
+    ]
+  },
+  "7768": {
+    "seedItemId": 7745,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7740,
+        "baseSeed": 7746
+      }
+    ]
+  },
+  "7769": {
+    "seedItemId": 7746,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 7740
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7741
+      },
+      {
+        "adjacentSeed": 7723,
+        "baseSeed": 13768
+      }
+    ]
+  },
+  "7770": {
+    "seedItemId": 7747,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7744
+      },
+      {
+        "adjacentSeed": 7753,
+        "baseSeed": 7743
+      }
+    ]
+  },
+  "7773": {
+    "seedItemId": 7754,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 7733
+      },
+      {
+        "adjacentSeed": 7750,
+        "baseSeed": 7734
+      },
+      {
+        "adjacentSeed": 7754,
+        "baseSeed": 7734
+      }
+    ]
+  },
+  "7774": {
+    "seedItemId": 7755,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8167,
+        "baseSeed": 7743
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7745
+      },
+      {
+        "adjacentSeed": 7748,
+        "baseSeed": 13768
+      }
+    ]
+  },
+  "7775": {
+    "seedItemId": 7756,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7734,
+        "baseSeed": 13765
+      },
+      {
+        "adjacentSeed": 7750,
+        "baseSeed": 7751
+      },
+      {
+        "adjacentSeed": 7754,
+        "baseSeed": 7751
+      }
+    ]
+  },
+  "7776": {
+    "seedItemId": 7757,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8167,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 7745,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 7747,
+        "baseSeed": 13768
+      }
+    ]
+  },
+  "7894": {
+    "seedItemId": 8169,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8182,
+        "baseSeed": 7740
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7740
+      },
+      {
+        "adjacentSeed": 8175,
+        "baseSeed": 7740
+      }
+    ]
+  },
+  "7895": {
+    "seedItemId": 8170,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 8179
+      },
+      {
+        "adjacentSeed": 8182,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 13768
+      }
+    ]
+  },
+  "7897": {
+    "seedItemId": 8171,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 8178,
+        "baseSeed": 7723
+      }
+    ]
+  },
+  "7898": {
+    "seedItemId": 8172,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7722
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7742
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 7742
+      }
+    ]
+  },
+  "7900": {
+    "seedItemId": 8173,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7721
+      },
+      {
+        "adjacentSeed": 8177,
+        "baseSeed": 7721
+      },
+      {
+        "adjacentSeed": 8178,
+        "baseSeed": 7721
+      }
+    ]
+  },
+  "8023": {
+    "seedItemId": 8167,
+    "duration": 144,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 7744
+      },
+      {
+        "adjacentSeed": 7753,
+        "baseSeed": 13768
+      },
+      {
+        "adjacentSeed": 8167,
+        "baseSeed": 7742
+      }
+    ]
+  },
+  "8157": {
+    "seedItemId": 8174,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8158": {
+    "seedItemId": 8175,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8159": {
+    "seedItemId": 8176,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8160": {
+    "seedItemId": 8177,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8161": {
+    "seedItemId": 8178,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8162": {
+    "seedItemId": 8179,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8163": {
+    "seedItemId": 8180,
+    "duration": 48,
+    "crossBreeds": []
+  },
+  "8165": {
+    "seedItemId": 8182,
+    "duration": 72,
+    "crossBreeds": []
+  },
+  "8166": {
+    "seedItemId": 8183,
+    "duration": 240,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8170,
+        "baseSeed": 7750
+      },
+      {
+        "adjacentSeed": 8172,
+        "baseSeed": 7750
+      },
+      {
+        "adjacentSeed": 7750,
+        "baseSeed": 8169
+      }
+    ]
+  },
+  "8192": {
+    "seedItemId": 8184,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 8174,
+        "baseSeed": 7743
+      },
+      {
+        "adjacentSeed": 8178,
+        "baseSeed": 7743
+      }
+    ]
+  },
+  "8193": {
+    "seedItemId": 8185,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7748,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7722,
+        "baseSeed": 7743
+      },
+      {
+        "adjacentSeed": 13768,
+        "baseSeed": 7730
+      }
+    ]
+  },
+  "8194": {
+    "seedItemId": 8186,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7736
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7717
+      },
+      {
+        "adjacentSeed": 7743,
+        "baseSeed": 7737
+      }
+    ]
+  },
+  "8195": {
+    "seedItemId": 8187,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 8167,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7745,
+        "baseSeed": 17547
+      },
+      {
+        "adjacentSeed": 7747,
+        "baseSeed": 17547
+      }
+    ]
+  },
+  "8196": {
+    "seedItemId": 8188,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7747,
+        "baseSeed": 7743
+      }
+    ]
+  },
+  "12877": {
+    "seedItemId": 13767,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "12882": {
+    "seedItemId": 13768,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "12884": {
+    "seedItemId": 13766,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 20794,
+        "baseSeed": 7723
+      },
+      {
+        "adjacentSeed": 13767,
+        "baseSeed": 7749
+      },
+      {
+        "adjacentSeed": 7724,
+        "baseSeed": 7749
+      }
+    ]
+  },
+  "12896": {
+    "seedItemId": 13765,
+    "duration": 120,
+    "crossBreeds": []
+  },
+  "13754": {
+    "seedItemId": 13755,
+    "duration": 168,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7756,
+        "baseSeed": 13766
+      }
+    ]
+  },
+  "14071": {
+    "seedItemId": 14007,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "15857": {
+    "seedItemId": 15855,
+    "duration": 22,
+    "crossBreeds": []
+  },
+  "15858": {
+    "seedItemId": 15856,
+    "duration": 12,
+    "crossBreeds": []
+  },
+  "16022": {
+    "seedItemId": 16016,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "17048": {
+    "seedItemId": 17546,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "17548": {
+    "seedItemId": 17547,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "17999": {
+    "seedItemId": 17996,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "20791": {
+    "seedItemId": 20792,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 7724,
+        "baseSeed": 13768
+      }
+    ]
+  },
+  "20793": {
+    "seedItemId": 20794,
+    "duration": 120,
+    "crossBreeds": [
+      {
+        "adjacentSeed": 13765,
+        "baseSeed": 13755
+      }
+    ]
+  },
+  "20796": {
+    "seedItemId": 20795,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "21876": {
+    "seedItemId": 21875,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "22590": {
+    "seedItemId": 22589,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "24166": {
+    "seedItemId": 24165,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "24542": {
+    "seedItemId": 24541,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "27321": {
+    "seedItemId": 27320,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "28176": {
+    "seedItemId": 28175,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "28948": {
+    "seedItemId": 28947,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "30371": {
+    "seedItemId": 30365,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "30873": {
+    "seedItemId": 30364,
+    "duration": 168,
+    "crossBreeds": []
+  },
+  "32813": {
+    "seedItemId": 32812,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "33307": {
+    "seedItemId": 33306,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "35745": {
+    "seedItemId": 35744,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "37303": {
+    "seedItemId": 37302,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "38660": {
+    "seedItemId": 38659,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "39461": {
+    "seedItemId": 39460,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "40687": {
+    "seedItemId": 40686,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "41161": {
+    "seedItemId": 41160,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "43963": {
+    "seedItemId": 4817,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "44833": {
+    "seedItemId": 44832,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "46804": {
+    "seedItemId": 46803,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "47951": {
+    "seedItemId": 47950,
+    "duration": 24,
+    "crossBreeds": []
+  },
+  "49774": {
+    "seedItemId": 49773,
+    "duration": 24,
+    "crossBreeds": []
+  }
+}

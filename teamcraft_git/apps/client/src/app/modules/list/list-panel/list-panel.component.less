@@ -1,0 +1,56 @@
+@import "../../../../common";
+
+:host ::ng-deep .ant-collapse-header {
+  .fork-count > sup {
+    background-color: rgb(150, 150, 150);
+    right: 5px !important;
+    min-width: 16px;
+    height: 16px;
+    line-height: 16px;
+    top: -4px;
+  }
+
+  .fork-count {
+    z-index: 10;
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding-right: 20px;
+  width: ~"calc(100% - 20px)";
+
+  .list-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .panel-middle-content {
+    padding: 0 10px;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 200px;
+  }
+
+  .description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 40vw;
+  }
+}
+
+.odd {
+  background-color: rgba(77, 77, 77, .5);
+}
+
+.list-item-row {
+  padding: 5px;
+}
+
+.amount-input {
+  width: 150px;
+  @media @mobile {
+    width: 50px;
+  }
+}

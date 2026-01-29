@@ -1,0 +1,71 @@
+{
+  "functions": {
+    "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build",
+    "runtime": "nodejs18"
+  },
+  "hosting": {
+    "public": "dist/apps/client",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "redirects": [
+      {
+        "source": "/desktop",
+        "destination": "https://github.com/ffxiv-teamcraft/ffxiv-teamcraft/releases/latest",
+        "type": 301
+      },
+      {
+        "source": "/ads.txt",
+        "destination": "https://config.playwire.com/dyn_ads/1024627/73498/ads.txt",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|svg|png)",
+        "headers": [
+          {
+            "key": "Cache-control",
+            "value": "max-age=7200"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(css|js|json)",
+        "headers": [
+          {
+            "key": "Cache-control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/data/*.@(json)",
+        "headers": [
+          {
+            "key": "Cache-control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "Cache-control",
+            "value": "max-age=120"
+          }
+        ]
+      }
+    ]
+  }
+}
+

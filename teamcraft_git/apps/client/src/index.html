@@ -1,0 +1,68 @@
+<!doctype html>
+<html xmlns:og="http://ogp.me/ns#" lang="en">
+<head>
+  <title>FFXIV Teamcraft</title>
+  <meta name="description"
+        content="Create FINAL FANTASY XIV crafting lists and collaborate with others, set gathering alarms, simulate crafting rotations, and more..."/>
+  <meta charset="utf-8">
+  <base href="/">
+
+  <!-- Open Graph meta -->
+  <link type="application/json+oembed" href="oembed.json"/>
+  <meta property="og:title" content="FFXIV Teamcraft"/>
+  <meta property="og:description" content="Create crafting lists and collaborate with others, set gathering alarms, simulate crafting rotations, and more..."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://ffxivteamcraft.com/"/>
+  <meta property="og:image" content="https://cdn.ffxivteamcraft.com/assets/banner.png"/>
+
+  <meta name="theme-color" content="#4880b1">
+
+  <meta name="twitter:title" content="FFXIV Teamcraft"/>
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:description" content="Create crafting lists and collaborate with others, set gathering alarms, simulate crafting rotations, and more..."/>
+  <meta name="twitter:site" content="@FFXIVTeamcraft"/>
+  <meta name="twitter:image" content="https://cdn.ffxivteamcraft.com/assets/banner.png"/>
+
+  <meta name="viewport" content="width=device-width,user-scalable=no">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <link href="./assets/opensearch.xml" rel="search" title="FFXIV Teamcraft" type="application/opensearchdescription+xml">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0HS31QMFKW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-0HS31QMFKW');
+  </script>
+
+  <script>
+    window.renderComplete = false;
+    window.metaComplete = false;
+    window.renderStart = Date.now();
+  </script>
+</head>
+<body>
+<app-root>
+  <div class="init-loader-container">
+    <div>
+      <img src="./assets/loader_BSM.gif" alt="FFXIV Teamcraft" id="loader">
+    </div>
+    <div class="brought-to-you">
+      Brought to you by <span id="random-patron"></span>
+    </div>
+    <a href="https://www.patreon.com/bePatron?u=702160" class="patreon-widget" target="_blank">
+      <img src="./assets/become_a_patron_button@2x.png" alt="Become a patron">
+    </a>
+  </div>
+  <script>
+    window.baseGifPath = "./assets/";
+  </script>
+  <script src="./assets/tc-loader.js"></script>
+</app-root>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<div [style.height]="disableMobileBreakpoint ? height : (height | ifMobile: '200px')" class="container">
+  <h2 [style.font-size]="disableMobileBreakpoint ? fontSize : (fontSize | ifMobile: '1.2rem')">
+    <ng-content></ng-content>
+  </h2>
+  @if (subtitle) {
+    <div>
+      <ng-container *ngTemplateOutlet="subtitle"></ng-container>
+    </div>
+  }
+</div>

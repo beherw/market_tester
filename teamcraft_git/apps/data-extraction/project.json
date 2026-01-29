@@ -1,0 +1,60 @@
+{
+  "name": "data-extraction",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/data-extraction/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/data-extraction",
+        "main": "apps/data-extraction/src/main.ts",
+        "tsConfig": "apps/data-extraction/tsconfig.app.json",
+        "assets": ["apps/data-extraction/src/assets"],
+        "webpackConfig": "apps/electron/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/data-extraction/src/environments/environment.ts",
+              "with": "apps/data-extraction/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/js:node",
+      "options": {
+        "buildTarget": "data-extraction:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "data-extraction:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/data-extraction/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/data-extraction"],
+      "options": {
+        "jestConfig": "apps/data-extraction/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

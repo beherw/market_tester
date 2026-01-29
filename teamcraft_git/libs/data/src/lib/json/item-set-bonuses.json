@@ -1,0 +1,7178 @@
+{
+  "1618": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1619": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1620": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1629": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1630": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1631": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1645": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1646": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1647": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1653": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1654": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1655": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1656": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1667": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1668": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1669": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1690": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1691": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1692": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1702": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1703": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1704": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1713": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1714": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1715": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1719": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1720": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1721": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1722": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1725": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1726": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1727": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1737": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1738": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1739": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1760": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1761": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1762": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1772": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1773": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1774": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1783": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1784": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1785": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1789": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1790": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1791": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1792": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1793": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1794": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1795": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1807": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1808": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1809": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1829": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1830": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1831": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1841": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1842": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1843": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1852": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1853": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1854": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1858": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1859": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1860": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1861": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1864": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1865": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1866": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1876": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1877": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1878": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1902": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1903": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1904": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1911": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1912": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1913": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1922": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1923": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1924": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1928": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1929": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1930": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1931": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1934": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1935": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1936": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1946": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1947": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1948": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1973": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1980": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "1989": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1990": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "1991": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2007": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2008": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2009": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2017": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2018": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2019": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2028": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2029": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2033": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2034": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2035": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2036": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2037": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2038": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2073": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2074": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2075": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2081": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2082": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2085": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2086": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2087": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 12,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2090": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 14,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2091": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 14,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2092": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 14,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2099": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2100": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2101": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 18,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2113": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2114": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2115": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2127": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2129": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2153": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2154": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2155": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2162": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2163": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2164": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2171": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2172": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2173": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2178": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2179": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2180": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2181": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2182": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2183": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2195": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2196": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2197": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2198": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2199": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2200": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "2221": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "2222": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "2223": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "2252": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2253": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2254": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2265": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2266": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2267": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2273": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2274": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2275": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2276": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2277": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2281": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2282": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2283": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2284": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2285": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2286": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2715": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2716": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2717": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2760": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 72,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2761": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2762": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2838": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 72,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2839": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2840": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2841": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2842": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2843": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2844": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2845": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2846": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2847": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2848": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 12,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "2849": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2916": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2917": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "2918": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3047": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3048": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3049": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3070": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3071": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3072": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3073": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3074": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3075": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3078": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3079": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3080": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3081": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3082": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3083": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3084": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3085": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3086": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3087": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3088": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3089": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3109": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3110": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3111": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3112": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3113": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3114": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3115": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3116": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3117": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3151": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3152": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3153": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3154": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3155": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3156": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3157": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3158": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3159": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3245": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 24,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3246": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 24,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3247": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 24,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3357": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 73,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3358": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3359": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 73,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3360": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3361": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3362": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 73,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3374": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3375": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3376": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3388": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3389": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3390": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3391": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3392": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3393": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3394": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3395": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3396": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3433": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 19,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "3434": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3435": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 19,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "3436": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 19,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "3437": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3438": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 19,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "3439": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3440": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 19,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "3441": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 19,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "3565": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3566": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3567": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3588": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3589": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3590": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3591": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3592": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3593": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3594": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3595": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3596": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3630": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3631": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3632": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3633": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3634": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3635": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3636": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3637": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3638": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3702": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3703": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3704": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3796": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3797": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3798": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3811": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3812": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3813": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3814": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3815": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3816": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3817": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 2,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3818": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3819": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3820": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3872": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3873": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3874": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3875": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3876": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3877": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3878": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3879": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3880": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 11,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3923": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3924": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3925": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "3993": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "3994": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "3995": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "4026": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "4027": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "4028": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "4127": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4128": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4129": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4228": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4229": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4230": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4251": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4252": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4253": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4274": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "4275": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "4276": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "4354": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 8,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4355": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 8,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4356": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 8,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4436": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4437": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4438": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4488": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4489": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 72,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4490": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4491": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 72,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4492": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 70,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4493": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 72,
+        "value": 3,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4494": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4495": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4496": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 10,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "4517": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "4518": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "4519": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "6116": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "6117": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "6118": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "8460": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 14,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8461": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8462": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8463": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8464": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8465": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8466": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8467": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8468": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8469": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 14,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8470": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8471": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8472": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8473": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8474": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8475": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8476": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8477": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8478": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 14,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8479": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8480": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8481": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8482": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8483": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8484": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8485": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8486": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "8487": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8488": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8489": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8490": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8491": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8492": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8493": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8494": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8495": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8496": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8497": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8498": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8499": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8500": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8501": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8502": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8503": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8504": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8505": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8506": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8507": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8508": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8509": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8510": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8511": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8512": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8513": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8514": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8515": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8516": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8517": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8518": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8519": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 19,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8520": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8521": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8522": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 22,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8523": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8524": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8525": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 45,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8526": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8527": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8528": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 46,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8529": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 46,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8530": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 6,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 44,
+        "value": 7,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "8531": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 27,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "9190": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9191": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9192": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 5,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9199": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9200": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9201": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9206": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9207": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9208": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9211": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9212": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9213": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9216": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9217": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9218": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9221": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "9222": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "9223": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "9238": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9239": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "9240": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10419": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10420": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10421": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10422": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10423": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10424": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10425": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10426": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10427": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10428": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10429": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10430": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10431": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10432": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10433": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10434": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10435": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10436": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10481": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10482": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10483": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10484": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10485": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10486": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10487": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10488": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10489": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10490": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10491": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10492": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10493": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10494": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10495": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10496": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10497": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10498": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10543": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10544": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10545": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 9,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10546": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10547": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10548": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10549": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10550": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10551": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 17,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10552": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10553": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10554": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10555": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10556": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10557": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 25,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "10558": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10559": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "10560": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 20,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "14854": {
+    "itemSeriesId": 4,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "14855": {
+    "itemSeriesId": 4,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 3,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "14856": {
+    "itemSeriesId": 4,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "14857": {
+    "itemSeriesId": 5,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "14858": {
+    "itemSeriesId": 5,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 3,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "14859": {
+    "itemSeriesId": 5,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "15480": {
+    "itemSeriesId": 14,
+    "bonuses": [
+      {
+        "baseParam": 52,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "15481": {
+    "itemSeriesId": 14,
+    "bonuses": [
+      {
+        "baseParam": 52,
+        "value": 15,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "15482": {
+    "itemSeriesId": 13,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "15483": {
+    "itemSeriesId": 13,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "15484": {
+    "itemSeriesId": 13,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "15485": {
+    "itemSeriesId": 13,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "15486": {
+    "itemSeriesId": 13,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "15495": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "15496": {
+    "itemSeriesId": 1,
+    "bonuses": []
+  },
+  "15499": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "15500": {
+    "itemSeriesId": 2,
+    "bonuses": []
+  },
+  "15503": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "15504": {
+    "itemSeriesId": 3,
+    "bonuses": []
+  },
+  "15639": {
+    "itemSeriesId": 6,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "15640": {
+    "itemSeriesId": 6,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "15641": {
+    "itemSeriesId": 6,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "15642": {
+    "itemSeriesId": 7,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "15643": {
+    "itemSeriesId": 7,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "15644": {
+    "itemSeriesId": 7,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "16042": {
+    "itemSeriesId": 25,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16043": {
+    "itemSeriesId": 25,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16044": {
+    "itemSeriesId": 25,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 2,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16045": {
+    "itemSeriesId": 25,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16046": {
+    "itemSeriesId": 26,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "16047": {
+    "itemSeriesId": 26,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "16048": {
+    "itemSeriesId": 26,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "16578": {
+    "itemSeriesId": 19,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16579": {
+    "itemSeriesId": 19,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16580": {
+    "itemSeriesId": 19,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16581": {
+    "itemSeriesId": 19,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16582": {
+    "itemSeriesId": 19,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16583": {
+    "itemSeriesId": 20,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16584": {
+    "itemSeriesId": 20,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16585": {
+    "itemSeriesId": 20,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16586": {
+    "itemSeriesId": 20,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16587": {
+    "itemSeriesId": 20,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "16588": {
+    "itemSeriesId": 15,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16589": {
+    "itemSeriesId": 15,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16590": {
+    "itemSeriesId": 15,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 2,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16591": {
+    "itemSeriesId": 15,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16592": {
+    "itemSeriesId": 16,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16593": {
+    "itemSeriesId": 16,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16594": {
+    "itemSeriesId": 16,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 4,
+        "amountRequired": 1
+      },
+      {
+        "baseParam": 2,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "16595": {
+    "itemSeriesId": 16,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "17718": {
+    "itemSeriesId": 8,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "17719": {
+    "itemSeriesId": 8,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "17720": {
+    "itemSeriesId": 8,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "17721": {
+    "itemSeriesId": 8,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "17722": {
+    "itemSeriesId": 8,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20479": {
+    "itemSeriesId": 11,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20480": {
+    "itemSeriesId": 11,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20481": {
+    "itemSeriesId": 11,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20482": {
+    "itemSeriesId": 11,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20483": {
+    "itemSeriesId": 11,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20484": {
+    "itemSeriesId": 12,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20485": {
+    "itemSeriesId": 12,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20486": {
+    "itemSeriesId": 12,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20487": {
+    "itemSeriesId": 12,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20488": {
+    "itemSeriesId": 12,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20489": {
+    "itemSeriesId": 9,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20490": {
+    "itemSeriesId": 9,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20491": {
+    "itemSeriesId": 9,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20492": {
+    "itemSeriesId": 9,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20493": {
+    "itemSeriesId": 9,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20494": {
+    "itemSeriesId": 10,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20495": {
+    "itemSeriesId": 10,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20496": {
+    "itemSeriesId": 10,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20497": {
+    "itemSeriesId": 10,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "20498": {
+    "itemSeriesId": 10,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "21027": {
+    "itemSeriesId": 17,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "21028": {
+    "itemSeriesId": 18,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "21029": {
+    "itemSeriesId": 17,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "21030": {
+    "itemSeriesId": 18,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "21031": {
+    "itemSeriesId": 17,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "21032": {
+    "itemSeriesId": 18,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "22367": {
+    "itemSeriesId": 21,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22368": {
+    "itemSeriesId": 21,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22369": {
+    "itemSeriesId": 21,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22370": {
+    "itemSeriesId": 21,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22371": {
+    "itemSeriesId": 21,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22372": {
+    "itemSeriesId": 22,
+    "bonuses": [
+      {
+        "baseParam": 4,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22373": {
+    "itemSeriesId": 22,
+    "bonuses": [
+      {
+        "baseParam": 5,
+        "value": 5,
+        "amountRequired": 2
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22374": {
+    "itemSeriesId": 22,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22375": {
+    "itemSeriesId": 22,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "22376": {
+    "itemSeriesId": 22,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 5,
+        "amountRequired": 3
+      }
+    ]
+  },
+  "23917": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 25,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23918": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 25,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23919": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 19,
+        "value": 25,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23920": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23921": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23922": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23923": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23924": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23925": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23926": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23927": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23928": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23929": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23930": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23931": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23932": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23933": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23934": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 22,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23935": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23936": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23937": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 45,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23938": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23939": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23940": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23941": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23942": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23943": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23944": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23945": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23946": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 46,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23947": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23948": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23949": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23950": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23951": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23952": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 6,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23953": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23954": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23955": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23956": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23957": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23958": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 44,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23959": {
+    "itemSeriesId": 2,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23960": {
+    "itemSeriesId": 1,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "23961": {
+    "itemSeriesId": 3,
+    "bonuses": [
+      {
+        "baseParam": 27,
+        "value": 36,
+        "amountRequired": 0
+      }
+    ]
+  },
+  "24599": {
+    "itemSeriesId": 23,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "24600": {
+    "itemSeriesId": 23,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "24601": {
+    "itemSeriesId": 23,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "24602": {
+    "itemSeriesId": 24,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "24603": {
+    "itemSeriesId": 24,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "24604": {
+    "itemSeriesId": 24,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "30274": {
+    "itemSeriesId": 27,
+    "bonuses": [
+      {
+        "baseParam": 2,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 5,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "30275": {
+    "itemSeriesId": 27,
+    "bonuses": [
+      {
+        "baseParam": 3,
+        "value": 3,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 52,
+        "value": 30,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "30276": {
+    "itemSeriesId": 27,
+    "bonuses": [
+      {
+        "baseParam": 1,
+        "value": 2,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 4,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "31804": {
+    "itemSeriesId": 28,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 9,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31805": {
+    "itemSeriesId": 28,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 9,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31806": {
+    "itemSeriesId": 28,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 9,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31807": {
+    "itemSeriesId": 28,
+    "bonuses": [
+      {
+        "baseParam": 11,
+        "value": 4,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31809": {
+    "itemSeriesId": 29,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 9,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31810": {
+    "itemSeriesId": 29,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 9,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31811": {
+    "itemSeriesId": 29,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 9,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "31812": {
+    "itemSeriesId": 29,
+    "bonuses": [
+      {
+        "baseParam": 10,
+        "value": 5,
+        "amountRequired": 2
+      }
+    ]
+  },
+  "49826": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49827": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49828": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49829": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49830": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 80,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49831": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49832": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49833": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49834": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 40,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 1,
+        "amountRequired": 1
+      }
+    ]
+  },
+  "49835": {
+    "itemSeriesId": 30,
+    "bonuses": [
+      {
+        "baseParam": 55,
+        "value": 80,
+        "amountRequired": 0
+      },
+      {
+        "baseParam": 54,
+        "value": 2,
+        "amountRequired": 1
+      }
+    ]
+  }
+}

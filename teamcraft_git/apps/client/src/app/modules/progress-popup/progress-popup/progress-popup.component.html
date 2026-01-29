@@ -1,0 +1,5 @@
+@if (count > 1) {
+  <nz-progress [nzPercent]="progress$ | async" nzStatus="active"></nz-progress>
+} @else {
+  <nz-spin nzSize="large"></nz-spin>
+}

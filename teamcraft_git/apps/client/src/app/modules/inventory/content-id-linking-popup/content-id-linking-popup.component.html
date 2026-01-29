@@ -1,0 +1,48 @@
+<div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="10px">
+  <p>{{'INVENTORY.CONTENT_ID_POPUP.Description' | translate}}</p>
+  <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="5px">
+    @for (entry of characterEntries$ | async; track entry) {
+      <div fxLayout="column" fxLayoutGap="2px">
+        @if (entry.character.Character.ID > 0) {
+          <img
+            [src]="entry.character.Character.Avatar"
+            nz-tooltip
+            nzTooltipTitle="{{entry.character.Character.Name}} ({{entry.character.Character.Server}})"
+            (click)="entry.contentId ? null : selectCharacter(entry.character.Character.ID)"
+            nz-popconfirm
+            [nzPopconfirmTitle]="entry.contentId ? ('INVENTORY.CONTENT_ID_POPUP.Override_link_confirmation' | translate) : null"
+            (nzOnConfirm)="selectCharacter(entry.character.Character.ID)"
+            alt="" class="character-avatar">
+        } @else {
+          <div>
+            <nz-avatar [nzText]="entry.character.Character.Name"
+              [nzTooltipTitle]="entry.character.Character.Name"
+              (click)="entry.contentId ? null : selectCharacter(entry.character.Character.ID)"
+              nz-popconfirm
+              [nzPopconfirmTitle]="entry.contentId ? ('INVENTORY.CONTENT_ID_POPUP.Override_link_confirmation' | translate) : null"
+              (nzOnConfirm)="selectCharacter(entry.character.Character.ID)"
+              class="character-avatar"
+            nz-tooltip></nz-avatar>
+          </div>
+        }
+        @if (entry.contentId) {
+          <nz-tag nz-tooltip [nzTooltipTitle]="'INVENTORY.CONTENT_ID_POPUP.Linked_tooltip' | translate">
+            {{'INVENTORY.CONTENT_ID_POPUP.Linked' | translate}}
+          </nz-tag>
+        }
+      </div>
+    }
+    <button (click)="addNewCharacter()" [nzTooltipTitle]="'PROFILE.Add_character' | translate" nz-button nz-tooltip nzShape="circle"
+      nzSize="small" nzType="primary">
+      <i nz-icon nzType="plus"></i>
+    </button>
+  </div>
+  <nz-divider [nzText]="'Or' | translate"></nz-divider>
+  <i>{{'INVENTORY.CONTENT_ID_POPUP.Tip' | translate}}</i>
+  <div fxLayout="column" fxLayoutGap="5px">
+    <button nz-button (click)="ignoreContentId()">{{'INVENTORY.CONTENT_ID_POPUP.Ignore' | translate}}</button>
+    <div>
+      <i>{{'INVENTORY.CONTENT_ID_POPUP.You_can_reset_ignore' | translate}}</i>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+:host {
+  display: block;
+}
+
+.map-container {
+  position: relative;
+  max-width: 700px;
+
+  .unknown-position {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    font-size: 1.2rem;
+    font-weight: bold;
+    z-index: 11;
+  }
+
+  .map-image {
+    width: 100%;
+  }
+
+  .db-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+
+  .default-marker {
+    color: white;
+    transform: translate(-50%, -100%);
+    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    font-size: 24px;
+
+    &.small {
+      font-size: 14px;
+    }
+  }
+
+  .marker {
+    position: absolute;
+    max-width: 32px;
+    max-height: 32px;
+    z-index: 15;
+    cursor: pointer;
+  }
+
+  .radius {
+    position: absolute;
+    z-index: 9;
+  }
+
+  .subtitle {
+    margin-top: 16px;
+    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  }
+
+  .aetheryte {
+    position: absolute;
+    z-index: 10;
+
+    &.small {
+      width: 16px;
+    }
+  }
+}

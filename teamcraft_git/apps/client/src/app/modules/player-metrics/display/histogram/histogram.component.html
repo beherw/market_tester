@@ -1,0 +1,8 @@
+@if (options$ | async; as options) {
+  @if (!options.empty) {
+    <div echarts theme="dark" [options]="options"></div>
+  }
+  @if (options.empty) {
+    <nz-empty [nzNotFoundContent]="'METRICS.Nothing_to_show' | translate"></nz-empty>
+  }
+}

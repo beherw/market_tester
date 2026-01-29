@@ -1,0 +1,10 @@
+/**
+
+!dist/**
+!apps/**
+apps/client
+apps/data-extraction
+apps/electron
+apps/profits-api
+!.dockerignore
+!.

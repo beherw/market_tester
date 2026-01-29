@@ -1,0 +1,114 @@
+:host ::ng-deep {
+  .ant-steps-item-subtitle {
+    margin-left: 0;
+  }
+}
+
+.inactive-step-icon {
+  filter: grayscale(1);
+}
+
+.hookset-icon {
+  border-radius: 50%;
+  width: 24px;
+  margin-right: 2px;
+}
+
+.current-details-block {
+  padding: 2px;
+
+  .details-content {
+    padding: 2px;
+  }
+}
+
+app-map {
+  &.overlay {
+    max-width: 700px;
+  }
+
+  max-width: 450px;
+  margin: auto;
+}
+
+.server-selector {
+  width: auto;
+
+  .server-select ::ng-deep {
+    min-width: 200px;
+
+    .ant-select-selector {
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+    }
+  }
+}
+
+.slider-container {
+  padding: 0 20px;
+
+  .slider {
+    padding: 0 20px;
+  }
+
+  .time-control-buttons {
+    padding-top: 4px;
+  }
+}
+
+.details-column {
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: var(--topbar-color);
+  height: 100%;
+  width: 100%;
+
+  &.overlay {
+    height: ~"calc(100vh - 20px)";
+    overflow: auto;
+  }
+
+  nz-steps {
+    overflow: auto;
+  }
+
+  nz-card {
+    background-color: var(--topbar-color);
+  }
+
+  > h3 {
+    border-bottom: 1px solid #444;
+  }
+
+  &.route {
+    max-height: 740px;
+    overflow: hidden;
+
+    .steps-container {
+      height: 95%;
+      overflow: auto;
+    }
+  }
+}
+
+.slap-suggestion {
+  margin-top: 2px;
+}
+
+.ant-divider {
+  margin: 8px 0;
+}
+
+.slap-icon {
+  width: 20px;
+
+  &.passenger {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.slap-select {
+  width: 100%;
+}

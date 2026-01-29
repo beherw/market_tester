@@ -1,0 +1,28 @@
+<div class="inventory-container" fxLayout="column" fxLayoutAlign="flex-start center" fxLayoutGap="10px">
+  <nz-switch
+    (ngModelChange)="showFinalItems$.next($event)"
+    [ngModel]="showFinalItems$ | async"
+    [nzCheckedChildren]="checkedTemplate"
+    [nzUnCheckedChildren]="unCheckedTemplate"
+  ></nz-switch>
+  <ng-template #checkedTemplate>{{'LIST.INVENTORY.Show_final_items' | translate}}</ng-template>
+  <ng-template #unCheckedTemplate>{{'LIST.INVENTORY.Hide_final_items' | translate}}</ng-template>
+  @for (tab of display$ | async; track tab) {
+    <div class="tab" fxLayout="row wrap" fxLayoutGap="5px">
+      @for (slot of tab; track slot) {
+        <div [class.empty]="slot === undefined" class="slot" nz-tooltip
+          [nzTooltipTitle]="slot?.id | itemName| i18n">
+          @if (slot !== undefined) {
+            <div
+              [itemNameCopy]="slot?.id"
+              [disableTooltip]="true"
+              class="item-container">
+              <img src="{{slot.id | lazyIcon}}">
+              <span class="amount">{{slot.amount}}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

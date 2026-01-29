@@ -1,0 +1,91 @@
+<nz-collapse>
+  <nz-collapse-panel [nzHeader]="panelHeader">
+    <div (cdkDropListDropped)="onListDrop($event.item.data, $event.currentIndex)" (cdkDropListExited)="removeList($event.item.data)"
+      class="ngx-dnd-container lists-container"
+      cdkDropList id="ws-lists-group" [cdkDropListConnectedTo]="['lists-group']"
+      fxLayout="column" fxLayoutGap="5px">
+      @for (list of lists; track list.$key) {
+        <div class="list-panel"
+          cdkDrag [cdkDragData]="list">
+          <app-list-panel [list]="list"></app-list-panel>
+        </div>
+      }
+    </div>
+  </nz-collapse-panel>
+  <ng-template #panelHeader>
+    <div class="panel-header" fxLayout="row wrap" fxLayoutAlign="space-between center">
+      <div>
+        {{_workshop.name}} ({{lists.length}})
+      </div>
+      <div fxLayout="row" fxLayoutAlign="flex-end center" fxLayoutGap="2px" nz-col nzMd="4">
+        <button (click)="$event.stopPropagation()" [clipboard]="getLink" [nzShape]="'circle'"
+          [clipboardSuccessMessage]="'WORKSHOP.Share_link_copied' | translate"
+          [nzTooltipTitle]="'LIST.BUTTONS.Share_description' | translate"
+          nz-button nz-tooltip>
+          <i nz-icon nzType="share-alt"></i>
+        </button>
+        @if ((permissionLevel$ | async) >= 30) {
+          <button (click)="$event.stopPropagation(); addLists()" [nzShape]="'circle'"
+            [nzTooltipTitle]="'WORKSHOP.Add_lists' | translate"
+            [nzType]="'primary'"
+            nz-button
+            nz-tooltip>
+            <i nz-icon nzType="plus"></i>
+          </button>
+        }
+        @if (_workshop.listIds.length>1) {
+          <a [nzShape]="'circle'"
+            (click)="$event.stopPropagation()"
+            [nzTooltipTitle]="'LIST_AGGREGATE.Open_aggregate' | translate"
+            routerLink="/list-aggregate/{{aggregatedIds}}/defaultLayout"
+            [nzType]="'primary'"
+            nz-button
+            nz-tooltip>
+            <i nz-icon nzType="folder-view"></i>
+          </a>
+        }
+        <button (nzOnConfirm)="deleteWorkshop()" [disabled]="(permissionLevel$ | async) < 30" [nzShape]="'circle'"
+          [nzPopconfirmTitle]="'WORKSHOP.Delete_message' | translate"
+          nzDanger nz-button nz-popconfirm>
+          <i nz-icon nzType="delete"></i>
+        </button>
+        <button (click)="$event.stopPropagation()" [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'" [nzShape]="'circle'"
+          [nzTrigger]="'click'"
+          nz-button nz-dropdown>
+          <i nz-icon nzType="ellipsis"></i>
+        </button>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li (click)="renameWorkshop()" [nzDisabled]="(permissionLevel$ | async) < 40" nz-menu-item>
+              {{'WORKSHOP.Rename' | translate}}
+            </li>
+            <li (click)="openPermissionsPopup()" [nzDisabled]="(permissionLevel$ | async) < 40" nz-menu-item>
+              {{'PERMISSIONS.Title' | translate}}
+            </li>
+            @if ((permissionLevel$ | async) >= 40) {
+              @if (user$ | async; as user) {
+                @if (user.supporter || user.admin) {
+                  @if ((customLink$ | async) === undefined) {
+                    <li (click)="createCustomLink(_workshop, user)"
+                      [nzDisabled]="!user.nickname"
+                      nz-menu-item>
+                      {{'CUSTOM_LINKS.Add_link' | translate}}
+                    </li>
+                  } @else {
+                    @if (customLink$ | async; as link) {
+                      <li [clipboard]="link.getUrl"
+                        [clipboardSuccessMessage]="'CUSTOM_LINKS.Share_link_copied' | translate"
+                        nz-menu-item>
+                        {{'CUSTOM_LINKS.Copy_custom_link' | translate}}
+                      </li>
+                    }
+                  }
+                }
+              }
+            }
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+    </div>
+  </ng-template>
+</nz-collapse>

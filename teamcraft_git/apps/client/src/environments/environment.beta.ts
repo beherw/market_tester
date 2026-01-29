@@ -1,0 +1,26 @@
+import { version } from './version';
+import { gameEnv } from './game-env';
+import patchNotes from './patch-notes.json';
+
+export const environment = {
+  production: false,
+  beta: true,
+  useLocalAPI: false, // Should we use localhost:333 as API for search?
+  version: version,
+  patchNotes: patchNotes as unknown as {version: string, content: string}[],
+  ssrHost: 'https://beta.ffxivteamcraft.com',
+  startTimestamp: Date.now(),
+  noAnimations: false,
+  verboseOperations: false,
+  breakpointDebug: false,
+  ...gameEnv,
+  firebase: {
+    apiKey: 'AIzaSyCkrNPf7XlyuxQeqNtynvDFDnQ-XigG3WA',
+    authDomain: 'ffxiv-teamcraft-beta.firebaseapp.com',
+    databaseURL: 'https://ffxiv-teamcraft-beta.firebaseio.com',
+    projectId: 'ffxiv-teamcraft-beta',
+    storageBucket: 'ffxiv-teamcraft-beta.appspot.com',
+    messagingSenderId: '716469847404',
+    appId: '1:716469847404:web:d1716789557f9cca5e1f49'
+  }
+};

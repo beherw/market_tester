@@ -1,0 +1,24 @@
+已定義的類型（在 DataType enum 中）：
+Type 1 (CRAFTED_BY) - 製作獲得：Item ID 1602
+Type 2 (TRADE_SOURCES) - 交易來源：Item ID 2
+Type 3 (VENDORS) - 商店購買：Item ID 1601
+Type 4 (REDUCED_FROM) - 分解獲得：Item ID 8
+Type 5 (DESYNTHS) - 精製獲得：Item ID 13
+Type 6 (INSTANCES) - 副本掉落：Item ID 2
+Type 7 (GATHERED_BY) - 採集獲得：Item ID 2
+Type 8 (VENTURES) - 遠征獲得：Item ID 2
+Type 9 (TREASURES) - 寶箱獲得：Item ID 2
+Type 10 (QUESTS) - 任務獎勵：Item ID 4
+Type 11 (FATES) - FATE 獎勵：Item ID 8
+Type 12 (GARDENING) - 園藝獲得：Item ID 1666
+Type 13 (MOGSTATION) - 商城購買：Item ID 2
+Type 14 (ISLAND_PASTURE) - 島嶼牧場：Item ID 6155
+Type 15 (ISLAND_CROP) - 島嶼作物：Item ID 2
+Type 18 (MASTERBOOKS) - 製作書：Item ID 8
+Type 19 (ALARMS) - 鬧鐘提醒：Item ID 2221
+未在 DataType enum 中定義的類型：
+Type -1 - Item ID 23
+Type 20 - Item ID 15956
+Type 21 - Item ID 2967
+Type 22 - Item ID 37603
+Type 23 - Item ID 37593

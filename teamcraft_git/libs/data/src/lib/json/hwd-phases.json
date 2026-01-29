@@ -1,0 +1,26 @@
+{
+  "1": {
+    "en": "First Restoration Phase",
+    "ja": "第一次復興事業計画",
+    "de": "Erstes Großprojekt des Wiederaufbaus",
+    "fr": "Première phase de reconstruction"
+  },
+  "2": {
+    "en": "Second Restoration Phase",
+    "ja": "第ニ次復興事業計画",
+    "de": "Zweites Großprojekt des Wiederaufbaus",
+    "fr": "Deuxième phase de reconstruction"
+  },
+  "3": {
+    "en": "Third Restoration Phase",
+    "ja": "第三次復興事業計画",
+    "de": "Drittes Großprojekt des Wiederaufbaus",
+    "fr": "Troisième phase de reconstruction"
+  },
+  "4": {
+    "en": "Fourth Restoration Phase",
+    "ja": "第四次復興事業計画",
+    "de": "Viertes Großprojekt des Wiederaufbaus",
+    "fr": "Quatrième phase de reconstruction"
+  }
+}

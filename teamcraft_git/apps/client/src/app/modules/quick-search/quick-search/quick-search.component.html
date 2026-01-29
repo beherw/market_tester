@@ -1,0 +1,77 @@
+<div class="search-box">
+  <nz-input-group [nzAddOnBefore]="searchType | ifMobile: null">
+    <nz-select
+      autofocus
+      nzAutoFocus
+      class="search-input"
+      id="search-input"
+      nzShowSearch
+      nzServerSearch
+      [ngModel]="null"
+      (ngModelChange)="navigateTo($event)"
+      [nzShowArrow]="false"
+      (nzOnSearch)="query$.next($event)"
+      [nzLoading]="loading"
+      [nzOptionHeightPx]="54"
+      >
+      @for (row of results$ | async; track row) {
+        <nz-option
+          nzCustomContent
+          [nzValue]="row">
+          <div fxLayout="row" fxLayoutGap="10px">
+            <div>
+              @switch (row.type) {
+                @case (searchTypes.MAP) {
+                  <img class="result-icon" src="{{'/c/PlaceName.png' | xivapiIcon}}" alt="">
+                }
+                @case (searchTypes.FISHING_SPOT) {
+                  <img class="result-icon" src="./assets/icons/classjob/fisher.png" alt="">
+                }
+                @case (searchTypes.GATHERING_NODE) {
+                  <img class="result-icon" [src]="row.node.type | nodeTypeIcon" alt="">
+                }
+                @case (searchTypes.MONSTER) {
+                  <img class="result-icon" src="https://xivapi.com/c/BNpcName.png" alt="">
+                }
+                @case (searchTypes.NPC) {
+                  <img class="result-icon" src="https://xivapi.com/c/ENpcResident.png" alt="">
+                }
+                @default {
+                  <img class="result-icon" src="{{row.icon | xivapiIcon}}" alt="">
+                }
+              }
+            </div>
+            <div fxLayout="column">
+              <div class="result-name">
+                @switch (row.type) {
+                  @case (searchTypes.MONSTER) {
+                    <span>
+                      {{row | i18n}}
+                      @if (row.zoneid) {
+                        <div>{{row.zoneid | i18nRow:'places' | i18n}}</div>
+                      }
+                    </span>
+                  }
+                  @default {
+                    <span>
+                      {{row | i18n}}
+                    </span>
+                  }
+                }
+              </div>
+              <div class="result-type">{{('SEARCH_TYPES.' + row.type) | translate}}</div>
+            </div>
+          </div>
+        </nz-option>
+      }
+    </nz-select>
+    <ng-template #searchType>
+      @if (reportsMode) {
+        <span>{{'ALLAGAN_REPORTS.Jump_to_item' | translate}}</span>
+      }
+      @if (!reportsMode) {
+        <span>{{'DB.Jump_to_page' | translate}}</span>
+      }
+    </ng-template>
+  </nz-input-group>
+</div>

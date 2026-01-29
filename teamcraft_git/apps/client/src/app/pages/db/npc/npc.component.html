@@ -1,0 +1,167 @@
+<div *ngIf="npc$ | async as npc; else loader" [style.padding]="'0 25px' | ifMobile: '0'"
+     fxLayout="column" fxLayoutGap="10px">
+  <div class="top-bar" fxFlex="1 1 auto" fxLayout="row" fxLayout.lt-md="column"
+       fxLayoutAlign="flex-start flex-start" fxLayoutGap="5px" fxLayoutGap.lt-md="10px">
+    <div class="top-left-block" fxFlex="0 0 300px" fxFlex.lt-md="1 1 auto" fxLayout="column"
+         fxLayoutAlign="space-between" fxLayoutGap="10px">
+      <div class="icon-block" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+        <img [src]="'/c/ENpcResident.png' | xivapiIcon" alt="{{npc | i18n}}"
+             class="larger-img-icon">
+        <div fxLayout="column" fxLayoutAlign="flex-start flex-start">
+          <h2 class="item-name">{{npc | i18n}}</h2>
+          <div *ngIf="npc.title?.en" class="item-kind">
+            <span [innerHTML]="npc.title | i18n"></span>
+          </div>
+          <div *ngIf="npc.patch" class="flew-row align-center gap-5">
+            <app-i18n-name content="patchNames" [id]="npc.patch"></app-i18n-name>
+            <app-db-button [id]="npc.patch" type="patch"></app-db-button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="links$ | async as links" class="links" fxLayout="row" fxLayoutAlign="flex-start center"
+           fxLayoutGap="5px">
+        <a *ngFor="let link of links" [href]="link.url" [nzTooltipTitle]="link.title" nz-tooltip target="_blank">
+          <img [alt]="link.title" [src]="link.icon" class="link-icon">
+        </a>
+      </div>
+    </div>
+    <div fxFlex="1 1 auto">
+    </div>
+    <app-i18n-display fxFlex="0 0 300px" fxFlex.lt-md="1 1 auto" fxLayout="column" fxLayoutGap="5px"
+                      [value]="npc"></app-i18n-display>
+  </div>
+  <app-db-comments *ngIf="settings.dbCommentsPosition === 'TOP'" [id]="npc.id" type="npc"></app-db-comments>
+
+  <div>
+    <nz-divider [nzText]="'DB.Details' | translate" nzOrientation="left"></nz-divider>
+  </div>
+  <div fxLayout="row wrap" fxLayout.lt-md="column" fxLayoutGap="10px">
+    <nz-card *ngIf="npc.position as npcPosition" [nzTitle]="title"
+             class="details-card"
+             fxFlex="1 1 30%"
+             nzBordered="false">
+      <ng-template #title>
+        <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+          {{npcPosition.zoneid | i18nRow:'places' |i18n}} - X:{{npcPosition.x | number}} Y:{{npcPosition.y | number}}
+        </div>
+      </ng-template>
+      <app-map [mapId]="npcPosition.map" [markers]="[{x: npcPosition.x, y: npcPosition.y}]"></app-map>
+    </nz-card>
+    <nz-card *ngIf="npc.quests?.length > 0" [nzTitle]="title" class="details-card" fxFlex="1 1 auto"
+             nzBordered="false">
+      <ng-template #title>
+        <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+          <div>
+            {{'DB.NPC.Quests' | translate}}
+          </div>
+        </div>
+      </ng-template>
+      <nz-list [nzDataSource]="npc.quests" [nzItemLayout]="'horizontal'"
+               [nzRenderItem]="questTemplate">
+        <ng-template #questTemplate let-quest>
+          <nz-list-item [nzContent]="more">
+            <nz-list-item-meta [nzAvatar]="questAvatar">
+              <ng-template #questAvatar>
+                <a routerLink="/db/{{translate.currentLang}}/quest/{{quest.id}}">
+                  <img [src]="quest.icon | xivapiIcon" class="img-icon round-icon">
+                </a>
+                <a routerLink="/db/{{translate.currentLang}}/quest/{{quest.id}}">{{quest.id | i18nRow:'quests' | i18n}}</a>
+              </ng-template>
+              <ng-template #more>
+                <app-db-button [id]="quest.id" type="quest"></app-db-button>
+              </ng-template>
+            </nz-list-item-meta>
+          </nz-list-item>
+        </ng-template>
+      </nz-list>
+    </nz-card>
+    <nz-card *ngIf="leves$ | async as leves" [nzTitle]="title" class="details-card" fxFlex="1 1 auto"
+             nzBordered="false">
+      <ng-template #title>
+        <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+          <div>
+            {{'DB.NPC.Leves' | translate}}
+          </div>
+        </div>
+      </ng-template>
+      <nz-list [nzDataSource]="leves" [nzItemLayout]="'horizontal'"
+               [nzRenderItem]="leveTemplate">
+        <ng-template #leveTemplate let-leve>
+          <nz-list-item [nzContent]="more">
+            <nz-list-item-meta
+              [nzAvatar]="leveAvatar"
+              [nzTitle]="leve | i18nRow:'leves' | i18n"
+              nzDescription="{{(leve | i18nRow:'leves').job | i18n}} {{(leve | i18nRow:'leves').lvl}}">
+              <ng-template #leveAvatar>
+                <a routerLink="/db/{{translate.currentLang}}/leve/{{leve}}">
+                  <img class="img-icon round-icon" src="./assets/icons/leve.png">
+                </a>
+                <a routerLink="/db/{{translate.currentLang}}/leve/{{leve}}">{{leve | i18nRow:'leves' | i18n}}</a>
+              </ng-template>
+              <ng-template #more>
+                <app-db-button [id]="leve" type="leve"></app-db-button>
+              </ng-template>
+            </nz-list-item-meta>
+          </nz-list-item>
+        </ng-template>
+      </nz-list>
+    </nz-card>
+    <ng-container *ngIf="trades$ | async as trades">
+      <nz-card *ngIf="trades?.length > 0" [nzTitle]="title" class="details-card" fxFlex="1 1 auto" nzBordered="false">
+        <ng-template #title>
+          <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+            <div>
+              {{'DB.NPC.Trades' | translate}}
+            </div>
+          </div>
+        </ng-template>
+        <app-trades [externalTradeSources]="trades"></app-trades>
+      </nz-card>
+    </ng-container>
+    <ng-container *ngIf="gilShops$ | async as gilShops">
+      <nz-card *ngIf="gilShops?.length > 0" [nzTitle]="title" class="details-card" fxFlex="1 1 auto" nzBordered="false">
+        <ng-template #title>
+          <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+            <div>
+              {{'DB.NPC.Shops' | translate}}
+            </div>
+          </div>
+        </ng-template>
+        <app-trades [externalTradeSources]="gilShops"></app-trades>
+      </nz-card>
+    </ng-container>
+  </div>
+
+  <nz-divider [nzText]="'DB.RP_Details' | translate" nzOrientation="left"></nz-divider>
+  <div fxLayout="column" fxLayoutGap="10px">
+    <nz-card *ngIf="npc.defaultTalks?.length > 0" [nzTitle]="title" class="details-card" fxFlex="1 1 100%"
+             nzBordered="false">
+      <ng-template #title>
+        <div class="card-header" fxLayout="row" fxLayoutAlign="flex-start center" fxLayoutGap="5px">
+          <img alt="" class="img-icon" src="./assets/icons/journal.png">
+          <div>
+            {{'DB.NPC.Default_talk' | translate}}
+          </div>
+        </div>
+      </ng-template>
+      <nz-list
+        *ngFor="let talkEntry of npc.defaultTalks"
+        [nzDataSource]="talkEntry"
+        [nzItemLayout]="'horizontal'"
+        [nzRenderItem]="talkTemplate">
+        <ng-template #talkTemplate let-talk>
+          <nz-list-item [nzContent]="content">
+            <ng-template #content>
+              <p [innerHtml]="talk | i18n"></p>
+            </ng-template>
+          </nz-list-item>
+        </ng-template>
+      </nz-list>
+    </nz-card>
+  </div>
+  <app-db-comments *ngIf="settings.dbCommentsPosition === 'BOTTOM'" [id]="npc.id" type="npc"></app-db-comments>
+</div>
+
+<ng-template #loader>
+  <app-page-loader></app-page-loader>
+</ng-template>

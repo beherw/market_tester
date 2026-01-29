@@ -1,0 +1,28 @@
+@if (display$ | async; as display) {
+  <div>
+    <nz-divider nzOrientation="left" [nzText]="'COMMISSIONS.Your_archived_commissions_as_client' | translate"></nz-divider>
+    <div fxLayout="column" fxLayoutGap="5px">
+      @if (display.commissionsAsClient.length === 0) {
+        <app-fullpage-message
+          fontSize="2rem"
+        height="50px">{{'COMMISSIONS.No_archived_commissions_as_client' | translate}}</app-fullpage-message>
+      }
+      @for (commission of display.commissionsAsClient; track commission) {
+        <app-commission-panel [commission]="commission"></app-commission-panel>
+      }
+    </div>
+    <nz-divider nzOrientation="left" [nzText]="'COMMISSIONS.Your_archived_commissions_as_crafter' | translate"></nz-divider>
+    <div fxLayout="column" fxLayoutGap="5px">
+      @if (display.commissionsAsCrafter.length === 0) {
+        <app-fullpage-message
+          fontSize="2rem"
+        height="50px">{{'COMMISSIONS.No_archived_commissions_as_crafter' | translate}}</app-fullpage-message>
+      }
+      @for (commission of display.commissionsAsCrafter; track commission) {
+        <app-commission-panel [commission]="commission"></app-commission-panel>
+      }
+    </div>
+  </div>
+} @else {
+  <app-page-loader></app-page-loader>
+}

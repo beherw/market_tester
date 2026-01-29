@@ -1,0 +1,19 @@
+@if (result$ | async; as result) {
+  <div [nzTooltipTitle]="'SIMULATOR.COMMUNITY_ROTATIONS.Result_tooltip' | translate" nz-tooltip>
+    @if (result.success && !collectable) {
+      <nz-tag
+        [style.border-color]="'darkgreen'"
+      class="custom-tag">{{'SIMULATOR.COMMUNITY_ROTATIONS.Success' | translate: { HQ: result.hqPercent } }}</nz-tag>
+    }
+    @if (result.success && collectable) {
+      <nz-tag
+        [style.border-color]="'darkgreen'"
+      class="custom-tag">{{'SIMULATOR.COMMUNITY_ROTATIONS.Success_collectable' | translate: { collectability: ((result.simulation.quality / 10) | floor) } }}</nz-tag>
+    }
+    @if (!result.success) {
+      <nz-tag
+        [style.border-color]="'#f50'"
+      class="custom-tag">{{'SIMULATOR.COMMUNITY_ROTATIONS.Fail' | translate}}</nz-tag>
+    }
+  </div>
+}

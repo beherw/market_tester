@@ -1,0 +1,1138 @@
+[
+  {
+    "requiredItem": 29896,
+    "amount": 10,
+    "receivedItem": 29842,
+    "scrips": 1,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29897,
+    "amount": 10,
+    "receivedItem": 29843,
+    "scrips": 1,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29901,
+    "amount": 10,
+    "receivedItem": 29847,
+    "scrips": 2,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29902,
+    "amount": 10,
+    "receivedItem": 29848,
+    "scrips": 2,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29903,
+    "amount": 10,
+    "receivedItem": 29849,
+    "scrips": 2,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29909,
+    "amount": 10,
+    "receivedItem": 29855,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29910,
+    "amount": 10,
+    "receivedItem": 29856,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29911,
+    "amount": 10,
+    "receivedItem": 29857,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29912,
+    "amount": 10,
+    "receivedItem": 29858,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29913,
+    "amount": 10,
+    "receivedItem": 29859,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29919,
+    "amount": 10,
+    "receivedItem": 29865,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29920,
+    "amount": 10,
+    "receivedItem": 29866,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29921,
+    "amount": 10,
+    "receivedItem": 29867,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29922,
+    "amount": 10,
+    "receivedItem": 29868,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29923,
+    "amount": 10,
+    "receivedItem": 29869,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29929,
+    "amount": 10,
+    "receivedItem": 29875,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29930,
+    "amount": 10,
+    "receivedItem": 29876,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29931,
+    "amount": 10,
+    "receivedItem": 29877,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29932,
+    "amount": 10,
+    "receivedItem": 29878,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29933,
+    "amount": 10,
+    "receivedItem": 29879,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29939,
+    "amount": 10,
+    "receivedItem": 29885,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29940,
+    "amount": 10,
+    "receivedItem": 29886,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29941,
+    "amount": 10,
+    "receivedItem": 29887,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29942,
+    "amount": 10,
+    "receivedItem": 29888,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29943,
+    "amount": 10,
+    "receivedItem": 29889,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29946,
+    "amount": 10,
+    "receivedItem": 29892,
+    "scrips": 10,
+    "points": 35,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29947,
+    "amount": 10,
+    "receivedItem": 29893,
+    "scrips": 10,
+    "points": 35,
+    "phase": 2
+  },
+  {
+    "requiredItem": 31278,
+    "amount": 5,
+    "receivedItem": 31234,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31279,
+    "amount": 5,
+    "receivedItem": 31235,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31283,
+    "amount": 5,
+    "receivedItem": 31239,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31284,
+    "amount": 5,
+    "receivedItem": 31240,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31285,
+    "amount": 5,
+    "receivedItem": 31241,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31291,
+    "amount": 5,
+    "receivedItem": 31247,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31292,
+    "amount": 5,
+    "receivedItem": 31248,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31293,
+    "amount": 5,
+    "receivedItem": 31249,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31294,
+    "amount": 5,
+    "receivedItem": 31250,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31295,
+    "amount": 5,
+    "receivedItem": 31251,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31301,
+    "amount": 5,
+    "receivedItem": 31257,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31302,
+    "amount": 5,
+    "receivedItem": 31258,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31303,
+    "amount": 5,
+    "receivedItem": 31259,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31304,
+    "amount": 5,
+    "receivedItem": 31260,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31305,
+    "amount": 5,
+    "receivedItem": 31261,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31311,
+    "amount": 5,
+    "receivedItem": 31267,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31312,
+    "amount": 5,
+    "receivedItem": 31268,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31313,
+    "amount": 5,
+    "receivedItem": 31269,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31314,
+    "amount": 5,
+    "receivedItem": 31270,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31315,
+    "amount": 5,
+    "receivedItem": 31271,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31318,
+    "amount": 5,
+    "receivedItem": 31274,
+    "scrips": 5,
+    "points": 15,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31319,
+    "amount": 5,
+    "receivedItem": 31275,
+    "scrips": 5,
+    "points": 15,
+    "phase": 3
+  },
+  {
+    "requiredItem": 32007,
+    "amount": 5,
+    "receivedItem": 31963,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32008,
+    "amount": 5,
+    "receivedItem": 31964,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32012,
+    "amount": 5,
+    "receivedItem": 31968,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32013,
+    "amount": 5,
+    "receivedItem": 31969,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32014,
+    "amount": 5,
+    "receivedItem": 31970,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32020,
+    "amount": 5,
+    "receivedItem": 31976,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32021,
+    "amount": 5,
+    "receivedItem": 31977,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32022,
+    "amount": 5,
+    "receivedItem": 31978,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32023,
+    "amount": 5,
+    "receivedItem": 31979,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32024,
+    "amount": 5,
+    "receivedItem": 31980,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32030,
+    "amount": 5,
+    "receivedItem": 31986,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32031,
+    "amount": 5,
+    "receivedItem": 31987,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32032,
+    "amount": 5,
+    "receivedItem": 31988,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32033,
+    "amount": 5,
+    "receivedItem": 31989,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32034,
+    "amount": 5,
+    "receivedItem": 31990,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32040,
+    "amount": 5,
+    "receivedItem": 31996,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32041,
+    "amount": 5,
+    "receivedItem": 31997,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32042,
+    "amount": 5,
+    "receivedItem": 31998,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32043,
+    "amount": 5,
+    "receivedItem": 31999,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32044,
+    "amount": 5,
+    "receivedItem": 32000,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32047,
+    "amount": 5,
+    "receivedItem": 32003,
+    "scrips": 5,
+    "points": 15,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32048,
+    "amount": 5,
+    "receivedItem": 32004,
+    "scrips": 5,
+    "points": 15,
+    "phase": 4
+  },
+  {
+    "requiredItem": 29894,
+    "amount": 10,
+    "receivedItem": 29840,
+    "scrips": 1,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29895,
+    "amount": 10,
+    "receivedItem": 29841,
+    "scrips": 1,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29898,
+    "amount": 10,
+    "receivedItem": 29844,
+    "scrips": 2,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29899,
+    "amount": 10,
+    "receivedItem": 29845,
+    "scrips": 2,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29900,
+    "amount": 10,
+    "receivedItem": 29846,
+    "scrips": 2,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29904,
+    "amount": 10,
+    "receivedItem": 29850,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29905,
+    "amount": 10,
+    "receivedItem": 29851,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29906,
+    "amount": 10,
+    "receivedItem": 29852,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29907,
+    "amount": 10,
+    "receivedItem": 29853,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29908,
+    "amount": 10,
+    "receivedItem": 29854,
+    "scrips": 3,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29914,
+    "amount": 10,
+    "receivedItem": 29860,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29915,
+    "amount": 10,
+    "receivedItem": 29861,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29916,
+    "amount": 10,
+    "receivedItem": 29862,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29917,
+    "amount": 10,
+    "receivedItem": 29863,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29918,
+    "amount": 10,
+    "receivedItem": 29864,
+    "scrips": 4,
+    "points": 0,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29924,
+    "amount": 10,
+    "receivedItem": 29870,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29925,
+    "amount": 10,
+    "receivedItem": 29871,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29926,
+    "amount": 10,
+    "receivedItem": 29872,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29927,
+    "amount": 10,
+    "receivedItem": 29873,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29928,
+    "amount": 10,
+    "receivedItem": 29874,
+    "scrips": 5,
+    "points": 10,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29934,
+    "amount": 10,
+    "receivedItem": 29880,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29935,
+    "amount": 10,
+    "receivedItem": 29881,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29936,
+    "amount": 10,
+    "receivedItem": 29882,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29937,
+    "amount": 10,
+    "receivedItem": 29883,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29938,
+    "amount": 10,
+    "receivedItem": 29884,
+    "scrips": 5,
+    "points": 32,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29944,
+    "amount": 10,
+    "receivedItem": 29890,
+    "scrips": 10,
+    "points": 35,
+    "phase": 2
+  },
+  {
+    "requiredItem": 29945,
+    "amount": 10,
+    "receivedItem": 29891,
+    "scrips": 10,
+    "points": 35,
+    "phase": 2
+  },
+  {
+    "requiredItem": 31276,
+    "amount": 5,
+    "receivedItem": 31232,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31277,
+    "amount": 5,
+    "receivedItem": 31233,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31280,
+    "amount": 5,
+    "receivedItem": 31236,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31281,
+    "amount": 5,
+    "receivedItem": 31237,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31282,
+    "amount": 5,
+    "receivedItem": 31238,
+    "scrips": 1,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31286,
+    "amount": 5,
+    "receivedItem": 31242,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31287,
+    "amount": 5,
+    "receivedItem": 31243,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31288,
+    "amount": 5,
+    "receivedItem": 31244,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31289,
+    "amount": 5,
+    "receivedItem": 31245,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31290,
+    "amount": 5,
+    "receivedItem": 31246,
+    "scrips": 2,
+    "points": 0,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31296,
+    "amount": 5,
+    "receivedItem": 31252,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31297,
+    "amount": 5,
+    "receivedItem": 31253,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31298,
+    "amount": 5,
+    "receivedItem": 31254,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31299,
+    "amount": 5,
+    "receivedItem": 31255,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31300,
+    "amount": 5,
+    "receivedItem": 31256,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31306,
+    "amount": 5,
+    "receivedItem": 31262,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31307,
+    "amount": 5,
+    "receivedItem": 31263,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31308,
+    "amount": 5,
+    "receivedItem": 31264,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31309,
+    "amount": 5,
+    "receivedItem": 31265,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31310,
+    "amount": 5,
+    "receivedItem": 31266,
+    "scrips": 3,
+    "points": 13,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31316,
+    "amount": 5,
+    "receivedItem": 31272,
+    "scrips": 5,
+    "points": 15,
+    "phase": 3
+  },
+  {
+    "requiredItem": 31317,
+    "amount": 5,
+    "receivedItem": 31273,
+    "scrips": 5,
+    "points": 15,
+    "phase": 3
+  },
+  {
+    "requiredItem": 32005,
+    "amount": 5,
+    "receivedItem": 31961,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32006,
+    "amount": 5,
+    "receivedItem": 31962,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32009,
+    "amount": 5,
+    "receivedItem": 31965,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32010,
+    "amount": 5,
+    "receivedItem": 31966,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32011,
+    "amount": 5,
+    "receivedItem": 31967,
+    "scrips": 1,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32015,
+    "amount": 5,
+    "receivedItem": 31971,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32016,
+    "amount": 5,
+    "receivedItem": 31972,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32017,
+    "amount": 5,
+    "receivedItem": 31973,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32018,
+    "amount": 5,
+    "receivedItem": 31974,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32019,
+    "amount": 5,
+    "receivedItem": 31975,
+    "scrips": 2,
+    "points": 0,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32025,
+    "amount": 5,
+    "receivedItem": 31981,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32026,
+    "amount": 5,
+    "receivedItem": 31982,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32027,
+    "amount": 5,
+    "receivedItem": 31983,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32028,
+    "amount": 5,
+    "receivedItem": 31984,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32029,
+    "amount": 5,
+    "receivedItem": 31985,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32035,
+    "amount": 5,
+    "receivedItem": 31991,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32036,
+    "amount": 5,
+    "receivedItem": 31992,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32037,
+    "amount": 5,
+    "receivedItem": 31993,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32038,
+    "amount": 5,
+    "receivedItem": 31994,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32039,
+    "amount": 5,
+    "receivedItem": 31995,
+    "scrips": 3,
+    "points": 13,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32045,
+    "amount": 5,
+    "receivedItem": 32001,
+    "scrips": 5,
+    "points": 15,
+    "phase": 4
+  },
+  {
+    "requiredItem": 32046,
+    "amount": 5,
+    "receivedItem": 32002,
+    "scrips": 5,
+    "points": 15,
+    "phase": 4
+  }
+]

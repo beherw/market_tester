@@ -1,0 +1,260 @@
+// Item image component using XIVAPI
+import { useState, useEffect, useRef } from 'react';
+import { getItemImageUrl, getItemImageUrlSync, getCalculatedIconUrls } from '../utils/itemImage';
+
+export default function ItemImage({ itemId, alt, className, priority = false, loadDelay = 0, ...props }) {
+  const [imageUrl, setImageUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [fallbackUrls, setFallbackUrls] = useState([]);
+  const [currentFallbackIndex, setCurrentFallbackIndex] = useState(0);
+  const [shouldLoad, setShouldLoad] = useState(priority);
+  const timeoutRef = useRef(null);
+  const fallbackTimeoutRef = useRef(null);
+  const observerRef = useRef(null);
+  const imgRef = useRef(null);
+  const abortControllerRef = useRef(null);
+
+  // 优先级加载：前5个立即加载，后面的使用 Intersection Observer
+  useEffect(() => {
+    if (priority) {
+      // 优先级图片（前5个）立即加载
+      setShouldLoad(true);
+      return;
+    }
+
+    // 非优先级图片：优先使用 Intersection Observer
+    // 对于前20个物品（loadDelay <= 3000ms），使用小延迟来错开API请求
+    // 对于更多物品，使用 Intersection Observer + 超时后备方案
+    const maxDelayForTimeout = 3000; // 最多延迟3秒（对应前20个物品）
+    
+    if (loadDelay > 0 && loadDelay <= maxDelayForTimeout) {
+      // 对于前20个物品，使用延迟加载来错开API请求
+      timeoutRef.current = setTimeout(() => {
+        setShouldLoad(true);
+      }, loadDelay);
+      
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    } else {
+      // 对于延迟超过3秒的物品（第21个及以后），或延迟为0的物品，使用 Intersection Observer
+      // 添加超时后备方案：如果5秒后仍未加载，强制加载
+      fallbackTimeoutRef.current = setTimeout(() => {
+        setShouldLoad(true);
+      }, 5000);
+      
+      if (typeof IntersectionObserver !== 'undefined') {
+        // 清理旧的 observer（如果存在）
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+        
+        observerRef.current = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                setShouldLoad(true);
+                // 清除后备超时，因为已经加载了
+                if (fallbackTimeoutRef.current) {
+                  clearTimeout(fallbackTimeoutRef.current);
+                  fallbackTimeoutRef.current = null;
+                }
+                if (observerRef.current && imgRef.current) {
+                  observerRef.current.unobserve(imgRef.current);
+                }
+              }
+            });
+          },
+          {
+            rootMargin: '200px', // 提前200px开始加载，确保提前加载
+            threshold: 0.01,
+          }
+        );
+        // Observer 会在 ref 设置后通过另一个 useEffect 开始观察
+      } else {
+        // 不支持 Intersection Observer 时，立即加载
+        setShouldLoad(true);
+        if (fallbackTimeoutRef.current) {
+          clearTimeout(fallbackTimeoutRef.current);
+        }
+      }
+      
+      return () => {
+        if (fallbackTimeoutRef.current) {
+          clearTimeout(fallbackTimeoutRef.current);
+        }
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }
+  }, [priority, loadDelay]);
+
+  // 加载图片
+  useEffect(() => {
+    if (!shouldLoad || !itemId || itemId <= 0) {
+      if (!itemId || itemId <= 0) {
+        setIsLoading(false);
+        setHasError(true);
+      }
+      return;
+    }
+
+    // Check cache first
+    const cachedUrl = getItemImageUrlSync(itemId);
+    if (cachedUrl) {
+      setImageUrl(cachedUrl);
+      setIsLoading(false);
+      setHasError(false);
+      return;
+    }
+
+    // Create abort controller for this request
+    abortControllerRef.current = new AbortController();
+    const abortSignal = abortControllerRef.current.signal;
+
+    // Set calculated fallback URLs
+    const calculatedUrls = getCalculatedIconUrls(itemId);
+    setFallbackUrls(calculatedUrls);
+
+    // Fetch from API
+    setIsLoading(true);
+    getItemImageUrl(itemId, abortSignal)
+      .then(url => {
+        // Check if component is still mounted and request wasn't cancelled
+        if (abortSignal.aborted) {
+          return;
+        }
+        if (url) {
+          setImageUrl(url);
+          setHasError(false);
+        } else {
+          // API failed, try calculated URLs
+          if (calculatedUrls.length > 0) {
+            setImageUrl(calculatedUrls[0]);
+            setCurrentFallbackIndex(0);
+          } else {
+            setHasError(true);
+          }
+        }
+        setIsLoading(false);
+      })
+      .catch(error => {
+        // Ignore cancellation errors
+        if (error.message === 'Request cancelled' || abortSignal.aborted) {
+          return;
+        }
+        console.error('Failed to load item image:', error);
+        // Try calculated URLs as fallback
+        if (calculatedUrls.length > 0) {
+          setImageUrl(calculatedUrls[0]);
+          setCurrentFallbackIndex(0);
+        } else {
+          setHasError(true);
+        }
+        setIsLoading(false);
+      });
+
+    // Cleanup: abort request on unmount or when itemId/shouldLoad changes
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, [itemId, shouldLoad]);
+
+  const handleImageError = () => {
+    // Try next fallback URL
+    if (currentFallbackIndex < fallbackUrls.length - 1) {
+      const nextIndex = currentFallbackIndex + 1;
+      setCurrentFallbackIndex(nextIndex);
+      setImageUrl(fallbackUrls[nextIndex]);
+    } else {
+      // All URLs failed
+      setHasError(true);
+      setImageUrl(null);
+    }
+  };
+
+  // Extract width and height from className to maintain aspect ratio
+  const getDimensions = () => {
+    if (!className) return { width: 'w-10', height: 'h-10' };
+    
+    // Match Tailwind width/height classes (w-10, w-20, h-10, etc.)
+    const widthMatch = className.match(/\bw-(\d+)\b/);
+    const heightMatch = className.match(/\bh-(\d+)\b/);
+    
+    const width = widthMatch ? `w-${widthMatch[1]}` : 'w-10';
+    const height = heightMatch ? `h-${heightMatch[1]}` : 'h-10';
+    
+    return { width, height };
+  };
+
+  const { width, height } = getDimensions();
+  // Preserve other classes from className but ensure dimensions are set
+  const otherClasses = className?.split(' ').filter(c => !c.match(/^(w-|h-)/)).join(' ') || '';
+  const containerClasses = `${width} ${height} bg-purple-900/40 rounded border border-purple-500/30 flex items-center justify-center flex-shrink-0 ${otherClasses}`.trim();
+
+  // 设置 ref 用于 Intersection Observer
+  // 对于非优先级且延迟超过3秒的物品（第21个及以后），使用 Intersection Observer
+  useEffect(() => {
+    const maxDelayForTimeout = 3000;
+    const shouldUseObserver = !priority && (loadDelay === 0 || loadDelay > maxDelayForTimeout);
+    
+    if (shouldUseObserver && observerRef.current && imgRef.current) {
+      observerRef.current.observe(imgRef.current);
+      return () => {
+        if (observerRef.current && imgRef.current) {
+          observerRef.current.unobserve(imgRef.current);
+        }
+      };
+    }
+  }, [priority, loadDelay]);
+
+  // Show placeholder while loading or on error - always reserve space
+  if (!shouldLoad) {
+    // 尚未开始加载，显示占位符
+    return (
+      <div ref={imgRef} className={containerClasses}>
+        <span className="text-xs text-gray-500 opacity-50">...</span>
+      </div>
+    );
+  }
+
+  if (isLoading || (hasError && !imageUrl)) {
+    return (
+      <div ref={imgRef} className={containerClasses}>
+        {isLoading ? (
+          <span className="text-xs text-gray-500 animate-pulse">...</span>
+        ) : (
+          <span className="text-xs text-gray-500">?</span>
+        )}
+      </div>
+    );
+  }
+
+  if (!imageUrl) {
+    return (
+      <div ref={imgRef} className={containerClasses}>
+        <span className="text-xs text-gray-500">?</span>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={imgRef} className={containerClasses}>
+      <img
+        src={imageUrl}
+        alt={alt || `Item ${itemId}`}
+        className="w-full h-full object-contain"
+        onError={handleImageError}
+        data-item-id={itemId}
+        {...props}
+      />
+    </div>
+  );
+}

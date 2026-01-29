@@ -1,0 +1,272 @@
+{
+  "1": {
+    "en": "gladiator",
+    "ja": "剣術士",
+    "de": "Gladiator",
+    "fr": "gladiateur"
+  },
+  "2": {
+    "en": "pugilist",
+    "ja": "格闘士",
+    "de": "Faustkämpfer",
+    "fr": "pugiliste"
+  },
+  "3": {
+    "en": "marauder",
+    "ja": "斧術士",
+    "de": "Marodeur",
+    "fr": "maraudeur"
+  },
+  "4": {
+    "en": "lancer",
+    "ja": "槍術士",
+    "de": "Pikenier",
+    "fr": "maître d'hast"
+  },
+  "5": {
+    "en": "archer",
+    "ja": "弓術士",
+    "de": "Waldläufer",
+    "fr": "archer"
+  },
+  "6": {
+    "en": "conjurer",
+    "ja": "幻術士",
+    "de": "Druide",
+    "fr": "élémentaliste"
+  },
+  "7": {
+    "en": "thaumaturge",
+    "ja": "呪術士",
+    "de": "Thaumaturg",
+    "fr": "occultiste"
+  },
+  "8": {
+    "en": "carpenter",
+    "ja": "木工師",
+    "de": "Zimmerer",
+    "fr": "menuisier"
+  },
+  "9": {
+    "en": "blacksmith",
+    "ja": "鍛冶師",
+    "de": "Grobschmied",
+    "fr": "forgeron"
+  },
+  "10": {
+    "en": "armorer",
+    "ja": "甲冑師",
+    "de": "Plattner",
+    "fr": "armurier"
+  },
+  "11": {
+    "en": "goldsmith",
+    "ja": "彫金師",
+    "de": "Goldschmied",
+    "fr": "orfèvre"
+  },
+  "12": {
+    "en": "leatherworker",
+    "ja": "革細工師",
+    "de": "Gerber",
+    "fr": "tanneur"
+  },
+  "13": {
+    "en": "weaver",
+    "ja": "裁縫師",
+    "de": "Weber",
+    "fr": "couturier"
+  },
+  "14": {
+    "en": "alchemist",
+    "ja": "錬金術師",
+    "de": "Alchemist",
+    "fr": "alchimiste"
+  },
+  "15": {
+    "en": "culinarian",
+    "ja": "調理師",
+    "de": "Gourmet",
+    "fr": "cuisinier"
+  },
+  "16": {
+    "en": "miner",
+    "ja": "採掘師",
+    "de": "Minenarbeiter",
+    "fr": "mineur"
+  },
+  "17": {
+    "en": "botanist",
+    "ja": "園芸師",
+    "de": "Gärtner",
+    "fr": "botaniste"
+  },
+  "18": {
+    "en": "fisher",
+    "ja": "漁師",
+    "de": "Fischer",
+    "fr": "pêcheur"
+  },
+  "19": {
+    "en": "paladin",
+    "ja": "ナイト",
+    "de": "Paladin",
+    "fr": "paladin"
+  },
+  "20": {
+    "en": "monk",
+    "ja": "モンク",
+    "de": "Mönch",
+    "fr": "moine"
+  },
+  "21": {
+    "en": "warrior",
+    "ja": "戦士",
+    "de": "Krieger",
+    "fr": "guerrier"
+  },
+  "22": {
+    "en": "dragoon",
+    "ja": "竜騎士",
+    "de": "Dragoon",
+    "fr": "chevalier dragon"
+  },
+  "23": {
+    "en": "bard",
+    "ja": "吟遊詩人",
+    "de": "Barde",
+    "fr": "barde"
+  },
+  "24": {
+    "en": "white mage",
+    "ja": "白魔道士",
+    "de": "Weißmagier",
+    "fr": "mage blanc"
+  },
+  "25": {
+    "en": "black mage",
+    "ja": "黒魔道士",
+    "de": "Schwarzmagier",
+    "fr": "mage noir"
+  },
+  "26": {
+    "en": "arcanist",
+    "ja": "巴術士",
+    "de": "Hermetiker",
+    "fr": "arcaniste"
+  },
+  "27": {
+    "en": "summoner",
+    "ja": "召喚士",
+    "de": "Beschwörer",
+    "fr": "invocateur"
+  },
+  "28": {
+    "en": "scholar",
+    "ja": "学者",
+    "de": "Gelehrter",
+    "fr": "érudit"
+  },
+  "29": {
+    "en": "rogue",
+    "ja": "双剣士",
+    "de": "Schurke",
+    "fr": "surineur"
+  },
+  "30": {
+    "en": "ninja",
+    "ja": "忍者",
+    "de": "Ninja",
+    "fr": "ninja"
+  },
+  "31": {
+    "en": "machinist",
+    "ja": "機工士",
+    "de": "Maschinist",
+    "fr": "machiniste"
+  },
+  "32": {
+    "en": "dark knight",
+    "ja": "暗黒騎士",
+    "de": "Dunkelritter",
+    "fr": "chevalier noir"
+  },
+  "33": {
+    "en": "astrologian",
+    "ja": "占星術師",
+    "de": "Astrologe",
+    "fr": "astromancien"
+  },
+  "34": {
+    "en": "samurai",
+    "ja": "侍",
+    "de": "Samurai",
+    "fr": "samouraï"
+  },
+  "35": {
+    "en": "red mage",
+    "ja": "赤魔道士",
+    "de": "Rotmagier",
+    "fr": "mage rouge"
+  },
+  "36": {
+    "en": "blue mage",
+    "ja": "青魔道士",
+    "de": "Blaumagier",
+    "fr": "mage bleu"
+  },
+  "37": {
+    "en": "gunbreaker",
+    "ja": "ガンブレイカー",
+    "de": "Revolverklinge",
+    "fr": "pistosabreur"
+  },
+  "38": {
+    "en": "dancer",
+    "ja": "踊り子",
+    "de": "Tänzer",
+    "fr": "danseur"
+  },
+  "39": {
+    "en": "reaper",
+    "ja": "リーパー",
+    "de": "Schnitter",
+    "fr": "faucheur"
+  },
+  "40": {
+    "en": "sage",
+    "ja": "賢者",
+    "de": "Weiser",
+    "fr": "sage"
+  },
+  "41": {
+    "en": "viper",
+    "ja": "ヴァイパー",
+    "de": "Viper",
+    "fr": "rôdeur vipère"
+  },
+  "42": {
+    "en": "pictomancer",
+    "ja": "ピクトマンサー",
+    "de": "Piktomant",
+    "fr": "pictomancien"
+  },
+  "43": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": ""
+  },
+  "44": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": ""
+  },
+  "45": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": ""
+  }
+}

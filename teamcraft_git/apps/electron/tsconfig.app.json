@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "resolveJsonModule": false,
+    "importHelpers": true,
+    "module": "Node16",
+    "sourceMap": false,
+    "declaration": false,
+    "moduleDetection": "force",
+    "moduleResolution": "Node16",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"],
+  "include": ["**/*.ts"]
+}

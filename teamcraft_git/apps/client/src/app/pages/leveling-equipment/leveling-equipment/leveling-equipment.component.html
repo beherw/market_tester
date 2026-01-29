@@ -1,0 +1,123 @@
+<div fxLayout="column" fxLayoutGap="10px">
+  <form [nzLayout]="'inline'" nz-form [formGroup]="filtersForm">
+    <nz-form-item>
+      <nz-form-label>{{'DESYNTH.Job' | translate}}</nz-form-label>
+      <nz-form-control>
+        <nz-select formControlName="job" [nzPlaceHolder]="'SIMULATOR.CONFIGURATION.Select_job' | translate"
+          class="job-filter"
+          nzShowSearch>
+          @for (job of jobList$ | async; track job) {
+            <nz-option [nzLabel]="job | i18nRow:'jobName' | i18n" [nzValue]="job" nzCustomContent>
+              <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+                <div class="companion-svg job-icon" [innerHtml]="job | jobUnicode"></div>
+                <div>{{job | i18nRow:'jobName' | i18n}}</div>
+              </div>
+            </nz-option>
+          }
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>{{'Level' | translate}}</nz-form-label>
+      <nz-form-control>
+        <nz-input-number formControlName="level" nzMin="3"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>{{'LEVELING_EQUIPMENT.Include_crafting' | translate}}</nz-form-label>
+      <nz-form-control>
+        <label nz-checkbox formControlName="includeCrafting"></label>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>{{'LEVELING_EQUIPMENT.Include_trades' | translate}}</nz-form-label>
+      <nz-form-control>
+        <label nz-checkbox formControlName="includeTrades"></label>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>{{'LEVELING_EQUIPMENT.Include_purchases' | translate}}</nz-form-label>
+      <nz-form-control>
+        <label nz-checkbox formControlName="includePurchases"></label>
+      </nz-form-control>
+    </nz-form-item>
+    @if (desktop && !platformService.isChildWindow()) {
+      <nz-form-item>
+        <nz-form-label>{{'LEVELING_EQUIPMENT.Only_inventory' | translate}}</nz-form-label>
+        <nz-form-control>
+          <label nz-checkbox formControlName="onlyInventoryContent"></label>
+        </nz-form-control>
+      </nz-form-item>
+    }
+    <nz-form-item>
+      <nz-form-control>
+        <button (click)="search$.next()" [disabled]="filtersForm.invalid" nz-button
+          nzType="primary">
+          <i nz-icon nzType="search"></i>{{'GC_SUPPLY.Search' | translate}}
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <div>
+    <i>{{'LEVELING_EQUIPMENT.Interactions_description' | translate}}</i>
+  </div>
+  @if (results$ | async; as results) {
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          @for (row of results; track row) {
+            <th (click)="selectRow(row)">{{row.level}}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (slot of slots; track slot) {
+          <tr>
+            <td>{{('GEARSETS.SLOT.' + slot.name) | translate}}</td>
+            @for (row of results; track row) {
+              <td [class.selected]="selectedItems[slot.property] && selectedItems[slot.property] === row.gearset[slot.property]?.itemId"
+                (click)="row.gearset[slot.property]?selectedItems[slot.property] = row.gearset[slot.property]?.itemId : 0" class="slot-item">
+                @if (selectedItems[slot.property] === row.gearset[slot.property]?.itemId) {
+                  <button nz-button nzDanger nzSize="small" nzShape="circle" class="remove-button"
+                    (click)="$event.stopPropagation();selectedItems[slot.property]=null">
+                    <i nz-icon nzType="delete"></i>
+                  </button>
+                }
+                @if (row.gearset[slot.property]; as equipmentPiece) {
+                  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="5px" class="td-container"
+                    >
+                    <div class="slot-icon">
+                      <app-item-icon [itemId]="equipmentPiece.itemId" [width]="32"></app-item-icon>
+                      @if (equipmentPiece.isInInventory) {
+                        <div class="inventory-icon"
+                          nz-tooltip [nzTooltipTitle]="'LEVELING_EQUIPMENT.In_inventory' | translate">
+                          <div class="companion-svg">&#xF153;</div>
+                        </div>
+                      }
+                    </div>
+                    <div (click)="$event.stopPropagation()"
+                      class="item-name"
+                      nz-tooltip
+                      [nzTooltipTitle]="'Copy_item_name_to_clipboard' | translate"
+                      [clipboard]="row.gearset[slot.property]?.itemId | itemName | i18n">
+                      {{row.gearset[slot.property]?.itemId | itemName | i18n}}
+                    </div>
+                  </div>
+                } @else {
+                  {{'LEVELING_EQUIPMENT.Empty_slot' | translate}}
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+    <button nz-button nzBlock (click)="createList()" nzType="primary">{{'LEVELING_EQUIPMENT.Generate_list' | translate}}</button>
+  } @else {
+    <app-fullpage-message height="500px">{{'LEVELING_EQUIPMENT.Description' | translate}}</app-fullpage-message>
+  }
+  <ng-template #description>
+    <app-fullpage-message height="500px">{{'LEVELING_EQUIPMENT.Description' | translate}}</app-fullpage-message>
+  </ng-template>
+</div>

@@ -1,0 +1,60 @@
+<div fxLayout="column" fxLayoutGap="10px">
+  <nz-steps nzSize="small" nzDirection="vertical" [nzProgressDot]="dotTpl">
+    <ng-template #dotTpl let-status="status">
+      @switch (status) {
+        @case ('finish') {
+          <nz-badge nzStatus="success"></nz-badge>
+        }
+        @case ('process') {
+          <nz-badge nzStatus="processing"></nz-badge>
+        }
+        @case ('wait') {
+          <nz-badge nzStatus="default"></nz-badge>
+        }
+      }
+    </ng-template>
+    <nz-step [nzStatus]="fcIdStatus$ | async" [nzTitle]="'FREE_COMPANY_WORKSHOPS.Go_to_workshop' | translate"
+    [nzDescription]="'FREE_COMPANY_WORKSHOPS.Go_to_workshop_description' | translate"></nz-step>
+    <nz-step [nzStatus]="freeCompanyDetailsStatus$ | async" [nzTitle]="'FREE_COMPANY_WORKSHOPS.Open_fc_window' | translate"
+    [nzDescription]="'FREE_COMPANY_WORKSHOPS.Open_fc_window_description' | translate"></nz-step>
+    <nz-step [nzStatus]="interactStatus$ | async" [nzTitle]="'FREE_COMPANY_WORKSHOPS.Interact_with_ships_subs' | translate"
+    [nzDescription]="'FREE_COMPANY_WORKSHOPS.Interact_with_ships_subs_description' | translate"></nz-step>
+  </nz-steps>
+  @if (freeCompany$ | async; as freecompanyData) {
+    <div fxLayoutGap="10px">
+      <div>
+        <h3>{{ 'FC' | translate }}</h3>
+        <ng-container *ngTemplateOutlet="freecompanyTpl;context:{fc: freecompanyData}"></ng-container>
+      </div>
+      <div>
+        @if (airshipList$ | async; as airshipsData) {
+          <h3>{{ 'FREE_COMPANY_WORKSHOPS.Airships' | translate }}</h3>
+          <ng-container *ngTemplateOutlet="vesselTpl;context:{vessels: airshipsData}"></ng-container>
+        }
+      </div>
+      <div>
+        @if (submarineList$ | async; as submarinesData) {
+          <h3>{{ 'FREE_COMPANY_WORKSHOPS.Submersibles' | translate }}</h3>
+          <ng-container *ngTemplateOutlet="vesselTpl;context:{vessels: submarinesData}"></ng-container>
+        }
+      </div>
+    </div>
+  }
+  @if (freeCompany$ | async) {
+    <button (click)="save()" nz-button nzType="primary">
+      {{ 'COMMON.Save' | translate }}
+    </button>
+  }
+</div>
+<ng-template #freecompanyTpl let-fc="fc">
+  <div>{{ 'Server_name' | translate }}: {{ fc?.server }}</div>
+  <div>{{ 'FC_name' | translate }}: {{ fc?.name }}</div>
+  <div>{{ 'FC_rank' | translate }}: {{ fc?.rank }}</div>
+</ng-template>
+<ng-template #vesselTpl let-vessels="vessels">
+  <ol>
+    @for (vessel of vessels; track vessel) {
+      <li>{{ vessel?.name }}</li>
+    }
+  </ol>
+</ng-template>

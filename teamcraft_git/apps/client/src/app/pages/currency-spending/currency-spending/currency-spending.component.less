@@ -1,0 +1,32 @@
+@mobile: ~"screen and (max-width: 575px)";
+
+.currency-picker {
+  min-width: 200px;
+}
+
+.server-picker {
+  min-width: 100px;
+}
+
+.currency-icon {
+  width: 24px;
+}
+
+.result-item {
+  padding-right: 20px;
+}
+
+.currency-select {
+  @media @mobile {
+    flex-wrap: wrap-reverse;
+  }
+}
+
+.loader {
+  width: 400px;
+  margin: 25px auto auto;
+
+  nz-progress {
+    width: 100%;
+  }
+}

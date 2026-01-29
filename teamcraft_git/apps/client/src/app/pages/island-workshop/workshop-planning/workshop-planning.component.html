@@ -1,0 +1,97 @@
+<div fxLayout="row" class="planning-container">
+  @for (day of planning; track day; let i = $index; let first = $first; let last = $last) {
+    <div fxLayout="column" fxFlex="1 0 14%">
+      <div class="day-title" [class.today]="today === i" [class.first]="first" [class.last]="last">
+        <div>{{('COMMON.DAYS.' + days[i]) | translate}}&nbsp;{{(weeklyReset + 86400000 * i) | date:'dd/MM'}}</div>
+        <div>
+          <app-item-icon [itemId]="37549" width="24"></app-item-icon>
+          {{day.score | number:'1.0-0':translate.currentLang}}
+          <span nz-tooltip [nzTooltipTitle]="'ISLAND_SANCTUARY.WORKSHOP.Groove_tooltip' | translate">({{day.groove}})&nbsp;</span>
+          @if (!day.rest) {
+            <button nz-button nzSize="small" nzShape="circle" nzType="primary"
+              nz-tooltip
+              [nzTooltipTitle]="'ISLAND_SANCTUARY.WORKSHOP.Set_rest_day' | translate"
+              (click)="settings.islandWorkshopRestDay = i"><i nz-icon nzType="coffee" nzTheme="outline"></i></button>
+            }
+          </div>
+        </div>
+        @if (day.rest) {
+          <div class="cell" [class.today]="today === i" [class.first-day]="first" [style.height.px]="baseCellHeight * 24">
+            <span nz-icon nzType="coffee" nzTheme="outline"></span>&nbsp;{{'ISLAND_SANCTUARY.WORKSHOP.Rest' | translate}}
+          </div>
+        }
+        @if (day.unknown) {
+          <div class="cell" [class.today]="today === i" [class.first-day]="first" [style.height.px]="baseCellHeight * 24">
+            <nz-empty
+            nzNotFoundContent="{{'ISLAND_SANCTUARY.WORKSHOP.Unknown_day_planning' | translate: {day: (('COMMON.DAYS.' + days[planningAvailability[i]]) | translate)}  }}"></nz-empty>
+          </div>
+        }
+        @for (object of day.planning; track object) {
+          <div class="cell" [class.today]="today === i" [class.first-day]="first"
+            [style.height.px]="baseCellHeight * object.craftworksEntry.craftingTime"
+            fxLayout="column">
+            <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+              <app-item-icon [itemId]="object.itemId" [width]="24"></app-item-icon>
+              <app-i18n-name content="items" [id]="object.itemId"></app-i18n-name>
+            </div>
+            @if (displayItemMetadata) {
+              <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+                @for (theme of object.craftworksEntry.themes; track theme; let last = $last) {
+                  <span><app-i18n-name content="islandCraftworksTheme"
+                  [id]="theme"></app-i18n-name>@if (!last) {
+                  <span>,</span>
+                }</span>
+              }
+            </div>
+          }
+          <!-- was trying to wrap ngIf's into a span but style was broken :( -->
+          @if (displayItemMetadata) {
+            <div fxLayout="row" fxLayoutAlign="flex-start center">
+              {{object.craftworksEntry.craftingTime}}h
+            </div>
+          }
+          @if (object.alternative) {
+            <span>
+              <nz-divider [nzText]="'Or' | translate"></nz-divider>
+              <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+                <app-item-icon [itemId]="object.alternative.itemId" [width]="24"></app-item-icon>
+                <app-i18n-name content="items" [id]="object.alternative.itemId"></app-i18n-name>
+              </div>
+              @if (displayItemMetadata) {
+                <div fxLayout="row" fxLayoutGap="5px" fxLayoutAlign="flex-start center">
+                  @for (theme of object.craftworksEntry.themes; track theme; let last = $last) {
+                    <span><app-i18n-name content="islandCraftworksTheme"
+                    [id]="theme"></app-i18n-name>@if (!last) {
+                    <span>,</span>
+                  }</span>
+                }
+              </div>
+            }
+            @if (displayItemMetadata) {
+              <div fxLayout="row" fxLayoutAlign="flex-start center">
+                {{object.craftworksEntry.craftingTime}}h
+              </div>
+            }
+          </span>
+        }
+      </div>
+    }
+  </div>
+}
+</div>
+<div class="footer" fxLayout="row" fxLayoutAlign="space-between center">
+  <div>
+    {{'COMMON.Total' | translate}}:
+    <app-item-icon [itemId]="37549" width="24"></app-item-icon>
+    {{totalScore | number:'1.0-0':translate.currentLang}}
+  </div>
+  <div>
+    <button nz-button (click)="createList(planning)" nzType="primary">{{'ISLAND_SANCTUARY.WORKSHOP.Create_list' | translate}}</button>
+  </div>
+</div>
+<div class="credits">
+  <em>Kudos to the <a href="https://discord.gg/overseascasuals" target="_blank">Overseas Casuals</a> team for the research, data and contribution to this
+  solver.
+  Support
+  them on ko-fi <a href="https://ko-fi.com/leitongrey">here</a>.</em>
+</div>

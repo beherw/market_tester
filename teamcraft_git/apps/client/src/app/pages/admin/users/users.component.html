@@ -1,0 +1,79 @@
+<div fxLayout="row" fxLayoutAlign="center center">
+  <div class="search-form" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="10px">
+    <nz-form-item>
+      <nz-form-label nzFor="searchMode">{{'ADMIN.USERS.SEARCH_MODE.Label' | translate}}
+      </nz-form-label>
+      <nz-select [(ngModel)]="searchMode">
+        @for (mode of userSearchModes; track mode) {
+          <nz-option [nzValue]="mode" id="searchMode"
+          [nzLabel]="('ADMIN.USERS.SEARCH_MODE.' + mode) | translate"></nz-option>
+        }
+      </nz-select>
+    </nz-form-item>
+    <form nz-form>
+      @switch (searchMode) {
+        @case (UserSearchMode.UID) {
+          <nz-form-item>
+            <nz-form-label nzFor="uid">{{'ADMIN.USERS.Uid' | translate}}
+            </nz-form-label>
+            <nz-form-control>
+              <input nz-input [formControl]="uidFilter" name="uid" type="string" id="uid">
+            </nz-form-control>
+          </nz-form-item>
+        }
+        @case (UserSearchMode.EMAIL) {
+          <nz-form-item>
+            <nz-form-label nzFor="email">{{'ADMIN.USERS.Email' | translate}}
+            </nz-form-label>
+            <nz-form-control>
+              <input nz-input [formControl]="emailFilter" name="email" type="email" id="email">
+            </nz-form-control>
+          </nz-form-item>
+        }
+        @case (UserSearchMode.CHARACTER) {
+          <nz-form-item>
+            <nz-form-label nzFor="serverName">{{'Server_name' | translate}}</nz-form-label>
+            <input [formControl]="selectedServer" [nzAutocomplete]="auto" id="serverName" nz-input type="text">
+            <nz-autocomplete #auto>
+              @for (server of autoCompleteRows$ | async; track server) {
+                <nz-auto-option [nzValue]="server">
+                  {{server}}
+                </nz-auto-option>
+              }
+            </nz-autocomplete>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label nzFor="characterName">{{'Character_name' | translate}}
+            </nz-form-label>
+            <input [formControl]="characterName" id="characterName" nz-input type="text">
+          </nz-form-item>
+        }
+      }
+    </form>
+  </div>
+</div>
+
+@if (results$ | async; as results) {
+  <div class="flex-column gap-10">
+    @if (results.length === 0) {
+      <app-fullpage-message height="300px">
+        {{'ADMIN.USERS.No_users_found' | translate}}
+      </app-fullpage-message>
+    }
+    @for (user of results; track user.$key) {
+      <div class="flex-row gap-5">
+        <app-user-avatar [userId]="user.$key"></app-user-avatar>
+        <div class="flex-column gap-2">
+          <b>{{user.$key | characterName | async}}</b>
+          <div>{{user.$key}}</div>
+        </div>
+        <div class="spacer flex-row align-center justify-center">
+          <div>{{'ADMIN.USERS.X_characters_linked' | translate:{ amount: user.lodestoneIds.length } }}</div>
+        </div>
+        <a routerLink="/profile/{{user.$key}}">{{'ADMIN.USERS.ACTIONS.Profile' | translate}}</a>
+        <nz-divider nzType="vertical"></nz-divider>
+        <a (click)="runIntegrityCheck(user)">{{'ADMIN.USERS.ACTIONS.Check' | translate}}</a>
+      </div>
+    }
+  </div>
+}

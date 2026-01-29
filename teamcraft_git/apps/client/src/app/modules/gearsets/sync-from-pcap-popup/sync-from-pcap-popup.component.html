@@ -1,0 +1,12 @@
+<div fxLayout="column" fxLayoutGap="10px">
+  <div>
+    <nz-alert nzType="info" [nzMessage]="'GEARSETS.Import_from_pcap_notice' | translate"></nz-alert>
+  </div>
+  <div class="timeline">
+    <nz-timeline nzReverse="true" [nzPending]="'GEARSETS.SYNC.Syncing_gearsets' | translate">
+      @for (entry of timeline; track entry) {
+        <nz-timeline-item [nzColor]="entry.color || 'gray'">{{entry.label}}</nz-timeline-item>
+      }
+    </nz-timeline>
+  </div>
+</div>

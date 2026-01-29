@@ -1,0 +1,63 @@
+@if (!checkButtonAfter) {
+  @if (item.amount > item.done) {
+    <button (click)="markAsDone(item)"
+      [disabled]="permissionLevel < 20" [nzType]="'primary'" nzSize="small"
+      nz-button class="check-button">
+      <i nz-icon nzType="check"></i>
+    </button>
+  } @else {
+    <button (click)="permissionLevel >= 20 ? resetDone(item) : null"
+      [disabled]="permissionLevel < 20" nzType="default" nzSize="small"
+      nz-button class="check-button">
+      <span nz-icon nzType="undo" nzTheme="outline"></span>
+    </button>
+  }
+}
+<nz-input-number-group [nzAddOnAfter]="totalTpl" nzSize="small" nzCompact [class.check-button-right]="checkButtonAfter">
+  <nz-input-number #input (keypress.enter)="itemDoneChange$.next(input.ngModel)"
+    (ngModelChange)="itemDoneChange$.next($event)" [disabled]="permissionLevel < 20"
+    [ngModel]="settings.displayRemaining? item.done - item.used : item.done"
+    [nzMax]="item.amount"
+    [nzMin]="0"
+    [nzSize]="'small'"
+    [nzStep]="1"
+  [class.check-button-after-number]="checkButtonAfter"></nz-input-number>
+</nz-input-number-group>
+@if (checkButtonAfter) {
+  @if (item.amount > item.done) {
+    <button (click)="markAsDone(item)"
+      [disabled]="permissionLevel < 20" [nzType]="'primary'" nzSize="small"
+      nz-button class="check-button-after">
+      <i nz-icon nzType="check"></i>
+    </button>
+  } @else {
+    <button (click)="permissionLevel >= 20 ? resetDone(item) : null"
+      [disabled]="permissionLevel < 20" nzType="default" nzSize="small"
+      nz-button class="check-button-after">
+      <span nz-icon nzType="undo" nzTheme="outline"></span>
+    </button>
+  }
+}
+<ng-template #totalTpl>
+  @if (!settings.displayRemaining) {
+    <span class="amount-max">
+      /{{item.amount}} @if (item.amount_needed !== item.amount) {
+      <span>({{item.amount_needed}})</span>
+    }
+  </span>
+}
+@if (settings.displayRemaining) {
+  <span class="amount-max">
+    /{{item.amount - item.used}} @if (item.amount_needed !== item.amount) {
+    <span>({{item.amount_needed}})</span>
+  }
+</span>
+}
+</ng-template>
+<ng-template #done>
+  <button (click)="permissionLevel >= 20 ? resetDone(item) : null"
+    [disabled]="permissionLevel < 20" nzType="default" nzSize="small"
+    nz-button class="check-button">
+    <span nz-icon nzType="undo" nzTheme="outline"></span>
+  </button>
+</ng-template>

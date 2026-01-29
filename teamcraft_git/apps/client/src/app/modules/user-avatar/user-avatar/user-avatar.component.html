@@ -1,0 +1,41 @@
+@if (user$ | async; as user) {
+  <nz-badge [nzCount]="(user.moderator || user.admin)?iconTemplate:null">
+    <a (click)="$event.stopPropagation()" routerLink="/profile/{{userId}}">
+      @if (character$ | async; as character) {
+        @if (character.ID > 0) {
+          <img [class.gray]="(status$ | async)?.verified === false && !ignoreVerification" [nzTooltipTitle]="tooltip"
+            [src]="character.Avatar"
+            [style.width.px]="width"
+            alt=""
+            class="avatar" nz-tooltip>
+        } @else {
+          <nz-avatar [nzText]="character.Name[0]"
+            [nzTooltipTitle]="disableTooltip?null:tooltip" [style.height.px]="width"
+            [style.width.px]="width"
+          nz-tooltip></nz-avatar>
+        }
+        <ng-template #tooltip>
+          {{messageKey ? (messageKey | translate:{ name: character.Name }) : character.Name }}
+          @if ((status$ | async)?.verified === false) {
+            <span>({{'Not_verified' | translate}})</span>
+          }
+        </ng-template>
+      } @else {
+        <i [nzTooltipTitle]="messageKey ? (messageKey | translate:{name: 'Anonymous' | translate}) : 'Anonymous' | translate" [style.width.px]="width" nz-icon
+          nz-tooltip
+          nzType="user">
+        </i>
+      }
+    </a>
+  </nz-badge>
+  <ng-template #iconTemplate>
+    @if (user.admin) {
+      <i [nzTooltipTitle]="'COMMON.Admin' | translate" class="ant-scroll-number-custom-component" nz-icon nz-tooltip
+      nzType="crown"></i>
+    }
+    @if (user.moderator) {
+      <i [nzTooltipTitle]="'COMMON.Moderator' | translate" class="ant-scroll-number-custom-component" nz-icon nz-tooltip
+      nzType="safety"></i>
+    }
+  </ng-template>
+}

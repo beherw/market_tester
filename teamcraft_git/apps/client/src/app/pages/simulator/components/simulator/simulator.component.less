@@ -1,0 +1,261 @@
+@mobile: ~"screen and (max-width: 575px)";
+@tablet: ~"screen and (min-width: 576px) and (max-width: 1025px)";
+
+:host ::ng-deep {
+  .ant-card-body {
+    @media @mobile {
+      padding: 12px;
+    }
+  }
+
+  .ant-input-group {
+    width: auto;
+  }
+}
+
+.full-button {
+  height: 48px;
+}
+
+.hq-input {
+  width: 160px;
+}
+
+.hq-ingredient-name {
+  cursor: pointer;
+}
+
+.affinity-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.simulator-footer {
+  margin-top: 10px;
+}
+
+.apply {
+  display: flex;
+  flex-grow: 1;
+  justify-content: flex-end;
+}
+
+.ingredients {
+  button {
+    margin-bottom: 37px;
+  }
+}
+
+.failed {
+  background-color: rgba(255, 0, 0, .3);
+}
+
+.success {
+  background-color: rgba(0, 255, 0, .3);
+}
+
+.nothing-selected {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  flex: 1 1 auto;
+  opacity: .7;
+}
+
+.consumable-col {
+  min-height: 130px;
+}
+
+.job-selector {
+  width: 100%;
+}
+
+.job-icon {
+  width: 32px;
+}
+
+.buttons {
+  position: fixed;
+
+  &.expanded {
+    button {
+      width: 280px;
+    }
+  }
+
+  @media @mobile {
+    position: unset;
+    > button {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.simulator {
+  &.buttons-expanded {
+    margin-left: 300px;
+  }
+
+  &.buttons-collapsed {
+    margin-left: 42px;
+  }
+
+  @media @mobile {
+    margin-left: 0;
+    margin-top: 42px;
+  }
+  @media @tablet {
+    margin-left: 0;
+    margin-top: 42px;
+  }
+}
+
+.mobile-buffs {
+  position: fixed;
+  bottom: 11px;
+  z-index: 1000;
+  width: ~"calc(100% - 60px)";
+  opacity: .8;
+
+  ::ng-deep .ant-card-body {
+    padding: 3px !important;
+  }
+}
+
+.mobile-actions {
+  margin-bottom: 50px;
+}
+
+.buffs-container {
+  min-height: 32px;
+
+  .buff-container {
+    position: relative;
+    margin: 0 2px;
+
+    .stacks {
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: white;
+      text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+    }
+
+    .duration {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      color: white;
+      text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+    }
+  }
+}
+
+.quality-display {
+  width: 100%;
+}
+
+.hq-chances {
+  display: flex;
+  justify-content: space-between;
+  width: 150px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  margin-right: 40px;
+}
+
+.rotation__container {
+  .rotation__container__step {
+    width: var(--box-width);
+    height: var(--box-height);
+    margin-bottom: 10px;
+
+    &:last-child {
+      flex: 1;
+    }
+
+    & > * {
+      padding-left: 10px;
+    }
+  }
+}
+
+.actions-card, .rotation__container {
+  user-select: none;
+}
+
+.actions-card {
+  position: relative;
+
+  .warning-icon {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+  }
+
+  .fail-reason {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .rotation__container {
+    margin-bottom: 5px;
+    min-height: 45px;
+
+    .action-from-bar:not(.gu-transit) {
+      display: none;
+    }
+
+    .action-container {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.actions-card-content {
+
+  position: relative;
+
+  .detailed-toggle {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+
+  .category-row {
+    display: flex;
+    flex-wrap: wrap;
+
+    h4 {
+      padding-left: 15px;
+    }
+
+    .actions-row {
+      padding: 5px;
+      background: rgba(0, 0, 0, .3);
+      margin: 10px;
+
+      app-action {
+        display: block;
+      }
+
+      .gu-transit {
+        display: none;
+      }
+    }
+  }
+}
+
+/* Animate items as they're being sorted. */
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-preview {
+  overflow: hidden;
+  height: 40px !important;
+  width: 40px !important;
+}

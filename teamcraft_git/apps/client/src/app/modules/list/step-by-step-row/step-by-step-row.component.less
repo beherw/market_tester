@@ -1,0 +1,49 @@
+:host {
+  .step-row {
+    padding: 3px;
+  }
+
+  .hq-icon {
+    margin-left: 2px;
+  }
+
+
+  &.odd {
+    .step-row {
+      background-color: rgba(77, 77, 77, .5);
+    }
+  }
+
+  .name {
+    flex: 0 0 200px;
+  }
+
+  .timers {
+    flex-wrap: wrap;
+    flex: 1 1 200px
+  }
+
+  &.craftable {
+    .step-row {
+      background-color: rgba(19, 168, 255, .4);
+    }
+  }
+
+  &.done {
+    .step-row {
+      background-color: rgba(94, 255, 91, 0.2);
+    }
+
+    opacity: .6;
+  }
+
+  &.can-skip {
+    opacity: .5;
+  }
+
+  &.has-all-ingredients {
+    .step-row {
+      border: 1px dashed rgba(19, 168, 255, .3);
+    }
+  }
+}

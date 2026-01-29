@@ -1,0 +1,3294 @@
+{
+  "1": {
+    "en": "All Classes",
+    "ja": "全クラス",
+    "de": "Alle Klassen",
+    "fr": "Toutes les classes",
+    "jobs": [
+      "ADV",
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL",
+      "MIN",
+      "BTN",
+      "FSH",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "BLU",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "2": {
+    "en": "GLA",
+    "ja": "剣術士",
+    "de": "GLA",
+    "fr": "GLA",
+    "jobs": [
+      "GLA"
+    ]
+  },
+  "3": {
+    "en": "PGL",
+    "ja": "格闘士",
+    "de": "FST",
+    "fr": "PGL",
+    "jobs": [
+      "PGL"
+    ]
+  },
+  "4": {
+    "en": "MRD",
+    "ja": "斧術士",
+    "de": "MAR",
+    "fr": "MRD",
+    "jobs": [
+      "MRD"
+    ]
+  },
+  "5": {
+    "en": "LNC",
+    "ja": "槍術士",
+    "de": "PIK",
+    "fr": "HAS",
+    "jobs": [
+      "LNC"
+    ]
+  },
+  "6": {
+    "en": "ARC",
+    "ja": "弓術士",
+    "de": "WDL",
+    "fr": "ARC",
+    "jobs": [
+      "ARC"
+    ]
+  },
+  "7": {
+    "en": "CNJ",
+    "ja": "幻術士",
+    "de": "DRU",
+    "fr": "ÉLM",
+    "jobs": [
+      "CNJ"
+    ]
+  },
+  "8": {
+    "en": "THM",
+    "ja": "呪術士",
+    "de": "THM",
+    "fr": "OCC",
+    "jobs": [
+      "THM"
+    ]
+  },
+  "9": {
+    "en": "CRP",
+    "ja": "木工師",
+    "de": "ZMR",
+    "fr": "MEN",
+    "jobs": [
+      "CRP"
+    ]
+  },
+  "10": {
+    "en": "BSM",
+    "ja": "鍛冶師",
+    "de": "GRS",
+    "fr": "FRG",
+    "jobs": [
+      "BSM"
+    ]
+  },
+  "11": {
+    "en": "ARM",
+    "ja": "甲冑師",
+    "de": "PLA",
+    "fr": "ARM",
+    "jobs": [
+      "ARM"
+    ]
+  },
+  "12": {
+    "en": "GSM",
+    "ja": "彫金師",
+    "de": "GLD",
+    "fr": "ORF",
+    "jobs": [
+      "GSM"
+    ]
+  },
+  "13": {
+    "en": "LTW",
+    "ja": "革細工師",
+    "de": "GER",
+    "fr": "TAN",
+    "jobs": [
+      "LTW"
+    ]
+  },
+  "14": {
+    "en": "WVR",
+    "ja": "裁縫師",
+    "de": "WEB",
+    "fr": "COU",
+    "jobs": [
+      "WVR"
+    ]
+  },
+  "15": {
+    "en": "ALC",
+    "ja": "錬金術師",
+    "de": "ALC",
+    "fr": "ALC",
+    "jobs": [
+      "ALC"
+    ]
+  },
+  "16": {
+    "en": "CUL",
+    "ja": "調理師",
+    "de": "GRM",
+    "fr": "CUI",
+    "jobs": [
+      "CUL"
+    ]
+  },
+  "17": {
+    "en": "MIN",
+    "ja": "採掘師",
+    "de": "MIN",
+    "fr": "MIN",
+    "jobs": [
+      "MIN"
+    ]
+  },
+  "18": {
+    "en": "BTN",
+    "ja": "園芸師",
+    "de": "GÄR",
+    "fr": "BOT",
+    "jobs": [
+      "BTN"
+    ]
+  },
+  "19": {
+    "en": "FSH",
+    "ja": "漁師",
+    "de": "FIS",
+    "fr": "PÊC",
+    "jobs": [
+      "FSH"
+    ]
+  },
+  "20": {
+    "en": "PLD",
+    "ja": "ナイト",
+    "de": "PLD",
+    "fr": "PLD",
+    "jobs": [
+      "PLD"
+    ]
+  },
+  "21": {
+    "en": "MNK",
+    "ja": "モンク",
+    "de": "MÖN",
+    "fr": "MOI",
+    "jobs": [
+      "MNK"
+    ]
+  },
+  "22": {
+    "en": "WAR",
+    "ja": "戦士",
+    "de": "KRG",
+    "fr": "GUE",
+    "jobs": [
+      "WAR"
+    ]
+  },
+  "23": {
+    "en": "DRG",
+    "ja": "竜騎士",
+    "de": "DRG",
+    "fr": "DRG",
+    "jobs": [
+      "DRG"
+    ]
+  },
+  "24": {
+    "en": "BRD",
+    "ja": "吟遊詩人",
+    "de": "BRD",
+    "fr": "BRD",
+    "jobs": [
+      "BRD"
+    ]
+  },
+  "25": {
+    "en": "WHM",
+    "ja": "白魔道士",
+    "de": "WMA",
+    "fr": "MBL",
+    "jobs": [
+      "WHM"
+    ]
+  },
+  "26": {
+    "en": "BLM",
+    "ja": "黒魔道士",
+    "de": "SMA",
+    "fr": "MNO",
+    "jobs": [
+      "BLM"
+    ]
+  },
+  "27": {
+    "en": "ACN",
+    "ja": "巴術士",
+    "de": "HRT",
+    "fr": "ACN",
+    "jobs": [
+      "ACN"
+    ]
+  },
+  "28": {
+    "en": "SMN",
+    "ja": "召喚士",
+    "de": "BSW",
+    "fr": "INV",
+    "jobs": [
+      "SMN"
+    ]
+  },
+  "29": {
+    "en": "SCH",
+    "ja": "学者",
+    "de": "GLT",
+    "fr": "ÉRU",
+    "jobs": [
+      "SCH"
+    ]
+  },
+  "30": {
+    "en": "Disciple of War",
+    "ja": "ファイター",
+    "de": "Krieger",
+    "fr": "combattants",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "31": {
+    "en": "Disciple of Magic",
+    "ja": "ソーサラー",
+    "de": "Magier",
+    "fr": "mages",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "BLU",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "32": {
+    "en": "Disciple of the Land",
+    "ja": "ギャザラー",
+    "de": "Sammler",
+    "fr": "récolteurs",
+    "jobs": [
+      "MIN",
+      "BTN",
+      "FSH"
+    ]
+  },
+  "33": {
+    "en": "Disciple of the Hand",
+    "ja": "クラフター",
+    "de": "Handwerker",
+    "fr": "artisans",
+    "jobs": [
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL"
+    ]
+  },
+  "34": {
+    "en": "Disciples of War or Magic",
+    "ja": "ファイター ソーサラー",
+    "de": "Krieger, Magier",
+    "fr": "combattants et mages",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "BLU",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "35": {
+    "en": "Disciples of the Land or Hand",
+    "ja": "クラフター ギャザラー",
+    "de": "Handwerker, Sammler",
+    "fr": "récolteurs et artisans",
+    "jobs": [
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL",
+      "MIN",
+      "BTN",
+      "FSH"
+    ]
+  },
+  "36": {
+    "en": "Any Disciple of War (excluding gladiators)",
+    "ja": "剣術士を除くファイター",
+    "de": "Krieger außer Gladiator",
+    "fr": "combattants (sauf GLA)",
+    "jobs": [
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "37": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN PLD WAR DRK",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 ナイト 戦士 暗黒騎士",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT PLD KRG DKR",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN PLD GUE CHN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "WAR",
+      "ACN",
+      "ROG",
+      "DRK"
+    ]
+  },
+  "38": {
+    "en": "GLA PLD",
+    "ja": "剣術士 ナイト",
+    "de": "GLA PLD",
+    "fr": "GLA PLD",
+    "jobs": [
+      "GLA",
+      "PLD"
+    ]
+  },
+  "39": {
+    "en": "GLA PGL MRD LNC ARC ROG PLD WAR DRK",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 ナイト 戦士 暗黒騎士",
+    "de": "GLA FST MAR PIK WDL SCH PLD KRG DKR",
+    "fr": "GLA PGL MRD HAS ARC SUR PLD GUE CHN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "WAR",
+      "ROG",
+      "DRK"
+    ]
+  },
+  "40": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN MNK WAR DRG BRD NIN",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 モンク 戦士 竜騎士 吟遊詩人 忍者",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT MÖN KRG DRG BRD NIN",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN MOI GUE DRG BRD NIN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ACN",
+      "ROG",
+      "NIN"
+    ]
+  },
+  "41": {
+    "en": "PGL MNK",
+    "ja": "格闘士 モンク",
+    "de": "FST MÖN",
+    "fr": "PGL MOI",
+    "jobs": [
+      "PGL",
+      "MNK"
+    ]
+  },
+  "42": {
+    "en": "GLA PGL MRD LNC ARC ROG MNK WAR DRG BRD NIN",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 モンク 戦士 竜騎士 吟遊詩人 忍者",
+    "de": "GLA FST MAR PIK WDL SCH MÖN KRG DRG NIN",
+    "fr": "GLA PGL MRD HAS ARC SUR MOI GUE DRG BRD NIN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN"
+    ]
+  },
+  "43": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN PLD MNK WAR DRG DRK",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 ナイト モンク 戦士 竜騎士 暗黒騎士",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT PLD MÖN KRG DRG DKR",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN PLD MOI GUE DRG CHN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "ACN",
+      "ROG",
+      "DRK"
+    ]
+  },
+  "44": {
+    "en": "MRD WAR",
+    "ja": "斧術士 戦士",
+    "de": "MAR KRG",
+    "fr": "MRD GUE",
+    "jobs": [
+      "MRD",
+      "WAR"
+    ]
+  },
+  "45": {
+    "en": "GLA PGL MRD LNC ARC ROG PLD MNK WAR DRG DRK",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 ナイト モンク 戦士 竜騎士 暗黒騎士",
+    "de": "GLA FST MAR PIK WDL SCH PLD MÖN KRG DRG DKR",
+    "fr": "GLA PGL MRD HAS ARC SUR PLD MOI GUE DRG CHN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "ROG",
+      "DRK"
+    ]
+  },
+  "46": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN MNK DRG BRD NIN MCH",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 モンク 竜騎士 吟遊詩人 忍者 機工士",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT MÖN DRG BRD NIN MCH",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN MOI DRG BRD NIN MCH",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "MNK",
+      "DRG",
+      "BRD",
+      "ACN",
+      "ROG",
+      "NIN",
+      "MCH"
+    ]
+  },
+  "47": {
+    "en": "LNC DRG",
+    "ja": "槍術士 竜騎士",
+    "de": "PIK DRG",
+    "fr": "HAS DRG",
+    "jobs": [
+      "LNC",
+      "DRG"
+    ]
+  },
+  "48": {
+    "en": "GLA PGL MRD LNC ARC ROG MNK DRG BRD NIN MCH",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 モンク 竜騎士 吟遊詩人 忍者 機工士",
+    "de": "GLA FST MAR PIK WDL SCH MÖN DRG BRD NIN MCH",
+    "fr": "GLA PGL MRD HAS ARC SUR MOI DRG BRD NIN MCH",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "MNK",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH"
+    ]
+  },
+  "49": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN BRD BLM SMN MCH",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 吟遊詩人 黒魔道士 召喚士 機工士",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT BRD SMA BSW MCH",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN BRD MNO INV MCH",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "BRD",
+      "BLM",
+      "ACN",
+      "SMN",
+      "ROG",
+      "MCH"
+    ]
+  },
+  "50": {
+    "en": "ARC BRD",
+    "ja": "弓術士 吟遊詩人",
+    "de": "WDL BRD",
+    "fr": "ARC BRD",
+    "jobs": [
+      "ARC",
+      "BRD"
+    ]
+  },
+  "51": {
+    "en": "GLA PGL MRD LNC ARC ROG BRD MCH",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 吟遊詩人 機工士",
+    "de": "GLA FST MAR PIK WDL SCH BRD MCH",
+    "fr": "GLA PGL MRD HAS ARC SUR BRD MCH",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "BRD",
+      "ROG",
+      "MCH"
+    ]
+  },
+  "52": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN PLD WHM SCH AST",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 ナイト 白魔道士 学者 占星術師",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT PLD WMA GLT AST",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN PLD MBL ÉRU AST",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "WHM",
+      "ACN",
+      "SCH",
+      "ROG",
+      "AST"
+    ]
+  },
+  "53": {
+    "en": "CNJ WHM",
+    "ja": "幻術士 白魔道士",
+    "de": "DRU WMA",
+    "fr": "ÉLM MBL",
+    "jobs": [
+      "CNJ",
+      "WHM"
+    ]
+  },
+  "54": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN WHM BLM SMN SCH AST",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 白魔道士 黒魔道士 召喚士 学者 占星術師",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT WMA SMA BSW GLT AST",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN MBL MNO INV ÉRU AST",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "AST"
+    ]
+  },
+  "55": {
+    "en": "THM BLM",
+    "ja": "呪術士 黒魔道士",
+    "de": "THM SMA",
+    "fr": "OCC MNO",
+    "jobs": [
+      "THM",
+      "BLM"
+    ]
+  },
+  "56": {
+    "en": "GLA CNJ THM PLD WHM BLM",
+    "ja": "剣術士 幻術士 呪術士 ナイト 白魔道士 黒魔道士",
+    "de": "GLA DRU THM PLD WMA SMA",
+    "fr": "GLA ÉLM OCC PLD MBL MNO",
+    "jobs": [
+      "GLA",
+      "CNJ",
+      "THM",
+      "PLD",
+      "WHM",
+      "BLM"
+    ]
+  },
+  "57": {
+    "en": "GLA THM PLD BLM",
+    "ja": "剣術士 呪術士 ナイト 黒魔道士",
+    "de": "GLA THM PLD SMA",
+    "fr": "GLA OCC PLD MNO",
+    "jobs": [
+      "GLA",
+      "THM",
+      "PLD",
+      "BLM"
+    ]
+  },
+  "58": {
+    "en": "GLA CNJ PLD WHM",
+    "ja": "剣術士 幻術士 ナイト 白魔道士",
+    "de": "GLA DRU PLD WMA",
+    "fr": "GLA ÉLM PLD MBL",
+    "jobs": [
+      "GLA",
+      "CNJ",
+      "PLD",
+      "WHM"
+    ]
+  },
+  "59": {
+    "en": "GLA MRD PLD WAR DRK GNB",
+    "ja": "剣術士 斧術士 ナイト 戦士 暗黒騎士 ガンブレイカー",
+    "de": "GLA MAR PLD KRG DKR REV",
+    "fr": "GLA MRD PLD GUE CHN PSB",
+    "jobs": [
+      "GLA",
+      "MRD",
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "60": {
+    "en": "GLA MRD LNC PLD WAR DRG DRK GNB RPR",
+    "ja": "剣術士 斧術士 槍術士 ナイト 戦士 竜騎士 暗黒騎士 ガンブレイカー リーパー",
+    "de": "GLA MAR PIK PLD KRG DRG DKR REV SNT",
+    "fr": "GLA MRD HAS PLD GUE DRG CHN PSB FCH",
+    "jobs": [
+      "GLA",
+      "MRD",
+      "LNC",
+      "PLD",
+      "WAR",
+      "DRG",
+      "DRK",
+      "GNB",
+      "RPR"
+    ]
+  },
+  "61": {
+    "en": "CNJ THM ACN WHM SCH AST",
+    "ja": "幻術士 呪術士 巴術士 白魔道士 学者 占星術師",
+    "de": "DRU THM HRT WMA GLT AST",
+    "fr": "ÉLM OCC ACN MBL ÉRU AST",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "ACN",
+      "SCH",
+      "AST"
+    ]
+  },
+  "62": {
+    "en": "CNJ THM ACN WHM BLM SMN SCH AST",
+    "ja": "幻術士 呪術士 巴術士 白魔道士 黒魔道士 召喚士 学者 占星術師",
+    "de": "DRU THM HRT WMA SMA BSW GLT AST",
+    "fr": "ÉLM OCC ACN MBL MNO INV ÉRU AST",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "AST"
+    ]
+  },
+  "63": {
+    "en": "THM ACN BLM SMN RDM BLU PCT",
+    "ja": "呪術士 巴術士 黒魔道士 召喚士 赤魔道士 青魔道士 ピクトマンサー",
+    "de": "THM HRT SMA BSW RMA BMA PKT",
+    "fr": "OCC ACN MNO INV MRG MBU PIC",
+    "jobs": [
+      "THM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "RDM",
+      "BLU",
+      "PCT"
+    ]
+  },
+  "64": {
+    "en": "CNJ WHM SCH AST SGE",
+    "ja": "幻術士 白魔道士 学者 占星術師 賢者",
+    "de": "DRU WMA GLT AST WEI",
+    "fr": "ÉLM MBL ÉRU AST SAG",
+    "jobs": [
+      "CNJ",
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "65": {
+    "en": "PGL MNK SAM",
+    "ja": "格闘士 モンク 侍",
+    "de": "FST MÖN SAM",
+    "fr": "PGL MOI SAM",
+    "jobs": [
+      "PGL",
+      "MNK",
+      "SAM"
+    ]
+  },
+  "66": {
+    "en": "ARC BRD MCH DNC",
+    "ja": "弓術士 吟遊詩人 機工士 踊り子",
+    "de": "WDL BRD MCH TÄN",
+    "fr": "ARC BRD MCH DNS",
+    "jobs": [
+      "ARC",
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "67": {
+    "en": "GLA PGL MRD LNC ROG MNK DRG NIN",
+    "ja": "剣術士 格闘士 斧術士 槍術士 双剣士 モンク 竜騎士 忍者",
+    "de": "GLA FST MAR PIK SCH MÖN DRG NIN",
+    "fr": "GLA PGL MRD HAS SUR MOI DRG NIN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "MNK",
+      "DRG",
+      "ROG",
+      "NIN"
+    ]
+  },
+  "68": {
+    "en": "ACN SMN SCH",
+    "ja": "巴術士 召喚士 学者",
+    "de": "HRT BSW GLT",
+    "fr": "ACN INV ÉRU",
+    "jobs": [
+      "ACN",
+      "SMN",
+      "SCH"
+    ]
+  },
+  "69": {
+    "en": "ACN SMN",
+    "ja": "巴術士 召喚士",
+    "de": "HRT BSW",
+    "fr": "ACN INV",
+    "jobs": [
+      "ACN",
+      "SMN"
+    ]
+  },
+  "70": {
+    "en": "Any Disciple of the Hand (excluding culinarians)",
+    "ja": "調理師以外のクラフター",
+    "de": "Handwerker außer Gourmet",
+    "fr": "artisans (sauf CUI)",
+    "jobs": [
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC"
+    ]
+  },
+  "71": {
+    "en": "GLA PGL MRD LNC ARC ROG CNJ THM ACN WHM BLM SMN SCH",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 白魔道士 黒魔道士 召喚士 学者",
+    "de": "GLA FST MAR PIK WDL SCH DRU THM HRT WMA SMA BSW GLT",
+    "fr": "GLA PGL MRD HAS ARC SUR ÉLM OCC ACN MBL MNO INV ÉRU",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG"
+    ]
+  },
+  "72": {
+    "en": "CNJ THM ACN WHM BLM SMN SCH",
+    "ja": "幻術士 呪術士 巴術士 白魔道士 黒魔道士 召喚士 学者",
+    "de": "DRU THM HRT WMA SMA BSW GLT",
+    "fr": "ÉLM OCC ACN MBL MNO INV ÉRU",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH"
+    ]
+  },
+  "73": {
+    "en": "CNJ WHM SCH AST SGE",
+    "ja": "幻術士 白魔道士 学者 占星術師 賢者",
+    "de": "DRU WMA GLT AST WEI",
+    "fr": "ÉLM MBL ÉRU AST SAG",
+    "jobs": [
+      "CNJ",
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "74": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "ADV",
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL",
+      "MIN",
+      "BTN",
+      "FSH",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "BLU",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "75": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "GLA",
+      "MRD",
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "76": {
+    "en": "LNC DRG RPR",
+    "ja": "槍術士 竜騎士 リーパー",
+    "de": "PIK DRG SNT",
+    "fr": "HAS DRG FCH",
+    "jobs": [
+      "LNC",
+      "DRG",
+      "RPR"
+    ]
+  },
+  "77": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "PGL",
+      "MNK",
+      "SAM"
+    ]
+  },
+  "78": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "ARC",
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "79": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "THM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "RDM",
+      "BLU",
+      "PCT"
+    ]
+  },
+  "80": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "CNJ",
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "81": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "ARC",
+      "MNK",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "SAM",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "82": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "BLU",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "83": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL",
+      "MIN",
+      "BTN",
+      "FSH"
+    ]
+  },
+  "84": {
+    "en": "PGL LNC MNK DRG SAM RPR",
+    "ja": "格闘士 槍術士 モンク 竜騎士 侍 リーパー",
+    "de": "FST PIK MÖN DRG SAM SNT",
+    "fr": "PGL HAS MOI DRG SAM FCH",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "MNK",
+      "DRG",
+      "SAM",
+      "RPR"
+    ]
+  },
+  "85": {
+    "en": "Jobs of the Disciples of War or Magic",
+    "ja": "ファイター ソーサラー ジョブ専用",
+    "de": "Krieger- oder Magier-Job",
+    "fr": "Job de combattant ou mage",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "86": {
+    "en": "PLD WAR DRK GNB MNK DRG NIN SAM",
+    "ja": "ナイト 戦士 暗黒騎士 ガンブレイカー モンク 竜騎士 忍者 侍",
+    "de": "PLD KRG SMA REV MÖN DRG NIN",
+    "fr": "PLD GUE CHN PSB MOI DRG NIN SAM",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "NIN",
+      "DRK",
+      "SAM",
+      "GNB"
+    ]
+  },
+  "87": {
+    "en": "BRD MCH DNC BLM SMN RDM WHM SCH AST",
+    "ja": "吟遊詩人 機工士 踊り子 黒魔道士 召喚士 赤魔道士 白魔道士 学者 占星術師",
+    "de": "BRD MCH TÄN SMA BES RMA WMA GLT AST ",
+    "fr": "BRD MCH DNS MNO INV MRG MBL ÉRU AST",
+    "jobs": [
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "MCH",
+      "AST",
+      "RDM",
+      "DNC"
+    ]
+  },
+  "88": {
+    "en": "GLA MRD PGL LNC ARC ROG PLD MNK WAR DRG BRD NIN MCH",
+    "ja": "剣術士 斧術士 格闘士 槍術士 弓術士 双剣士 ナイト モンク 戦士 竜騎士 吟遊詩人 忍者 暗黒騎士 機工士",
+    "de": "GLA FST MAR PIK WDL SCH PLD MÖN KRG DRG BRD NIN MCH",
+    "fr": "GLA MRD PGL HAS ARC SUR PLD MOI GUE DRG BRD NIN CHN MCH",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK"
+    ]
+  },
+  "89": {
+    "en": "BLM SMN RDM PCT",
+    "ja": "黒魔道士 召喚士 赤魔道士 ピクトマンサー",
+    "de": "SMA BSW RMA PKT",
+    "fr": "MNO INV MRG PIC",
+    "jobs": [
+      "BLM",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "90": {
+    "en": "ARC CNJ THM ACN WHM BRD BLM SMN SCH MCH AST",
+    "ja": "弓術士 幻術士 呪術士 巴術士 白魔道士 吟遊詩人 黒魔道士 召喚士 学者 機工士 占星術師",
+    "de": "WDL DRU THM HRT WMA BRD SMA BSW GLT MCH AST",
+    "fr": "ARC ÉLM OCC ACN MBL BRD MNO INV ÉRU MCH AST",
+    "jobs": [
+      "ARC",
+      "CNJ",
+      "THM",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "MCH",
+      "AST"
+    ]
+  },
+  "91": {
+    "en": "ROG",
+    "ja": "双剣士",
+    "de": "SCH",
+    "fr": "SUR",
+    "jobs": [
+      "ROG"
+    ]
+  },
+  "92": {
+    "en": "NIN",
+    "ja": "忍者",
+    "de": "NIN",
+    "fr": "NIN",
+    "jobs": [
+      "NIN"
+    ]
+  },
+  "93": {
+    "en": "ROG NIN",
+    "ja": "双剣士 忍者",
+    "de": "SCH NIN",
+    "fr": "SUR NIN",
+    "jobs": [
+      "ROG",
+      "NIN"
+    ]
+  },
+  "94": {
+    "en": "GLA PGL MRD LNC ARC ROG NIN",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 忍者",
+    "de": "GLA FST MAR PIK WDL SCH NIN",
+    "fr": "GLA PGL MRD HAS ARC SUR NIN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "ROG",
+      "NIN"
+    ]
+  },
+  "95": {
+    "en": "GLA PGL MRD LNC ROG NIN",
+    "ja": "剣術士 格闘士 斧術士 槍術士 双剣士 忍者",
+    "de": "GLA FST MAR PIK SCH NIN",
+    "fr": "GLA PGL MRD HAS SUR NIN",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ROG",
+      "NIN"
+    ]
+  },
+  "96": {
+    "en": "MCH",
+    "ja": "機工士",
+    "de": "MCH",
+    "fr": "MCH",
+    "jobs": [
+      "MCH"
+    ]
+  },
+  "97": {
+    "en": "PGL LNC ARC ROG MNK DRG BRD NIN MCH",
+    "ja": "格闘士 槍術士 弓術士 双剣士 モンク 竜騎士 吟遊詩人 忍者 機工士",
+    "de": "FST PIK WDL SCH MÖN DRG BRD NIN MCH",
+    "fr": "PGL HAS ARC SUR MOI DRG BRD NIN MCH",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "ARC",
+      "MNK",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH"
+    ]
+  },
+  "98": {
+    "en": "DRK",
+    "ja": "暗黒騎士",
+    "de": "DKR",
+    "fr": "CHN",
+    "jobs": [
+      "DRK"
+    ]
+  },
+  "99": {
+    "en": "AST",
+    "ja": "占星術師",
+    "de": "AST",
+    "fr": "AST",
+    "jobs": [
+      "AST"
+    ]
+  },
+  "100": {
+    "en": "ARC ROG BRD NIN MCH",
+    "ja": "弓術士 双剣士 吟遊詩人 忍者 機工士",
+    "de": "WDL SCH BRD NIN MCH",
+    "fr": "ARC SUR BRD NIN MCH",
+    "jobs": [
+      "ARC",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH"
+    ]
+  },
+  "101": {
+    "en": "PGL LNC ROG MNK DRG NIN",
+    "ja": "格闘士 槍術士 双剣士 モンク 竜騎士 忍者",
+    "de": "FST PIK SCH MÖN DRG NIN",
+    "fr": "PGL HAS SUR MOI DRG NIN",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "MNK",
+      "DRG",
+      "ROG",
+      "NIN"
+    ]
+  },
+  "102": {
+    "en": "PGL ROG MNK NIN SAM VPR",
+    "ja": "格闘士 双剣士 モンク 忍者 侍 ヴァイパー",
+    "de": "FST SCH MÖN NIN SAM VPR",
+    "fr": "PGL SUR MOI NIN SAM VPR",
+    "jobs": [
+      "PGL",
+      "MNK",
+      "ROG",
+      "NIN",
+      "SAM",
+      "VPR"
+    ]
+  },
+  "103": {
+    "en": "ROG NIN VPR",
+    "ja": "双剣士 忍者 ヴァイパー",
+    "de": "SCH NIN VPR",
+    "fr": "SUR NIN VPR",
+    "jobs": [
+      "ROG",
+      "NIN",
+      "VPR"
+    ]
+  },
+  "104": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "ROG",
+      "NIN",
+      "VPR"
+    ]
+  },
+  "105": {
+    "en": "ARC ROG BRD NIN MCH DNC VPR",
+    "ja": "弓術士 双剣士 吟遊詩人 忍者 機工士 踊り子 ヴァイパー",
+    "de": "WDL SCH BRD NIN MCH TÄN VPR",
+    "fr": "ARC SUR BRD NIN MCH DNS VPR",
+    "jobs": [
+      "ARC",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DNC",
+      "VPR"
+    ]
+  },
+  "106": {
+    "en": "GLA MRD PGL LNC ARC ROG BRD",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 吟遊詩人",
+    "de": "GLA MAR FST PIK WDL SCH BRD",
+    "fr": "GLA PGL MRD HAS ARC SUR BRD",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "BRD",
+      "ROG"
+    ]
+  },
+  "107": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 暗黒騎士 占星術師",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BES GLT NIN MCH DKR AST",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST"
+    ]
+  },
+  "108": {
+    "en": "Disciples of War or Magic",
+    "ja": "ファイター ソーサラー",
+    "de": "Krieger oder Magier",
+    "fr": "combattant ou mage",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "BLU",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "109": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL",
+      "MIN",
+      "BTN",
+      "FSH",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "BLU",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "110": {
+    "en": "Jobs of the Disciples of War or Magic",
+    "ja": "ファイター ソーサラー ジョブ専用",
+    "de": "Krieger- oder Magier-Job",
+    "fr": "job de combattant ou mage",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "BLU",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "111": {
+    "en": "SAM",
+    "ja": "侍",
+    "de": "SAM",
+    "fr": "SAM",
+    "jobs": [
+      "SAM"
+    ]
+  },
+  "112": {
+    "en": "RDM",
+    "ja": "赤魔道士",
+    "de": "RMA",
+    "fr": "MRG",
+    "jobs": [
+      "RDM"
+    ]
+  },
+  "113": {
+    "en": "GLA MRD PLD WAR DRK GNB",
+    "ja": "剣術士 斧術士 ナイト 戦士 暗黒騎士 ガンブレイカー",
+    "de": "GLA MAR PLD KRG DKR REV",
+    "fr": "GLA MRD PLD GUE CHN PSB",
+    "jobs": [
+      "GLA",
+      "MRD",
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "114": {
+    "en": "PGL LNC ROG MNK DRG NIN SAM RPR VPR",
+    "ja": "格闘士 槍術士 モンク 竜騎士 双剣士 忍者 侍 リーパー ヴァイパー",
+    "de": "FST PIK MÖN DRG SCH NIN SAM SNT VPR",
+    "fr": "PGL HAS MOI DRG SUR NIN SAM FCH VPR",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "MNK",
+      "DRG",
+      "ROG",
+      "NIN",
+      "SAM",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "115": {
+    "en": "ARC BRD MCH DNC",
+    "ja": "弓術士 吟遊詩人 機工士 踊り子",
+    "de": "WDL BRD MCH TÄN",
+    "fr": "ARC BRD MCH DNS",
+    "jobs": [
+      "ARC",
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "116": {
+    "en": "THM ACN BLM SMN RDM BLU PCT",
+    "ja": "呪術士 黒魔道士 巴術士 召喚士 赤魔道士 青魔道士 ピクトマンサー",
+    "de": "THM SMA HRT BSW RMA BMA PKT",
+    "fr": "OCC MNO ACN INV MRG MBU PIC",
+    "jobs": [
+      "THM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "RDM",
+      "BLU",
+      "PCT"
+    ]
+  },
+  "117": {
+    "en": "CNJ WHM SCH AST SGE",
+    "ja": "幻術士 白魔道士 学者 占星術師 賢者",
+    "de": "DRU WMA GLT AST WEI",
+    "fr": "ÉLM MBL ÉRU AST SAG",
+    "jobs": [
+      "CNJ",
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "118": {
+    "en": "PGL LNC ARC ROG MNK DRG BRD NIN MCH SAM DNC RPR VPR",
+    "ja": "格闘士 槍術士 弓術士 モンク 竜騎士 吟遊詩人 双剣士 忍者 機工士 侍 踊り子 リーパー ヴァイパー",
+    "de": "FST PIK WLD MÖN DRG BRD SCH NIN MCH SAM TÄN SNT VPR",
+    "fr": "PGL HAS ARC MOI DRG BRD SUR NIN MCH SAM DNS FCH VPR",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "ARC",
+      "MNK",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "SAM",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "119": {
+    "en": "PGL LNC THM ACN ROG MNK DRG BLM SMN NIN SAM RDM BLU RPR VPR PCT",
+    "ja": "格闘士 槍術士 呪術士 モンク 竜騎士 黒魔道士 巴術士 召喚士 双剣士 忍者 侍 赤魔道士 青魔道士 リーパー ヴァイパー ピクトマンサー",
+    "de": "FST PIK THM MÖN DRG SMA HRT BSW SCH NIN SAM RMA BMA SNT VPR PKT",
+    "fr": "PGL HAS OCC MOI DRG MNO ACN INV SUR NIN SAM MRG MBU FCH VPR PIC",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "THM",
+      "MNK",
+      "DRG",
+      "BLM",
+      "ACN",
+      "SMN",
+      "ROG",
+      "NIN",
+      "SAM",
+      "RDM",
+      "BLU",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "120": {
+    "en": "CNJ THM ACN WHM BLM SMN SCH AST RDM BLU SGE PCT",
+    "ja": "幻術士 呪術士 白魔道士 黒魔道士 巴術士 召喚士 学者 占星術師 赤魔道士 青魔道士 賢者 ピクトマンサー",
+    "de": "DRU THM WMA SMA HRT BSW SCH AST RMA BMA WEI PKT",
+    "fr": "ÉLM OCC MBL MNO ACN INV ÉRU AST MRG MBU SAG PIC",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "BLU",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "121": {
+    "en": "PLD WAR DRK GNB",
+    "ja": "ナイト 戦士 暗黒騎士 ガンブレイカー",
+    "de": "PLD KRG DKR REV",
+    "fr": "PLD GUE CHN PSB",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "122": {
+    "en": "MNK DRG NIN SAM RPR VPR",
+    "ja": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+    "de": "MÖN DRG NIN SAM SNT VPR",
+    "fr": "MOI DRG NIN SAM FCH VPR",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "NIN",
+      "SAM",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "123": {
+    "en": "BRD MCH DNC",
+    "ja": "吟遊詩人 機工士 踊り子",
+    "de": "BRD MCH TÄN",
+    "fr": "BRD MCH DNS",
+    "jobs": [
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "124": {
+    "en": "BLM SMN RDM BLU PCT",
+    "ja": "黒魔道士 召喚士 赤魔道士 青魔道士 ピクトマンサー",
+    "de": "SMA BSW RMA BMA PKT",
+    "fr": "MNO INV MRG MBU PIC",
+    "jobs": [
+      "BLM",
+      "SMN",
+      "RDM",
+      "BLU",
+      "PCT"
+    ]
+  },
+  "125": {
+    "en": "WHM SCH AST SGE",
+    "ja": "白魔道士 学者 占星術師 賢者",
+    "de": "WMA GLT AST WEI",
+    "fr": "MBL ÉRU AST SAG",
+    "jobs": [
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "126": {
+    "en": "MNK DRG BRD NIN MCH SAM DNC RPR VPR",
+    "ja": "モンク 竜騎士 吟遊詩人 忍者 機工士 侍 踊り子 リーパー ヴァイパー",
+    "de": "MÖN DRG BRD NIN MCH SAM TÄN SNT VPR",
+    "fr": "MOI DRG BRD NIN MCH SAM DNS FCH VPR",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "NIN",
+      "MCH",
+      "SAM",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "127": {
+    "en": "MNK DRG BLM SMN NIN SAM RDM BLU RPR VPR PCT",
+    "ja": "モンク 竜騎士 黒魔道士 召喚士 忍者 侍 赤魔道士 青魔道士 リーパー ヴァイパー ピクトマンサー",
+    "de": "MÖN DRG SMA BSW NIN SAM RMA BMA SNT VPR PKT",
+    "fr": "MOI DRG MNO INV NIN SAM MRG MBU FCH VPR PIC",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BLM",
+      "SMN",
+      "NIN",
+      "SAM",
+      "RDM",
+      "BLU",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "128": {
+    "en": "WHM BLM SMN SCH AST RDM BLU SGE PCT",
+    "ja": "白魔道士 黒魔道士 召喚士 学者 占星術師 赤魔道士 青魔道士 賢者 ピクトマンサー",
+    "de": "WMA SMA BSW GLT AST RMA BMA WEI PKT",
+    "fr": "MBL MNO INV ÉRU AST MRG MBU SAG PIC",
+    "jobs": [
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "BLU",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "129": {
+    "en": "BLU",
+    "ja": "青魔道士",
+    "de": "BMA",
+    "fr": "MBU",
+    "jobs": [
+      "BLU"
+    ]
+  },
+  "130": {
+    "en": "All classes and jobs (excluding limited jobs)",
+    "ja": "すべて (リミテッドジョブを除く)",
+    "de": "Alle Klassen und Jobs (außer beschränkte Jobs)",
+    "fr": "Toutes classes et jobs (sauf jobs restreints)",
+    "jobs": [
+      "ADV",
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "CRP",
+      "BSM",
+      "ARM",
+      "GSM",
+      "LTW",
+      "WVR",
+      "ALC",
+      "CUL",
+      "MIN",
+      "BTN",
+      "FSH",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "131": {
+    "en": "MNK DRG BRD BLM SMN NIN MCH SAM RDM DNC RPR VPR PCT",
+    "ja": "モンク 竜騎士 吟遊詩人 黒魔道士 召喚士 忍者 機工士 侍 赤魔道士 踊り子 リーパー ヴァイパー ピクトマンサー",
+    "de": "MÖN DRG BRD SMA BSW NIN MCH SAM RMA TÄN SNT VPR PKT",
+    "fr": "MOI DRG BRD MNO INV NIN MCH SAM MRG DNS FCH VPR PIC",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "BLM",
+      "SMN",
+      "NIN",
+      "MCH",
+      "SAM",
+      "RDM",
+      "DNC",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "132": {
+    "en": "MNK DRG BRD WHM BLM SMN SCH NIN MCH AST SAM RDM DNC RPR SGE VPR PCT",
+    "ja": "モンク 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 占星術師 侍 赤魔道士 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "MÖN DRG BRD WMA SMA BSW GLT NIN MCH AST SAM RMA TÄN SNT WEI VPR PKT",
+    "fr": "MOI DRG BRD MBL MNO INV ÉRU NIN MCH AST SAM MRG DNS FCH SAG VPR PIC",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "AST",
+      "SAM",
+      "RDM",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "133": {
+    "en": "WHM SCH AST SGE",
+    "ja": "白魔道士 学者 占星術師 賢者",
+    "de": "WMA GLT AST WEI",
+    "fr": "MBL ÉRU AST SAG",
+    "jobs": [
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "134": {
+    "en": "PLD WAR DRK GNB",
+    "ja": "ナイト 戦士 暗黒騎士 ガンブレイカー",
+    "de": "PLD KRG DKR REV",
+    "fr": "PLD GUE CHN PSB",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "135": {
+    "en": "PLD MNK WAR DRG BRD BLM SMN NIN MCH DRK SAM RDM GNB DNC RPR VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 黒魔道士 召喚士 忍者 機工士 暗黒騎士 侍 赤魔道士 ガンブレイカー 踊り子 リーパー ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD SMA BSW NIN MCH DKR SAM RMA REV TÄN SNT VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MNO INV NIN MCH CHN SAM MRG PSB DNS FCH VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "BLM",
+      "SMN",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "136": {
+    "en": "PLD WAR WHM SCH DRK AST GNB SGE",
+    "ja": "ナイト 戦士 白魔道士 学者 暗黒騎士 占星術師 ガンブレイカー 賢者",
+    "de": "PLD KRG WMA GLT DKR AST REV WEI",
+    "fr": "PLD GUE MBL ÉRU CHN AST PSB SAG",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "WHM",
+      "SCH",
+      "DRK",
+      "AST",
+      "GNB",
+      "SGE"
+    ]
+  },
+  "137": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST SAM RDM GNB DNC RPR SGE VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT NIN MCH DKR AST SAM RMA REV TÄN SNT WEI VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST SAM MRG PSB DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "138": {
+    "en": "PLD MNK WAR DRG NIN DRK SAM GNB RPR VPR",
+    "ja": "ナイト モンク 戦士 竜騎士 忍者 暗黒騎士 侍 ガンブレイカー リーパー ヴァイパー",
+    "de": "PLD MÖN KRG DRG NIN DKR SAM REV SNT VPR",
+    "fr": "PLD MOI GUE DRG NIN CHN SAM PSB FCH VPR",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "NIN",
+      "DRK",
+      "SAM",
+      "GNB",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "139": {
+    "en": "BRD MCH DNC",
+    "ja": "吟遊詩人 機工士 踊り子",
+    "de": "BRD MCH TÄN",
+    "fr": "BRD MCH DNS",
+    "jobs": [
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "140": {
+    "en": "WHM BLM SMN SCH AST RDM SGE PCT",
+    "ja": "白魔道士 黒魔道士 召喚士 学者 占星術師 赤魔道士 賢者 ピクトマンサー",
+    "de": "WMA SMA BSW GLT AST RMA WEI PKT",
+    "fr": "MBL MNO INV ÉRU AST MRG SAG PIC",
+    "jobs": [
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "141": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH MCH DRK AST SAM RDM GNB DNC RPR SGE VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT MCH DKR AST SAM RMA REV TÄN SNT WEI VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU MCH CHN AST SAM MRG PSB DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "142": {
+    "en": "Any Disciple of War or Magic (excluding limited jobs)",
+    "ja": "ファイター ソーサラー (リミテッドジョブを除く)",
+    "de": "Krieger oder Magier (außer beschränkte Jobs)",
+    "fr": "Combattants et mages (sauf jobs restreints)",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "143": {
+    "en": "Disciples of War (excluding limited jobs)",
+    "ja": "ファイター (リミテッドジョブを除く)",
+    "de": "Krieger (außer beschränkte Jobs)",
+    "fr": "Combattants (sauf jobs restreints)",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "144": {
+    "en": "Any Disciple of Magic (excluding limited jobs)",
+    "ja": "ソーサラー (リミテッドジョブを除く)",
+    "de": "Magier (außer beschränkte Jobs)",
+    "fr": "Mages (sauf jobs restreints)",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "145": {
+    "en": "PLD MNK WAR DRG BRD NIN MCH DRK SAM GNB DNC RPR VPR",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 忍者 機工士 暗黒騎士 侍 ガンブレイカー 踊り子 リーパー ヴァイパー",
+    "de": "PLD MÖN KRG DRG BRD NIN MCH DKR SAM REV TÄN SNT VPR",
+    "fr": "PLD MOI GUE DRG BRD NIN MCH CHN SAM PSB DNS FCH VPR",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "146": {
+    "en": "Any job of the Disciples of War or Magic (excluding limited jobs)",
+    "ja": "ファイター ソーサラー ジョブ専用 (リミテッドジョブを除く)",
+    "de": "Krieger- oder Magier-Job (außer beschränkte Jobs)",
+    "fr": "Jobs de combattant ou mage (sauf jobs restreints)",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "147": {
+    "en": "BLM SMN RDM PCT",
+    "ja": "黒魔道士 召喚士 赤魔道士 ピクトマンサー",
+    "de": "SMA BSW RMA PKT",
+    "fr": "MNO INV MRG PIC",
+    "jobs": [
+      "BLM",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "148": {
+    "en": "MNK DRG NIN SAM RPR VPR",
+    "ja": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+    "de": "MÖN DRG NIN SAM SNT VPR",
+    "fr": "MOI DRG NIN SAM FCH VPR",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "NIN",
+      "SAM",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "149": {
+    "en": "GNB",
+    "ja": "ガンブレイカー",
+    "de": "REV",
+    "fr": "PSB",
+    "jobs": [
+      "GNB"
+    ]
+  },
+  "150": {
+    "en": "DNC",
+    "ja": "踊り子",
+    "de": "TÄN",
+    "fr": "DNS",
+    "jobs": [
+      "DNC"
+    ]
+  },
+  "151": {
+    "en": "BSM, ARM, GSM",
+    "ja": "鍛冶師、甲冑師、彫金師",
+    "de": "GRS, PLA, GLD",
+    "fr": "FRG ARM ORF",
+    "jobs": [
+      "BSM",
+      "ARM",
+      "GSM"
+    ]
+  },
+  "152": {
+    "en": "CRP, LTW, WVR",
+    "ja": "木工師、革細工師、裁縫師",
+    "de": "ZMR, GER, WEB",
+    "fr": "MEN TAN COU",
+    "jobs": [
+      "CRP",
+      "LTW",
+      "WVR"
+    ]
+  },
+  "153": {
+    "en": "ALC, CUL",
+    "ja": "錬金術師、調理師",
+    "de": "ALC, GRM",
+    "fr": "ALC CUI",
+    "jobs": [
+      "ALC",
+      "CUL"
+    ]
+  },
+  "154": {
+    "en": "MIN, BTN",
+    "ja": "採掘師、園芸師",
+    "de": "MIN, GÄR",
+    "fr": "MIN BOT",
+    "jobs": [
+      "MIN",
+      "BTN"
+    ]
+  },
+  "155": {
+    "en": "FSH",
+    "ja": "漁師",
+    "de": "FIS",
+    "fr": "PÊC",
+    "jobs": [
+      "FSH"
+    ]
+  },
+  "156": {
+    "en": "Tank (excluding limited jobs)",
+    "ja": "TANKジョブ(リミテッドジョブを除く)",
+    "de": "Verteidiger (außer beschränkte Jobs)",
+    "fr": "Tanks (sauf jobs restreints)",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "157": {
+    "en": "Healer (excluding limited jobs)",
+    "ja": "HEALERジョブ (リミテッドジョブを除く)",
+    "de": "Heiler (außer beschränkte Jobs)",
+    "fr": "Soigneurs (sauf jobs restreints)",
+    "jobs": [
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "158": {
+    "en": "Physical DPS (excluding limited jobs)",
+    "ja": "ファイター系DPSジョブ(リミテッドジョブを除く)",
+    "de": "Physischer Angreifer (außer beschränkte Jobs)",
+    "fr": "DPS physiques (sauf jobs restreints)",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "NIN",
+      "MCH",
+      "SAM",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "159": {
+    "en": "Magical Ranged DPS (excluding limited jobs)",
+    "ja": "ソーサラー系DPSジョブ (リミテッドジョブを除く)",
+    "de": "Magischer Angreifer (außer beschränkte Jobs)",
+    "fr": "DPS magiques (sauf jobs restreints)",
+    "jobs": [
+      "BLM",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "160": {
+    "en": "ACN SCH",
+    "ja": "巴術士 学者",
+    "de": "HRT GLT",
+    "fr": "ACN ÉRU",
+    "jobs": [
+      "ACN",
+      "SCH"
+    ]
+  },
+  "161": {
+    "en": "GLA PGL MRD LNC ARC PLD MNK WAR DRG BRD ROG NIN MCH DRK SAM GNB DNC RPR VPR",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 ナイト モンク 戦士 竜騎士 吟遊詩人 双剣士 忍者 機工士 暗黒騎士 侍 ガンブレイカー 踊り子 リーパー ヴァイパー",
+    "de": "GLA MAR FST PIK WLD PLD MÖN KRG DRG BRD SCH NIN MCH DKR SAM REV TÄN SNT VPR",
+    "fr": "GLA PGL MRD HAS ARC PLD MOI GUE DRG BRD SUR NIN MCH CHN SAM PSB DNS FCH VPR",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "162": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST SAM RDM GNB DNC",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 <br>忍者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT NIN MCH DKR AST SAM RMA REV TÄN",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST SAM MRG PSB DNS",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC"
+    ]
+  },
+  "163": {
+    "en": "MNK DRG BRD BLM SMN NIN MCH SAM RDM DNC RPR VPR PCT",
+    "ja": "モンク 竜騎士 吟遊詩人 黒魔道士 召喚士 忍者 機工士 侍 赤魔道士 踊り子 リーパー ヴァイパー ピクトマンサー",
+    "de": "MÖN DRG BRD SMA BSW NIN MCH SAM RMA TÄN SNT VPR PKT",
+    "fr": "MOI DRG BRD MNO INV NIN MCH SAM MRG DNS FCH VPR PIC",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "BLM",
+      "SMN",
+      "NIN",
+      "MCH",
+      "SAM",
+      "RDM",
+      "DNC",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "164": {
+    "en": "MNK DRG BRD WHM BLM SMN SCH NIN MCH AST SAM RDM DNC RPR SGE VPR PCT",
+    "ja": "モンク 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 占星術師 侍 赤魔道士 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "MÖN DRG BRD WMA SMA BSW GLT NIN MCH AST SAM RMA TÄN SNT WEI VPR PKT",
+    "fr": "MOI DRG BRD MBL MNO INV ÉRU NIN MCH AST SAM MRG DNS FCH SAG VPR PIC",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "AST",
+      "SAM",
+      "RDM",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "165": {
+    "en": "WHM SCH AST SGE",
+    "ja": "白魔道士 学者 占星術師 賢者",
+    "de": "WMA GLT AST WEI",
+    "fr": "MBL ÉRU AST SAG",
+    "jobs": [
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "166": {
+    "en": "PLD WAR DRK GNB",
+    "ja": "ナイト 戦士 暗黒騎士 ガンブレイカー",
+    "de": "PLD KRG DKR REV",
+    "fr": "PLD GUE CHN PSB",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "167": {
+    "en": "PLD MNK WAR DRG BRD BLM SMN NIN MCH DRK SAM RDM GNB DNC RPR VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 黒魔道士 召喚士 忍者 機工士 暗黒騎士 侍 赤魔道士 ガンブレイカー 踊り子 リーパー ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD SMA BSW NIN MCH DKR SAM RMA REV TÄN SNT VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MNO INV NIN MCH CHN SAM MRG PSB DNS FCH VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "BLM",
+      "SMN",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "168": {
+    "en": "PLD WAR WHM SCH DRK AST GNB SGE",
+    "ja": "ナイト 戦士 白魔道士 学者 暗黒騎士 占星術師 ガンブレイカー 賢者",
+    "de": "PLD KRG WMA GLT DKR AST REV WEI",
+    "fr": "PLD GUE MBL ÉRU CHN AST PSB SAG",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "WHM",
+      "SCH",
+      "DRK",
+      "AST",
+      "GNB",
+      "SGE"
+    ]
+  },
+  "169": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST SAM RDM GNB DNC RPR SGE VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT NIN MCH DKR AST SAM RMA REV TÄN SNT WEI VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST SAM MRG PSB DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "170": {
+    "en": "PLD MNK WAR DRG NIN DRK SAM GNB RPR VPR",
+    "ja": "ナイト モンク 戦士 竜騎士 忍者 暗黒騎士 侍 ガンブレイカー リーパー ヴァイパー",
+    "de": "PLD MÖN KRG DRG NIN DKR SAM REV SNT VPR",
+    "fr": "PLD MOI GUE DRG NIN CHN SAM PSB FCH VPR",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "NIN",
+      "DRK",
+      "SAM",
+      "GNB",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "171": {
+    "en": "BRD MCH DNC",
+    "ja": "吟遊詩人 機工士 踊り子",
+    "de": "BRD MCH TÄN",
+    "fr": "BRD MCH DNS",
+    "jobs": [
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "172": {
+    "en": "WHM BLM SMN SCH AST RDM SGE PCT",
+    "ja": "白魔道士 黒魔道士 召喚士 学者 占星術師 赤魔道士 賢者 ピクトマンサー",
+    "de": "WMA SMA BSW GLT AST RMA WEI PKT",
+    "fr": "MBL MNO INV ÉRU AST MRG SAG PIC",
+    "jobs": [
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "173": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH MCH DRK AST SAM RDM GNB DNC RPR SGE VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT MCH DKR AST SAM RMA REV TÄN SNT WEI VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU MCH CHN AST SAM MRG PSB DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "174": {
+    "en": "PLD MNK WAR DRG BRD NIN MCH DRK SAM GNB DNC RPR VPR",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 忍者 機工士 暗黒騎士 侍 ガンブレイカー 踊り子 リーパー ヴァイパー",
+    "de": "PLD MÖN KRG DRG BRD NIN MCH DKR SAM REV TÄN SNT VPR",
+    "fr": "PLD MOI GUE DRG BRD NIN MCH CHN SAM PSB DNS FCH VPR",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "175": {
+    "en": "BLM SMN RDM PCT",
+    "ja": "黒魔道士 召喚士 赤魔道士 ピクトマンサー",
+    "de": "SMA BSW RMA PKT",
+    "fr": "MNO INV MRG PIC",
+    "jobs": [
+      "BLM",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "176": {
+    "en": "MNK DRG NIN SAM RPR VPR",
+    "ja": "モンク 竜騎士 忍者 侍 リーパー ヴァイパー",
+    "de": "MÖN DRG NIN SAM SNT VPR",
+    "fr": "MOI DRG NIN SAM FCH VPR",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "NIN",
+      "SAM",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "177": {
+    "en": "MNK DRG BRD NIN MCH SAM DNC RPR VPR",
+    "ja": "モンク 竜騎士 吟遊詩人 忍者 機工士 侍 踊り子 リーパー ヴァイパー",
+    "de": "MÖN DRG BRD NIN MCH SAM TÄN SNT VPR",
+    "fr": "MOI DRG BRD NIN MCH SAM DNS FCH VPR",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "BRD",
+      "NIN",
+      "MCH",
+      "SAM",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "178": {
+    "en": "PLD WAR BLM SMN DRK RDM GNB PCT",
+    "ja": "ナイト 戦士 黒魔道士 召喚士 暗黒騎士 赤魔道士 ガンブレイカー ピクトマンサー",
+    "de": "PLD KRG SMA BSW DKR RMA REV PKT",
+    "fr": "PLD GUE MNO INV CHN MRG PSB PIC",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "BLM",
+      "SMN",
+      "DRK",
+      "RDM",
+      "GNB",
+      "PCT"
+    ]
+  },
+  "179": {
+    "en": "WHM SMN SCH AST RDM SGE PCT",
+    "ja": "白魔道士 召喚士 学者 占星術師 赤魔道士 賢者 ピクトマンサー",
+    "de": "WMA BSW GLT AST RMA WEI PKT",
+    "fr": "MBL INV ÉRU AST MRG SAG PIC",
+    "jobs": [
+      "WHM",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "180": {
+    "en": "RPR",
+    "ja": "リーパー",
+    "de": "SNT",
+    "fr": "FCH",
+    "jobs": [
+      "RPR"
+    ]
+  },
+  "181": {
+    "en": "SGE",
+    "ja": "賢者",
+    "de": "WEI",
+    "fr": "SAG",
+    "jobs": [
+      "SGE"
+    ]
+  },
+  "182": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "GLA",
+      "MRD",
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "183": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "CNJ",
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "184": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "ARC",
+      "MNK",
+      "DRG",
+      "BRD",
+      "ROG",
+      "NIN",
+      "MCH",
+      "SAM",
+      "DNC",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "185": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": [
+      "THM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "186": {
+    "en": "Tank (excluding limited jobs)",
+    "ja": "TANKジョブ(リミテッドジョブを除く)",
+    "de": "Verteidiger (außer beschränkte Jobs)",
+    "fr": "Tanks (sauf jobs restreints)",
+    "jobs": [
+      "PLD",
+      "WAR",
+      "DRK",
+      "GNB"
+    ]
+  },
+  "187": {
+    "en": "Healer (excluding limited jobs)",
+    "ja": "HEALERジョブ(リミテッドジョブを除く)",
+    "de": "Heiler (außer beschränkte Jobs)",
+    "fr": "Soigneurs (sauf jobs restreints)",
+    "jobs": [
+      "WHM",
+      "SCH",
+      "AST",
+      "SGE"
+    ]
+  },
+  "188": {
+    "en": "Melee DPS (excluding limited jobs)",
+    "ja": "近接物理DPSジョブ(リミテッドジョブを除く)",
+    "de": "Nahkampf-Angreifer (außer beschränkte Jobs)",
+    "fr": "DPS physiques de mêlée (sauf jobs restreints)",
+    "jobs": [
+      "MNK",
+      "DRG",
+      "NIN",
+      "SAM",
+      "RPR",
+      "VPR"
+    ]
+  },
+  "189": {
+    "en": "Physical Ranged DPS (excluding limited jobs)",
+    "ja": "遠隔物理DPSジョブ(リミテッドジョブを除く)",
+    "de": "Physischer Fernkampf-Angreifer (außer beschränkte Jobs)",
+    "fr": "DPS physiques à distance (sauf jobs restreints)",
+    "jobs": [
+      "BRD",
+      "MCH",
+      "DNC"
+    ]
+  },
+  "190": {
+    "en": "Magical Ranged DPS (excluding limited jobs)",
+    "ja": "遠隔魔法DPSジョブ(リミテッドジョブを除く)",
+    "de": "Magischer Fernkampf-Angreifer (außer beschränkte Jobs)",
+    "fr": "DPS magiques à distance (sauf jobs restreints)",
+    "jobs": [
+      "BLM",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "191": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST SAM RDM GNB DNC RPR SGE",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT NIN MCH DKR AST SAM RMA REV TÄN SNT WIE",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST SAM MRG PSB DNS FCH SAG",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE"
+    ]
+  },
+  "192": {
+    "en": "Any Disciple of War or Magic (excluding limited jobs)",
+    "ja": "ファイターとソーサラー (リミテッドジョブを除く)",
+    "de": "Krieger oder Magier (außer beschränkte Jobs)",
+    "fr": "Combattants et mages (sauf jobs restreints)",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "193": {
+    "en": "PGL LNC ARC ROG CNJ THM ACN MNK DRG BRD WHM BLM SMN SCH NIN MCH AST SAM RDM DNC RPR SGE VPR PCT",
+    "ja": "格闘士 槍術士 弓術士 双剣士 幻術士 呪術士 巴術士 モンク 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 占星術師 侍 赤魔道士 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "FST PIK WDL SCH DRU THM HRT MÖN DRG BRD WMA SMA BSW GLT NIN MCH AST SAM RMA TÄN SNT WEI VPR PKT",
+    "fr": "PGL HAS ARC SUR ÉLM OCC ACN MOI DRG BRD MBL MNO INV ÉRU NIN MCH AST SAM MRG DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PGL",
+      "LNC",
+      "ARC",
+      "CNJ",
+      "THM",
+      "MNK",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "ROG",
+      "NIN",
+      "MCH",
+      "AST",
+      "SAM",
+      "RDM",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "194": {
+    "en": "GLA MRD CNJ PLD WAR WHM SCH DRK AST GNB SGE",
+    "ja": "剣術士 斧術士 幻術士 ナイト 戦士 白魔道士 学者 暗黒騎士 占星術師 ガンブレイカー 賢者",
+    "de": "GLA MAR DRU PLD KRG WMA GLT DKR AST REV WEI",
+    "fr": "GLA MRD ÉLM PLD GUE MBL ÉRU CHN AST PSB SAG",
+    "jobs": [
+      "GLA",
+      "MRD",
+      "CNJ",
+      "PLD",
+      "WAR",
+      "WHM",
+      "SCH",
+      "DRK",
+      "AST",
+      "GNB",
+      "SGE"
+    ]
+  },
+  "195": {
+    "en": "GLA MRD PGL LNC ARC ROG THM ACN PLD MNK WAR DRG BRD BLM SMN NIN MCH DRK SAM RDM GNB DNC RPR VPR PCT",
+    "ja": "剣術士 格闘士 斧術士 槍術士 弓術士 双剣士 呪術士 巴術士 ナイト モンク 戦士 竜騎士 吟遊詩人 黒魔道士 召喚士 忍者 機工士 暗黒騎士 侍 赤魔道士 ガンブレイカー 踊り子 リーパー ヴァイパー ピクトマンサー",
+    "de": "GLA FST MAR PIK WDL SCH THM HRT PLD MÖN KRG DRG BRD SMA BSW NIN MCH DKR SAM RMA REV TÄN SNT VPR PKT",
+    "fr": "GLA PGL MRD HAS ARC SUR OCC ACN PLD MOI GUE DRG BRD MNO INV NIN MCH CHN SAM MRG PSB DNS FCH VPR PIC",
+    "jobs": [
+      "GLA",
+      "PGL",
+      "MRD",
+      "LNC",
+      "ARC",
+      "THM",
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "BLM",
+      "ACN",
+      "SMN",
+      "ROG",
+      "NIN",
+      "MCH",
+      "DRK",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "196": {
+    "en": "VPR",
+    "ja": "ヴァイパー",
+    "de": "VPR",
+    "fr": "VPR",
+    "jobs": [
+      "VPR"
+    ]
+  },
+  "197": {
+    "en": "PCT",
+    "ja": "ピクトマンサー",
+    "de": "PKT",
+    "fr": "PIC",
+    "jobs": [
+      "PCT"
+    ]
+  },
+  "198": {
+    "en": "THM BLM ACN SMN RDM PCT",
+    "ja": "呪術士 黒魔道士 巴術士 召喚士 赤魔道士 ピクトマンサー",
+    "de": "THM SMA HRT BSW RMA PKT",
+    "fr": "OCC MNO ACN INV MRG PIC",
+    "jobs": [
+      "THM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "RDM",
+      "PCT"
+    ]
+  },
+  "199": {
+    "en": "CNJ THM WHM BLM ACN SMN SCH AST RDM SGE PCT",
+    "ja": "幻術士 呪術士 白魔道士 黒魔道士 巴術士 召喚士 学者 占星術師 赤魔道士 賢者 ピクトマンサー",
+    "de": "DRU THM WMA SMA HRT BSW SCH AST RMA WEI PKT",
+    "fr": "ÉLM OCC MBL MNO ACN INV ÉRU AST MRG SAG PIC",
+    "jobs": [
+      "CNJ",
+      "THM",
+      "WHM",
+      "BLM",
+      "ACN",
+      "SMN",
+      "SCH",
+      "AST",
+      "RDM",
+      "SGE",
+      "PCT"
+    ]
+  },
+  "200": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST SAM RDM GNB DNC RPR SGE VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT NIN MCH DKR AST SAM RMA REV TÄN SNT WEI VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST SAM MRG PSB DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "201": {
+    "en": "PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST SAM RDM GNB DNC RPR SGE VPR PCT",
+    "ja": "ナイト モンク 戦士 竜騎士 吟遊詩人 白魔道士 黒魔道士 召喚士 学者 忍者 機工士 暗黒騎士 占星術師 侍 赤魔道士 ガンブレイカー 踊り子 リーパー 賢者 ヴァイパー ピクトマンサー",
+    "de": "PLD MÖN KRG DRG BRD WMA SMA BSW GLT NIN MCH DKR AST SAM RMA REV TÄN SNT WEI VPR PKT",
+    "fr": "PLD MOI GUE DRG BRD MBL MNO INV ÉRU NIN MCH CHN AST SAM MRG PSB DNS FCH SAG VPR PIC",
+    "jobs": [
+      "PLD",
+      "MNK",
+      "WAR",
+      "DRG",
+      "BRD",
+      "WHM",
+      "BLM",
+      "SMN",
+      "SCH",
+      "NIN",
+      "MCH",
+      "DRK",
+      "AST",
+      "SAM",
+      "RDM",
+      "GNB",
+      "DNC",
+      "RPR",
+      "SGE",
+      "VPR",
+      "PCT"
+    ]
+  },
+  "202": {
+    "en": "MIN BTN",
+    "ja": "採掘師 園芸師",
+    "de": "MIN GÄR",
+    "fr": "MIN BOT",
+    "jobs": [
+      "MIN",
+      "BTN"
+    ]
+  },
+  "203": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": []
+  },
+  "204": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": []
+  },
+  "205": {
+    "en": "",
+    "ja": "",
+    "de": "",
+    "fr": "",
+    "jobs": []
+  }
+}

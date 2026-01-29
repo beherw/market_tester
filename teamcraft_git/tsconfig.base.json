@@ -1,0 +1,27 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "importHelpers": true,
+    "module": "esnext",
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "target": "es2015",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2017", "dom", "esnext.array", "es2020"],
+    "baseUrl": ".",
+    "paths": {
+      "@ffxiv-teamcraft/data": ["libs/data/src/lib/index.ts"],
+      "@ffxiv-teamcraft/data/*": ["libs/data/src/lib/*"],
+      "@ffxiv-teamcraft/search": ["libs/search/src/index.ts"],
+      "@ffxiv-teamcraft/types": ["libs/types/src/index.ts"]
+    },
+    "rootDir": "."
+  },
+  "exclude": ["node_modules", "tmp"]
+}

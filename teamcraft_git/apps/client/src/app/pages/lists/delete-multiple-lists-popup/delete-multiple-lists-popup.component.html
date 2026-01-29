@@ -1,0 +1,51 @@
+@if (lists$ | async; as lists) {
+  <div>
+    <h3>{{'LISTS.Your_lists' | translate}}</h3>
+    <ng-container *ngTemplateOutlet="listsDisplay; context: {$implicit: lists}"></ng-container>
+  </div>
+}
+
+@for (workshopDisplay of workshops$ | async; track workshopDisplay) {
+  <div>
+    <h4>{{workshopDisplay.workshop.name}}</h4>
+    <ng-container *ngTemplateOutlet="listsDisplay; context: {$implicit: workshopDisplay.lists}"></ng-container>
+  </div>
+}
+
+<div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="flex-start center">
+  <button (nzOnConfirm)="deleteLists()" nz-popconfirm nzDanger [nzPopconfirmTitle]="'Confirmation' | translate" [disabled]="selectedLists.length < 1" nz-button>{{'Confirm' | translate}}
+  </button>
+</div>
+
+<ng-template #listsDisplay let-lists>
+  @if (userId$ | async; as userId) {
+    <nz-list>
+      @for (list of lists; track list) {
+        <nz-list-item>
+          <nz-list-item-meta [nzAvatar]="checkbox" [nzDescription]="description" [nzTitle]="list.name">
+            <ng-template #checkbox>
+              <label (ngModelChange)="setSelection(list, $event)" [ngModel]="false" [nzDisabled]="list.authorId !== userId"
+              nz-checkbox></label>
+            </ng-template>
+            <ng-template #description>
+              @if (list.ephemeral) {
+                <nz-tag [nzColor]="'volcano'" [nzTooltipTitle]="'Ephemeral_list' | translate" nz-tooltip>
+                  {{'Ephemeral_tag' | translate}}
+                </nz-tag>
+              }
+              @if (list.public) {
+                <nz-tag [nzColor]="'geekblue'" [nzTooltipTitle]="'LIST_DETAILS.HELP.Public_list' | translate"
+                  nz-tooltip>
+                  {{'Public_list' | translate}}
+                </nz-tag>
+              }
+              @for (tag of list.tags; track tag) {
+                <nz-tag>{{('LIST_TAGS.' + tag) | uppercase | translate}}</nz-tag>
+              }
+            </ng-template>
+          </nz-list-item-meta>
+        </nz-list-item>
+      }
+    </nz-list>
+  }
+</ng-template>

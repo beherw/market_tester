@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+apt-get install rsync -y
+
+PACKAGE_VERSION=$(cat package.json \
+  | grep version \
+  | head -1 \
+  | awk -F: '{ print $2 }' \
+  | sed 's/[",]//g' \
+  | tr -d '[[:space:]]')
+
+echo VERSION ${PACKAGE_VERSION}
+
+touch ~/.ssh/known_hosts
+ssh-keyscan -H 51.83.37.191 >> ~/.ssh/known_hosts
+
+ls ./dist
+
+rsync -avz ./dist/apps/client/* dalamud@51.83.37.191:~/cdn.ffxivteamcraft.com/${PACKAGE_VERSION} --log-file ./rsync.log
+
+ssh dalamud@51.83.37.191 << EOF
+  cp -rn ./cdn.ffxivteamcraft.com/latest/* ./cdn.ffxivteamcraft.com/${PACKAGE_VERSION}/
+  rm ./cdn.ffxivteamcraft.com/latest
+  ln -s ./${PACKAGE_VERSION} ./cdn.ffxivteamcraft.com/latest
+EOF

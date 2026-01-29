@@ -1,0 +1,255 @@
+import { MainWindow } from '../window/main-window';
+import { Store } from '../store';
+import { join, resolve } from 'path';
+import log from 'electron-log';
+import type { CaptureInterface, CaptureInterfaceOptions, Message, Region } from '@ffxiv-teamcraft/pcap-ffxiv';
+import { app } from 'electron';
+
+export class PacketCapture {
+
+  private static readonly ACCEPTED_PACKETS: Message['type'][] = [
+    'actorCast',
+    'actorControl',
+    'actorControlSelf',
+    'airshipExplorationResult',
+    'airshipStatus',
+    'airshipStatusList',
+    'airshipTimers',
+    'currencyCrystalInfo',
+    'clientTrigger',
+    'craftingLog',
+    'desynthResult',
+    'effectResult',
+    'eventFinish',
+    'eventPlay',
+    'eventPlay64',
+    'eventPlay32',
+    'eventPlay4',
+    'eventPlay8',
+    'eventStart',
+    'freeCompanyInfo',
+    'freeCompanyDialog',
+    'gatheringLog',
+    'initZone',
+    'inventoryModifyHandler',
+    'inventoryTransaction',
+    'itemInfo',
+    'itemMarketBoardInfo',
+    'islandWorkshopSupplyDemand',
+    'containerInfo',
+    'logout',
+    'marketBoardItemListing',
+    'marketBoardItemListingCount',
+    'marketBoardItemListingHistory',
+    'marketBoardSearchResult',
+    'marketBoardPurchaseHandler',
+    'marketBoardPurchase',
+    'npcSpawn',
+    'objectSpawn',
+    'playerSetup',
+    'playerSpawn',
+    'playerStats',
+    'prepareZoning',
+    'resultDialog',
+    'retainerInformation',
+    'systemLogMessage',
+    'submarineExplorationResult',
+    'submarineProgressionStatus',
+    'submarineStatusList',
+    'submarineTimers',
+    'updateClassInfo',
+    'updateInventorySlot',
+    'updatePositionHandler',
+    'updatePositionInstance',
+    'weatherChange',
+    'statusEffectList'
+  ];
+
+  private static readonly PACKETS_FROM_OTHERS = [
+    'playerSpawn',
+    'actorControl',
+    'updateClassInfo',
+    'actorControlSelf',
+    'eventPlay',
+    'eventStart',
+    'eventFinish',
+    'eventPlay4',
+    'eventPlay64',
+    'systemLogMessage',
+    'npcSpawn',
+    'objectSpawn'
+  ];
+
+  private captureInterface: CaptureInterface;
+
+  private overlayListeners = [];
+
+  constructor(private mainWindow: MainWindow, private store: Store, private options: any) {
+    this.mainWindow.closed$.subscribe(() => {
+      this.stop();
+    });
+  }
+
+  async restart() {
+    await this.stop();
+    this.mainWindow.win.webContents.send('pcap:status', 'starting');
+    setTimeout(() => {
+      this.startPcap();
+    }, 1000);
+  }
+
+  async stop(): Promise<void> {
+    if (this.captureInterface) {
+      await this.captureInterface.stop();
+      delete this.captureInterface;
+    }
+    return Promise.resolve();
+  }
+
+  public registerOverlayListener(id: string, listener: (packet: Message) => void): void {
+    if (this.overlayListeners.some(l => l.id === id)) {
+      this.unregisterOverlayListener(id);
+    }
+    this.overlayListeners.push({
+      id,
+      listener
+    });
+  }
+
+  public unregisterOverlayListener(id: string): void {
+    this.overlayListeners = this.overlayListeners.filter(l => l.id === id);
+  }
+
+  sendToRenderer(packet: Message): void {
+    if (this.mainWindow?.win) {
+      try {
+        this.mainWindow.win.webContents.send('packet', packet);
+        this.overlayListeners.forEach(l => {
+          try {
+            l.listener(packet);
+          } catch (e) {
+            this.unregisterOverlayListener(l.id);
+          }
+        });
+      } catch (e) {
+        log.error(packet);
+        log.error(e);
+      }
+    }
+  }
+
+  private getLocalDataPath(): string | null {
+    // --localOpcodes [path]
+
+    const argv = process.argv.slice(1);
+    const index = argv.indexOf('--localOpcodes');
+
+    if (index === -1) {
+      return null;
+    }
+
+    const value = argv[index + 1];
+    if (value && value[0] !== '-') {
+      return resolve(value);
+    } else {
+      return resolve('opcodes');
+    }
+  }
+
+  public async startPcap(): Promise<void> {
+    const region = this.store.get<Region>('region', 'Global');
+
+    this.mainWindow.win.webContents.send('pcap:status', 'starting');
+
+    await this.startGlobalPcap(region);
+  }
+
+  private async startGlobalPcap(region: Region): Promise<void> {
+    try {
+      const { CaptureInterface, ErrorCodes } = await import('@ffxiv-teamcraft/pcap-ffxiv');
+      const options: Partial<CaptureInterfaceOptions> = {
+        region: region,
+        filter: (header, typeName: Message['type']) => {
+          if (header.sourceActor === header.targetActor) {
+            return PacketCapture.ACCEPTED_PACKETS.includes(typeName);
+          }
+          return PacketCapture.PACKETS_FROM_OTHERS.includes(typeName);
+        },
+        logger: message => {
+          log[message.type || 'warn'](message.message);
+        },
+        name: 'FFXIV_Teamcraft'
+      };
+
+      if (!app.isPackaged) {
+        const localDataPath = this.getLocalDataPath();
+        if (localDataPath) {
+          options.localDataPath = localDataPath;
+          log.info('[pcap] Using localOpcodes:', localDataPath);
+        }
+      } else {
+        options.deucalionDllPath = region === 'KR' ? join(app.getAppPath(), '../../deucalion/deucalion.dll') : join(app.getAppPath(), '../../deucalion/deucalion.dll');
+      }
+
+      log.info(`Starting PacketCapture with options: ${JSON.stringify(options)}`);
+      this.captureInterface = new CaptureInterface(options);
+      this.captureInterface.on('error', err => {
+        this.mainWindow.win.webContents.send('pcap:status', 'error');
+        this.mainWindow.win.webContents.send('pcap:error:raw', {
+          message: err
+        });
+        log.error(err);
+      });
+      this.captureInterface.on('stopped', () => {
+        this.mainWindow.win.webContents.send('pcap:status', 'stopped');
+      });
+      this.captureInterface.setMaxListeners(0);
+      this.captureInterface.on('message', (message) => {
+        if (this.options.verbose) {
+          log.log(JSON.stringify(message));
+        }
+        this.sendToRenderer(message);
+      });
+      this.captureInterface.on('ready', () => {
+        // Give it 200ms to make sure pipe is created
+        setTimeout(() => {
+          this.captureInterface.start()
+            .then(() => {
+              this.mainWindow.win.webContents.send('pcap:status', 'running');
+              log.info('Packet capture started');
+            })
+            .catch((errCode) => {
+              this.mainWindow.win.webContents.send('pcap:status', 'error');
+              log.error(`Couldn't start packet capture`);
+              log.error(ErrorCodes[errCode] || `CODE: ${errCode}`);
+
+              if (ErrorCodes[errCode]) {
+                this.mainWindow.win.webContents.send('pcap:error', {
+                  message: ErrorCodes[errCode]
+                });
+              } else if (errCode.toString().includes('ENOENT')) {
+                this.mainWindow.win.webContents.send('pcap:error', {
+                  message: 'RESTART_GAME'
+                });
+              } else {
+                this.mainWindow.win.webContents.send('pcap:error', {
+                  message: 'Default'
+                });
+              }
+            });
+        }, 200);
+      });
+    } catch (e) {
+      if (e.message.includes('dll-inject')) {
+        this.mainWindow.win.webContents.send('pcap:status', 'error');
+        this.mainWindow.win.webContents.send('pcap:error', {
+          message: "MISSING_INJECTOR"
+        });
+        log.error("[pcap] MISSING_INJECTOR");
+      } else {
+        log.error(e)
+      }
+    }
+  }
+
+}
