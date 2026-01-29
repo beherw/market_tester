@@ -31,8 +31,9 @@ const SQL_FILE = path.join(__dirname, 'create_tables.sql');
  */
 async function executeSQL(sql) {
   // Method 1: Try using exec_sql RPC function (if helper function exists)
+  // Uses sql_query parameter name
   try {
-    const { error } = await supabase.rpc('exec_sql', { query: sql });
+    const { error } = await supabase.rpc('exec_sql', { sql_query: sql });
     if (!error) {
       return true;
     }

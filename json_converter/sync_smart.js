@@ -1,0 +1,452 @@
+#!/usr/bin/env node
+
+/**
+ * Smart Sync Script - Dynamically creates tables and syncs CSV data
+ * Uses exec_sql helper function to create tables automatically
+ * 
+ * Usage: node sync_smart.js
+ */
+
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configuration
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://dojkqotccerymtnqnyfj.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY;
+
+if (!SUPABASE_SERVICE_KEY) {
+  console.error('ERROR: SUPABASE_SERVICE_KEY or SUPABASE_SECRET_KEY environment variable is required');
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const CSV_OUTPUT_DIR = path.join(__dirname, 'csv_output');
+
+/**
+ * Parse CSV file and return array of objects
+ * Handles multi-line quoted values properly
+ */
+function parseCSV(csvPath) {
+  const content = fs.readFileSync(csvPath, 'utf-8');
+  
+  if (content.trim().length === 0) {
+    return { headers: [], rows: [] };
+  }
+  
+  // Parse CSV properly handling quoted multi-line values
+  const rows = parseCSVContent(content);
+  
+  if (rows.length === 0) {
+    return { headers: [], rows: [] };
+  }
+  
+  const headers = rows[0].map(h => h.trim());
+  const dataRows = [];
+  
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i];
+    
+    // Skip if column count doesn't match
+    if (values.length !== headers.length) {
+      continue;
+    }
+    
+    const row = {};
+    headers.forEach((header, index) => {
+      let value = values[index] || '';
+      value = value.trim();
+      
+      // Try to parse JSON if it looks like JSON
+      if (value.startsWith('[') || value.startsWith('{')) {
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          // Keep as string if not valid JSON
+        }
+      }
+      // Try to parse booleans
+      else if (value === 'true' || value === 'false') {
+        value = value === 'true';
+      }
+      // Try to parse numbers
+      else if (value !== '' && !isNaN(value) && value !== 'null') {
+        const num = Number(value);
+        if (!isNaN(num) && isFinite(num)) {
+          value = num;
+        }
+      }
+      // Handle null/empty
+      else if (value === '' || value === 'null' || value === 'NULL') {
+        value = null;
+      }
+      
+      row[header] = value;
+    });
+    dataRows.push(row);
+  }
+  
+  return { headers, rows: dataRows };
+}
+
+/**
+ * Parse CSV content handling quoted multi-line values
+ */
+function parseCSVContent(content) {
+  const rows = [];
+  let currentRow = [];
+  let currentField = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    const nextChar = content[i + 1];
+    
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote inside quoted field
+        currentField += '"';
+        i++; // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // End of field
+      currentRow.push(currentField);
+      currentField = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      // End of row (but handle \r\n)
+      if (char === '\r' && nextChar === '\n') {
+        i++; // Skip \n
+      }
+      if (currentField !== '' || currentRow.length > 0) {
+        currentRow.push(currentField);
+        rows.push(currentRow);
+        currentRow = [];
+        currentField = '';
+      }
+    } else {
+      // Regular character
+      currentField += char;
+    }
+  }
+  
+  // Don't forget the last field/row
+  if (currentField !== '' || currentRow.length > 0) {
+    currentRow.push(currentField);
+  }
+  if (currentRow.length > 0) {
+    rows.push(currentRow);
+  }
+  
+  return rows;
+}
+
+/**
+ * Infer column type from sample data
+ */
+function inferColumnType(columnName, sampleValues) {
+  // id column is always INTEGER
+  if (columnName === 'id') {
+    return 'INTEGER PRIMARY KEY';
+  }
+  
+  // Check sample values to infer type
+  const nonNullValues = sampleValues.filter(v => v !== null && v !== undefined && v !== '');
+  
+  if (nonNullValues.length === 0) {
+    return 'TEXT'; // Default to TEXT if no data
+  }
+  
+  // Check if all values are numbers
+  const allNumbers = nonNullValues.every(v => {
+    if (typeof v === 'number') return true;
+    if (typeof v === 'string') {
+      const num = Number(v);
+      return !isNaN(num) && isFinite(num) && v.trim() !== '';
+    }
+    return false;
+  });
+  
+  if (allNumbers) {
+    // Check if integers
+    const allIntegers = nonNullValues.every(v => {
+      const num = typeof v === 'number' ? v : Number(v);
+      return Number.isInteger(num);
+    });
+    return allIntegers ? 'INTEGER' : 'NUMERIC';
+  }
+  
+  // Check if all values are booleans
+  const allBooleans = nonNullValues.every(v => 
+    typeof v === 'boolean' || v === 'true' || v === 'false' || v === true || v === false
+  );
+  if (allBooleans) {
+    return 'BOOLEAN';
+  }
+  
+  // Check if values are JSON (arrays or objects)
+  const allJSON = nonNullValues.every(v => {
+    if (typeof v === 'object' && v !== null) return true;
+    if (typeof v === 'string') {
+      const trimmed = v.trim();
+      return (trimmed.startsWith('[') || trimmed.startsWith('{')) && trimmed.length > 1;
+    }
+    return false;
+  });
+  if (allJSON) {
+    return 'JSONB';
+  }
+  
+  // Default to TEXT
+  return 'TEXT';
+}
+
+/**
+ * Create table structure dynamically
+ */
+async function createTableStructure(tableName, headers, sampleRows) {
+  console.log(`  Creating table structure for ${tableName}...`);
+  
+  // Infer column types from sample data
+  const columnDefs = headers.map(header => {
+    const sampleValues = sampleRows.slice(0, 100).map(row => row[header]); // Sample first 100 rows
+    const type = inferColumnType(header, sampleValues);
+    return `"${header}" ${type}`;
+  }).join(', ');
+  
+  // Build CREATE TABLE SQL
+  const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS public."${tableName}" (
+      ${columnDefs}
+    );
+  `;
+  
+  // Create indexes on id column if it exists
+  let indexSQL = '';
+  if (headers.includes('id')) {
+    indexSQL = `CREATE INDEX IF NOT EXISTS idx_${tableName}_id ON public."${tableName}"(id);`;
+  }
+  
+  // Execute SQL using exec_sql helper function (uses sql_query parameter)
+  try {
+    // Create table using sql_query parameter name
+    const { error: createError } = await supabase.rpc('exec_sql', { sql_query: createTableSQL });
+    
+    if (createError) {
+      console.error(`  ❌ Error creating table: ${createError.message}`);
+      console.error(`  Error details:`, JSON.stringify(createError, null, 2));
+      console.error(`  SQL: ${createTableSQL.substring(0, 200)}...`);
+      return false;
+    }
+    
+    console.log(`  ✓ Table ${tableName} created successfully`);
+    
+    // Create index if needed
+    if (indexSQL) {
+      const { error: indexError } = await supabase.rpc('exec_sql', { sql_query: indexSQL });
+      if (!indexError) {
+        console.log(`  ✓ Index created on ${tableName}.id`);
+      } else {
+        console.warn(`  ⚠ Could not create index: ${indexError.message}`);
+      }
+    }
+    
+    // Wait a moment for table to be available in schema cache
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return true;
+  } catch (error) {
+    console.error(`  ❌ Exception creating table: ${error.message}`);
+    return false;
+  }
+}
+
+/**
+ * Sync CSV data to Supabase table
+ */
+async function syncData(csvPath, tableName) {
+  console.log(`\n--- Starting sync for ${tableName} ---`);
+  
+  if (!fs.existsSync(csvPath)) {
+    console.error(`  ❌ CSV file not found: ${csvPath}`);
+    return false;
+  }
+  
+  // 1. Read and parse CSV
+  console.log(`  Reading CSV file...`);
+  const { headers, rows } = parseCSV(csvPath);
+  
+  if (rows.length === 0) {
+    console.log(`  ⚠ No data rows found, skipping`);
+    return true;
+  }
+  
+  console.log(`  Found ${rows.length} rows with ${headers.length} columns`);
+  
+  // 2. Check if table exists
+  const { error: checkError } = await supabase.from(tableName).select('*').limit(1);
+  
+  if (checkError && (checkError.code === 'PGRST116' || checkError.message.includes('does not exist'))) {
+    // Table doesn't exist, create it
+    console.log(`  Table ${tableName} does not exist, creating...`);
+    const created = await createTableStructure(tableName, headers, rows);
+    
+    if (!created) {
+      console.error(`  ❌ Failed to create table ${tableName}`);
+      return false;
+    }
+  } else if (checkError) {
+    console.error(`  ❌ Error checking table: ${checkError.message}`);
+    return false;
+  } else {
+    console.log(`  ✓ Table ${tableName} already exists`);
+  }
+  
+  // 3. Upload Data in Chunks
+  console.log(`  Uploading data in chunks...`);
+  const chunkSize = 500;
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (let i = 0; i < rows.length; i += chunkSize) {
+    const chunk = rows.slice(i, i + chunkSize);
+    
+    // Clean chunk data - remove null/undefined values that might cause issues
+    const cleanChunk = chunk.map(row => {
+      const cleanRow = {};
+      Object.keys(row).forEach(key => {
+        if (row[key] !== null && row[key] !== undefined) {
+          cleanRow[key] = row[key];
+        }
+      });
+      return cleanRow;
+    });
+    
+    // Try upsert first
+    const { error: upsertError } = await supabase
+      .from(tableName)
+      .upsert(cleanChunk, { onConflict: 'id' });
+    
+    if (upsertError) {
+      // If upsert fails, try insert
+      const { error: insertError } = await supabase
+        .from(tableName)
+        .insert(cleanChunk);
+      
+      if (insertError) {
+        console.error(`  ❌ Error in chunk ${i}-${Math.min(i + chunkSize, rows.length)}: ${insertError.message}`);
+        failCount += chunk.length;
+      } else {
+        successCount += chunk.length;
+      }
+    } else {
+      successCount += chunk.length;
+    }
+    
+    // Progress update
+    const processed = Math.min(i + chunkSize, rows.length);
+    if (processed % 5000 === 0 || processed >= rows.length) {
+      console.log(`    Processed ${processed}/${rows.length} rows`);
+    }
+  }
+  
+  console.log(`  ✓ Sync complete: ${successCount} rows synced, ${failCount} failed`);
+  return failCount === 0;
+}
+
+/**
+ * Main function
+ */
+async function main() {
+  console.log('='.repeat(80));
+  console.log('Smart CSV to Supabase Sync');
+  console.log('='.repeat(80));
+  console.log(`Supabase URL: ${SUPABASE_URL}`);
+  console.log('');
+  
+  if (!fs.existsSync(CSV_OUTPUT_DIR)) {
+    console.error(`ERROR: CSV output directory not found: ${CSV_OUTPUT_DIR}`);
+    console.log('Run json_to_csv.js first to generate CSV files');
+    process.exit(1);
+  }
+  
+  // Get all CSV files
+  const csvFiles = fs.readdirSync(CSV_OUTPUT_DIR)
+    .filter(file => file.endsWith('.csv'))
+    .sort();
+  
+  if (csvFiles.length === 0) {
+    console.error('No CSV files found in csv_output directory');
+    process.exit(1);
+  }
+  
+  console.log(`Found ${csvFiles.length} CSV files to sync\n`);
+  
+  // Verify helper function exists (uses sql_query parameter)
+  console.log('Checking for exec_sql helper function...');
+  try {
+    const { error } = await supabase.rpc('exec_sql', { sql_query: 'SELECT 1' });
+    
+    if (error) {
+      console.warn('  ⚠ Helper function exec_sql not found or not accessible');
+      console.warn('  Error:', error.message);
+      console.warn('  💡 Make sure exec_sql function uses sql_query parameter name');
+      console.warn('  💡 Run create_helper_function.sql in Supabase SQL Editor');
+      console.warn('  💡 Or create tables manually using create_tables.sql');
+      console.log('');
+    } else {
+      console.log('  ✓ Helper function exec_sql found - will auto-create tables\n');
+    }
+  } catch (e) {
+    console.warn('  ⚠ Could not verify helper function:', e.message);
+    console.log('');
+  }
+  
+  // Process each CSV file
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (let i = 0; i < csvFiles.length; i++) {
+    const csvFile = csvFiles[i];
+    const tableName = csvFile.replace('.csv', '');
+    const csvPath = path.join(CSV_OUTPUT_DIR, csvFile);
+    
+    console.log(`[${i + 1}/${csvFiles.length}]`);
+    const success = await syncData(csvPath, tableName);
+    
+    if (success) {
+      successCount++;
+    } else {
+      failCount++;
+    }
+  }
+  
+  // Summary
+  console.log('\n' + '='.repeat(80));
+  console.log('Sync Summary');
+  console.log('='.repeat(80));
+  console.log(`Total files: ${csvFiles.length}`);
+  console.log(`Successful: ${successCount}`);
+  console.log(`Failed: ${failCount}`);
+  console.log('');
+  
+  if (failCount > 0) {
+    console.log('⚠️  Some tables failed to sync!');
+    console.log('Check the logs above for details.');
+    process.exit(1);
+  } else {
+    console.log('✅ All tables synced successfully!');
+  }
+}
+
+// Run the script
+main().catch(error => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});

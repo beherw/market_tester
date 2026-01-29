@@ -9,17 +9,23 @@ CREATE EXTENSION IF NOT EXISTS pg_net;
 -- Note: This requires superuser privileges, so it may not work on all Supabase plans
 -- If this doesn't work, tables will need to be created manually
 
-CREATE OR REPLACE FUNCTION exec_sql(query text)
+-- 1. Completely delete the old version of the function
+DROP FUNCTION IF EXISTS exec_sql(text);
+
+-- 2. Create the new version with the correct parameter name
+CREATE OR REPLACE FUNCTION exec_sql(sql_query text)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-  EXECUTE query;
+  EXECUTE sql_query;
 END;
 $$;
 
--- Grant execute permission to authenticated users
+-- 3. Re-apply the security restrictions
+REVOKE EXECUTE ON FUNCTION exec_sql(text) FROM public;
+REVOKE EXECUTE ON FUNCTION exec_sql(text) FROM anon;
 GRANT EXECUTE ON FUNCTION exec_sql(text) TO authenticated;
 GRANT EXECUTE ON FUNCTION exec_sql(text) TO service_role;
 

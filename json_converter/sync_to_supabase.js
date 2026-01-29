@@ -75,9 +75,9 @@ async function executeSQL(sql) {
 async function createAllTables() {
   console.log('Checking if helper functions exist for automatic table creation...');
   
-  // Check if exec_sql function exists
+  // Check if exec_sql function exists (uses sql_query parameter)
   try {
-    const { error } = await supabase.rpc('exec_sql', { query: 'SELECT 1' });
+    const { error } = await supabase.rpc('exec_sql', { sql_query: 'SELECT 1' });
     if (!error) {
       console.log('  ✓ Helper function exec_sql found - will auto-create tables');
       return true;
@@ -122,28 +122,62 @@ async function createTableIfNotExists(tableName, columns) {
     
     // Method 1: Try using exec_sql RPC function (if helper function was created)
     try {
-      const { error: rpcError } = await supabase.rpc('exec_sql', { query: createSQL });
-      if (!rpcError) {
-        console.log(`  ✓ Table ${tableName} created via RPC`);
-        await createIndexes(tableName);
-        return true;
+      console.log(`  Attempting to create table via exec_sql RPC...`);
+      const { data, error: rpcError } = await supabase.rpc('exec_sql', { sql_query: createSQL });
+      
+      if (rpcError) {
+        console.log(`  ⚠ RPC error: ${rpcError.message}`);
+        console.log(`  Error details:`, JSON.stringify(rpcError, null, 2));
+      } else {
+        console.log(`  ✓ RPC call succeeded, verifying table exists...`);
+        // Wait a moment for table to be available in schema cache
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Verify table was created
+        const { error: verifyError } = await supabase.from(tableName).select('*').limit(1);
+        if (!verifyError) {
+          console.log(`  ✓ Table ${tableName} created and verified!`);
+          await createIndexes(tableName);
+          return true;
+        } else {
+          console.log(`  ⚠ Table creation may have failed - still getting error: ${verifyError.message}`);
+        }
       }
     } catch (e) {
+      console.log(`  ⚠ RPC exception: ${e.message}`);
+      console.log(`  Exception details:`, e);
       // RPC function may not exist, continue to next method
     }
     
     // Method 2: Try using create_table_if_not_exists helper function
     try {
-      const { error: helperError } = await supabase.rpc('create_table_if_not_exists', {
+      console.log(`  Attempting to create table via create_table_if_not_exists RPC...`);
+      const { data, error: helperError } = await supabase.rpc('create_table_if_not_exists', {
         table_name: tableName,
         columns_def: columns
       });
-      if (!helperError) {
-        console.log(`  ✓ Table ${tableName} created via helper function`);
-        await createIndexes(tableName);
-        return true;
+      
+      if (helperError) {
+        console.log(`  ⚠ Helper function error: ${helperError.message}`);
+        console.log(`  Error details:`, JSON.stringify(helperError, null, 2));
+      } else {
+        console.log(`  ✓ Helper RPC call succeeded, verifying table exists...`);
+        // Wait a moment for table to be available
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Verify table was created
+        const { error: verifyError } = await supabase.from(tableName).select('*').limit(1);
+        if (!verifyError) {
+          console.log(`  ✓ Table ${tableName} created and verified!`);
+          await createIndexes(tableName);
+          return true;
+        } else {
+          console.log(`  ⚠ Table creation may have failed - still getting error: ${verifyError.message}`);
+        }
       }
     } catch (e) {
+      console.log(`  ⚠ Helper function exception: ${e.message}`);
+      console.log(`  Exception details:`, e);
       // Helper function may not exist, continue to next method
     }
     
@@ -170,11 +204,13 @@ async function createTableIfNotExists(tableName, columns) {
     }
     
     // If all methods fail, provide instructions
-    console.warn(`  ⚠ Could not create table ${tableName} automatically.`);
-    console.warn(`  This is normal - Supabase requires tables to be created manually the first time.`);
-    console.warn(`  Option 1: Run create_tables.sql in Supabase SQL Editor (recommended)`);
-    console.warn(`  Option 2: Run create_helper_function.sql first, then this script will auto-create tables`);
-    console.warn(`  SQL to create manually: ${createSQL}`);
+    console.error(`  ❌ Could not create table ${tableName} automatically.`);
+    console.error(`  📋 ACTION REQUIRED: Create tables manually!`);
+    console.error(`  👉 Go to Supabase SQL Editor and run: create_tables.sql`);
+    console.error(`  📖 See: FINAL_SOLUTION.md for step-by-step instructions`);
+    console.error(``);
+    console.error(`  Quick fix SQL:`);
+    console.error(`  ${createSQL}`);
     return false;
   } else if (queryError) {
     console.warn(`Error checking table ${tableName}: ${queryError.message}`);
@@ -193,7 +229,7 @@ async function createIndexes(tableName) {
   const indexSQL = `CREATE INDEX IF NOT EXISTS idx_${tableName}_id ON "${tableName}"(id);`;
   
   try {
-    await supabase.rpc('exec_sql', { query: indexSQL });
+    await supabase.rpc('exec_sql', { sql_query: indexSQL });
   } catch (e) {
     // Index creation is optional, continue even if it fails
   }

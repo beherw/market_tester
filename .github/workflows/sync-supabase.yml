@@ -49,13 +49,13 @@ jobs:
           cd json_converter
           node create_tables_via_api.js || echo "Note: Table creation via API may not be available. Tables will be created by sync script or need manual creation."
 
-      - name: Sync CSV to Supabase
+      - name: Sync CSV to Supabase (Smart Sync)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           cd json_converter
-          node sync_to_supabase.js
+          node sync_smart.js
         continue-on-error: false
 
       - name: Summary
