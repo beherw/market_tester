@@ -236,12 +236,14 @@ async function createTableStructure(tableName, headers, sampleRows) {
   // Execute SQL using exec_sql helper function (uses sql_query parameter)
   try {
     // Create table using sql_query parameter name
-    const { error: createError } = await supabase.rpc('exec_sql', { sql_query: createTableSQL });
+    const { data, error: createError } = await supabase.rpc('exec_sql', { sql_query: createTableSQL });
     
     if (createError) {
-      console.error(`  ❌ Error creating table: ${createError.message}`);
-      console.error(`  Error details:`, JSON.stringify(createError, null, 2));
-      console.error(`  SQL: ${createTableSQL.substring(0, 200)}...`);
+      // THIS IS THE KEY: Log the actual database error
+      console.error(`  ❌ Database Error creating table: ${createError.message}`);
+      console.error(`  Error Code: ${createError.code || 'N/A'}`);
+      console.error(`  Error Details:`, JSON.stringify(createError, null, 2));
+      console.error(`  SQL: ${createTableSQL.substring(0, 150)}...`);
       return false;
     }
     
@@ -254,6 +256,7 @@ async function createTableStructure(tableName, headers, sampleRows) {
         console.log(`  ✓ Index created on ${tableName}.id`);
       } else {
         console.warn(`  ⚠ Could not create index: ${indexError.message}`);
+        console.warn(`  Index Error Details:`, JSON.stringify(indexError, null, 2));
       }
     }
     
@@ -262,7 +265,9 @@ async function createTableStructure(tableName, headers, sampleRows) {
     
     return true;
   } catch (error) {
-    console.error(`  ❌ Exception creating table: ${error.message}`);
+    console.error(`  ❌ Network/System Exception creating table: ${error.message}`);
+    console.error(`  Exception:`, error);
+    console.error(`  Stack:`, error.stack);
     return false;
   }
 }

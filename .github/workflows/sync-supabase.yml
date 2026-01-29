@@ -36,19 +36,6 @@ jobs:
       - name: Install Supabase client
         run: npm install @supabase/supabase-js
 
-      - name: Install Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Attempt to create tables via API
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: |
-          cd json_converter
-          node create_tables_via_api.js || echo "Note: Table creation via API may not be available. Tables will be created by sync script or need manual creation."
-
       - name: Sync CSV to Supabase (Smart Sync)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

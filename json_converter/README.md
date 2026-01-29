@@ -1,131 +1,105 @@
-# JSON to CSV Converter for Supabase Migration
+# JSON to CSV Converter & Supabase Sync
 
-This directory contains tools to convert JSON data files to CSV format for importing into Supabase.
+This directory contains tools to convert JSON data files to CSV format and automatically sync them to Supabase.
+
+## Quick Start
+
+### 1. Setup GitHub Secrets (One-time)
+
+Go to: `https://github.com/YOUR_REPO/settings/secrets/actions`
+
+Add:
+- `SUPABASE_URL`: `https://dojkqotccerymtnqnyfj.supabase.co`
+- `SUPABASE_SERVICE_KEY`: `sb_secret_Lpd3cK-AMqwfBYYaWakH8w_QRQ3f8w5`
+
+### 2. Setup Helper Function (One-time)
+
+Run `create_helper_function.sql` in Supabase SQL Editor to enable automatic table creation.
+
+### 3. Push to GitHub
+
+That's it! The workflow will:
+- Convert JSON → CSV
+- Create tables automatically
+- Sync CSV data to Supabase
 
 ## Files
 
-- `json_list.txt` - List of JSON files to convert with their metadata
-- `json_to_csv.js` - Node.js script that converts JSON files to CSV
-- `csv_output/` - Output directory for generated CSV files (created automatically)
+### Core Scripts
+- `json_list.txt` - List of JSON files to convert
+- `json_to_csv.js` - Converts JSON files to CSV
+- `sync_smart.js` - Smart sync script (creates tables + syncs data)
+- `create_tables.sql` - SQL to create tables manually (optional)
+- `create_helper_function.sql` - Helper function for auto table creation
 
-## Usage
+### Output
+- `csv_output/` - Generated CSV files (gitignored, auto-generated)
 
-### 1. Run the converter
+## How It Works
 
+```
+Push to GitHub
+    ↓
+GitHub Actions triggers
+    ↓
+Convert JSON → CSV (json_to_csv.js)
+    ↓
+Sync CSV → Supabase (sync_smart.js)
+    - Creates tables automatically using exec_sql helper
+    - Infers column types from CSV data
+    - Syncs data in chunks
+    ↓
+Done! ✅
+```
+
+## Manual Usage
+
+### Convert JSON to CSV
 ```bash
+cd json_converter
 node json_to_csv.js
 ```
 
-Or if you made it executable:
-
+### Sync to Supabase (Local Test)
 ```bash
-./json_to_csv.js
+export SUPABASE_URL="https://dojkqotccerymtnqnyfj.supabase.co"
+export SUPABASE_SERVICE_KEY="sb_secret_Lpd3cK-AMqwfBYYaWakH8w_QRQ3f8w5"
+node sync_smart.js
 ```
 
-### 2. Review the output
+## Adding New JSON Files
 
-All CSV files will be generated in the `csv_output/` directory.
+1. Add entry to `json_list.txt`:
+   ```
+   path/to/file.json|table_name|structure_type|description
+   ```
+2. Push to GitHub - workflow handles the rest!
 
-### 3. Import to Supabase
+## Structure Types
 
-1. Go to your Supabase project dashboard
-2. Navigate to Table Editor
-3. Create tables matching the CSV structure (or use SQL to create tables)
-4. Use the Import CSV feature to import each CSV file
-
-## JSON List Format
-
-The `json_list.txt` file uses the following format:
-
-```
-relative_path|table_name|structure_type|description
-```
-
-### Structure Types
-
-- `array` - Simple array of values (e.g., `[1, 2, 3]`)
-- `object_simple` - Simple key-value pairs (e.g., `{ "id": value }`)
-- `object_nested` - Object with nested objects (e.g., `{ "id": { "tw": "name" } }`)
-- `object_complex` - Complex nested objects with arrays (e.g., equipment.json)
-- `array_of_objects` - Array of objects (e.g., `[{ "id": 1, "name": "..." }]`)
-
-## CSV Output Format
-
-### Array
-```csv
-id
-1
-2
-3
-```
-
-### Object Simple
-```csv
-id,value
-1,100
-2,200
-```
-
-### Object Nested
-```csv
-id,tw
-1,Item Name
-2,Another Item
-```
-
-### Object Complex / Array of Objects
-Complex structures (arrays, nested objects) are stored as JSON strings in CSV, which can be imported as JSONB columns in Supabase.
-
-## Supabase Table Creation
-
-After importing CSV files, you may need to:
-
-1. **Set primary keys**: Most tables should have `id` as primary key
-2. **Create indexes**: Create indexes on `id` columns for performance
-3. **Set column types**: 
-   - `id` columns: INTEGER or BIGINT
-   - JSON arrays/objects: JSONB type
-   - Text fields: TEXT or VARCHAR
-
-### Example SQL for creating tables:
-
-```sql
--- Example: tw_items table
-CREATE TABLE tw_items (
-  id INTEGER PRIMARY KEY,
-  tw TEXT NOT NULL
-);
-
-CREATE INDEX idx_tw_items_id ON tw_items(id);
-
--- Example: equipment table (with JSONB for arrays)
-CREATE TABLE equipment (
-  id INTEGER PRIMARY KEY,
-  equipSlotCategory INTEGER,
-  level INTEGER,
-  unique INTEGER,
-  jobs JSONB,  -- Array stored as JSONB
-  pDmg INTEGER,
-  mDmg INTEGER,
-  pDef INTEGER,
-  mDef INTEGER,
-  delay INTEGER
-);
-
-CREATE INDEX idx_equipment_id ON equipment(id);
-```
-
-## Notes
-
-- Large files (like `tw-recipes.json` at 11MB) may take a while to process
-- CSV files will be created in the `csv_output/` directory
-- The script handles CSV escaping automatically (commas, quotes, newlines)
-- Arrays and nested objects are stored as JSON strings for JSONB import
+- `array` - Simple array `[1, 2, 3]`
+- `object_simple` - Key-value `{ "id": value }`
+- `object_nested` - Nested `{ "id": { "tw": "name" } }`
+- `object_complex` - Complex with arrays
+- `array_of_objects` - Array of objects
 
 ## Troubleshooting
 
-If a file fails to convert:
-1. Check that the JSON file exists at the specified path
-2. Verify the JSON is valid (use a JSON validator)
-3. Check the structure type matches the actual JSON structure
-4. Review the error message in the console output
+**"Table does not exist" errors:**
+- Run `create_helper_function.sql` in Supabase SQL Editor
+- Or run `create_tables.sql` manually once
+
+**"Helper function not found":**
+- Verify `exec_sql` function exists in Supabase
+- Check function uses `sql_query` parameter name
+
+**CSV parsing errors:**
+- Check CSV files for malformed data
+- Verify JSON structure matches structure_type
+
+## Notes
+
+- Tables are created automatically using `exec_sql` helper function
+- Column types are inferred from CSV data (INTEGER, TEXT, JSONB, etc.)
+- Large files are processed in chunks (500 rows)
+- CSV files are regenerated on each push
