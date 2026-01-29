@@ -208,10 +208,10 @@ function inferColumnType(columnName, sampleValues) {
 }
 
 /**
- * Create table structure dynamically
+ * Create table structure dynamically with RLS policies
  */
 async function createTableStructure(tableName, headers, sampleRows) {
-  console.log(`  Creating table structure for ${tableName}...`);
+  console.log(`  Ensuring table structure for ${tableName}...`);
   
   // Infer column types from sample data
   const columnDefs = headers.map(header => {
@@ -220,11 +220,28 @@ async function createTableStructure(tableName, headers, sampleRows) {
     return `"${header}" ${type}`;
   }).join(', ');
   
-  // Build CREATE TABLE SQL
+  // Build comprehensive SQL: CREATE TABLE + RLS + Policy
   const createTableSQL = `
     CREATE TABLE IF NOT EXISTS public."${tableName}" (
       ${columnDefs}
     );
+    
+    ALTER TABLE public."${tableName}" ENABLE ROW LEVEL SECURITY;
+    
+    -- Only create policy if it doesn't exist
+    DO $$ 
+    BEGIN 
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'public' 
+        AND tablename = '${tableName}' 
+        AND policyname = 'Public Read'
+      ) THEN
+        CREATE POLICY "Public Read" ON public."${tableName}" 
+        FOR SELECT TO anon 
+        USING (true);
+      END IF;
+    END $$;
   `;
   
   // Create indexes on id column if it exists
@@ -235,19 +252,24 @@ async function createTableStructure(tableName, headers, sampleRows) {
   
   // Execute SQL using exec_sql helper function (uses sql_query parameter)
   try {
-    // Create table using sql_query parameter name
+    // Create table, RLS, and policy using sql_query parameter name
     const { data, error: createError } = await supabase.rpc('exec_sql', { sql_query: createTableSQL });
     
     if (createError) {
-      // THIS IS THE KEY: Log the actual database error
-      console.error(`  ❌ Database Error creating table: ${createError.message}`);
-      console.error(`  Error Code: ${createError.code || 'N/A'}`);
-      console.error(`  Error Details:`, JSON.stringify(createError, null, 2));
-      console.error(`  SQL: ${createTableSQL.substring(0, 150)}...`);
-      return false;
+      // Log the actual database error but don't fail if table already exists
+      const errorMsg = createError.message || '';
+      if (errorMsg.includes('already exists') || errorMsg.includes('duplicate')) {
+        console.log(`  ℹ Table ${tableName} already exists, continuing...`);
+      } else {
+        console.error(`  ❌ Database Error creating table: ${createError.message}`);
+        console.error(`  Error Code: ${createError.code || 'N/A'}`);
+        console.error(`  Error Details:`, JSON.stringify(createError, null, 2));
+        console.error(`  SQL: ${createTableSQL.substring(0, 150)}...`);
+        return false;
+      }
+    } else {
+      console.log(`  ✓ Table ${tableName} structure ensured`);
     }
-    
-    console.log(`  ✓ Table ${tableName} created successfully`);
     
     // Create index if needed
     if (indexSQL) {
@@ -255,8 +277,11 @@ async function createTableStructure(tableName, headers, sampleRows) {
       if (!indexError) {
         console.log(`  ✓ Index created on ${tableName}.id`);
       } else {
-        console.warn(`  ⚠ Could not create index: ${indexError.message}`);
-        console.warn(`  Index Error Details:`, JSON.stringify(indexError, null, 2));
+        // Don't fail on index errors, just warn
+        const indexMsg = indexError.message || '';
+        if (!indexMsg.includes('already exists')) {
+          console.warn(`  ⚠ Could not create index: ${indexError.message}`);
+        }
       }
     }
     
@@ -294,23 +319,13 @@ async function syncData(csvPath, tableName) {
   
   console.log(`  Found ${rows.length} rows with ${headers.length} columns`);
   
-  // 2. Check if table exists
-  const { error: checkError } = await supabase.from(tableName).select('*').limit(1);
+  // 2. Always ensure table exists (CREATE IF NOT EXISTS handles existing tables)
+  // This avoids schema cache errors by not checking existence first
+  const created = await createTableStructure(tableName, headers, rows);
   
-  if (checkError && (checkError.code === 'PGRST116' || checkError.message.includes('does not exist'))) {
-    // Table doesn't exist, create it
-    console.log(`  Table ${tableName} does not exist, creating...`);
-    const created = await createTableStructure(tableName, headers, rows);
-    
-    if (!created) {
-      console.error(`  ❌ Failed to create table ${tableName}`);
-      return false;
-    }
-  } else if (checkError) {
-    console.error(`  ❌ Error checking table: ${checkError.message}`);
+  if (!created) {
+    console.error(`  ❌ Failed to ensure table structure for ${tableName}`);
     return false;
-  } else {
-    console.log(`  ✓ Table ${tableName} already exists`);
   }
   
   // 3. Upload Data in Chunks
@@ -333,21 +348,34 @@ async function syncData(csvPath, tableName) {
       return cleanRow;
     });
     
-    // Try upsert first
-    const { error: upsertError } = await supabase
-      .from(tableName)
-      .upsert(cleanChunk, { onConflict: 'id' });
-    
-    if (upsertError) {
-      // If upsert fails, try insert
+    // Try upsert if id column exists, otherwise use insert
+    let uploadError = null;
+    if (headers.includes('id')) {
+      // Use upsert with id as conflict resolution
+      const { error: upsertError } = await supabase
+        .from(tableName)
+        .upsert(cleanChunk, { onConflict: 'id' });
+      uploadError = upsertError;
+    } else {
+      // No id column, use insert instead
+      console.warn(`  ⚠ Table ${tableName} has no 'id' column, using insert instead of upsert`);
       const { error: insertError } = await supabase
         .from(tableName)
         .insert(cleanChunk);
+      uploadError = insertError;
+    }
+    
+    if (uploadError) {
+      // If upsert/insert fails, try plain insert as fallback
+      const { error: fallbackError } = await supabase
+        .from(tableName)
+        .insert(cleanChunk);
       
-      if (insertError) {
-        console.error(`  ❌ Error in chunk ${i}-${Math.min(i + chunkSize, rows.length)}: ${insertError.message}`);
+      if (fallbackError) {
+        console.error(`  ❌ Error in chunk ${i + 1}-${Math.min(i + chunkSize, rows.length)}: ${fallbackError.message}`);
         failCount += chunk.length;
       } else {
+        console.warn(`  ⚠ Chunk ${i + 1}-${Math.min(i + chunkSize, rows.length)}: Fallback insert succeeded`);
         successCount += chunk.length;
       }
     } else {
