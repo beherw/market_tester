@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +27,7 @@ if (!SUPABASE_SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const CSV_OUTPUT_DIR = path.join(__dirname, 'csv_output');
+const METADATA_TABLE = '_sync_metadata'; // Table to store sync metadata
 
 /**
  * Parse CSV file and return array of objects
@@ -298,6 +300,129 @@ async function createTableStructure(tableName, headers, sampleRows) {
 }
 
 /**
+ * Calculate SHA256 hash of file content
+ */
+function calculateFileHash(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return crypto.createHash('sha256').update(content).digest('hex');
+}
+
+/**
+ * Ensure metadata table exists for tracking sync state
+ */
+async function ensureMetadataTable() {
+  const createMetadataSQL = `
+    CREATE TABLE IF NOT EXISTS public."${METADATA_TABLE}" (
+      table_name TEXT PRIMARY KEY,
+      row_count INTEGER NOT NULL,
+      content_hash TEXT NOT NULL,
+      last_synced TIMESTAMP DEFAULT NOW()
+    );
+    
+    ALTER TABLE public."${METADATA_TABLE}" ENABLE ROW LEVEL SECURITY;
+    
+    DO $$ 
+    BEGIN 
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE schemaname = 'public' 
+        AND tablename = '${METADATA_TABLE}' 
+        AND policyname = 'Public Read'
+      ) THEN
+        CREATE POLICY "Public Read" ON public."${METADATA_TABLE}" 
+        FOR SELECT TO anon 
+        USING (true);
+      END IF;
+    END $$;
+  `;
+  
+  try {
+    const { error } = await supabase.rpc('exec_sql', { sql_query: createMetadataSQL });
+    if (error && !error.message.includes('already exists')) {
+      console.warn(`  ⚠ Could not create metadata table: ${error.message}`);
+    }
+  } catch (error) {
+    // Metadata table creation is optional, don't fail if it doesn't work
+    console.warn(`  ⚠ Metadata table creation failed: ${error.message}`);
+  }
+}
+
+/**
+ * Check if table needs syncing by comparing row count and content hash
+ */
+async function needsSync(tableName, csvRowCount, csvHash) {
+  try {
+    // Get current row count from Supabase table
+    const { count: dbRowCount, error: countError } = await supabase
+      .from(tableName)
+      .select('*', { count: 'exact', head: true });
+    
+    if (countError) {
+      // Table might not exist or error, assume needs sync
+      return true;
+    }
+    
+    // Fast check: row count mismatch means definitely needs sync
+    if (dbRowCount !== csvRowCount) {
+      console.log(`  ℹ Row count mismatch: DB=${dbRowCount}, CSV=${csvRowCount}`);
+      return true;
+    }
+    
+    // Row counts match, check hash from metadata table
+    const { data: metadata, error: metaError } = await supabase
+      .from(METADATA_TABLE)
+      .select('content_hash, row_count')
+      .eq('table_name', tableName)
+      .single();
+    
+    if (metaError || !metadata) {
+      // No metadata found, assume needs sync
+      console.log(`  ℹ No sync metadata found, will sync`);
+      return true;
+    }
+    
+    // Compare hash
+    if (metadata.content_hash !== csvHash) {
+      console.log(`  ℹ Content hash mismatch: data changed`);
+      return true;
+    }
+    
+    // Everything matches, no sync needed
+    console.log(`  ✓ No changes detected (rows: ${csvRowCount}, hash matches)`);
+    return false;
+  } catch (error) {
+    // On any error, assume needs sync to be safe
+    console.warn(`  ⚠ Error checking sync status: ${error.message}, will sync`);
+    return true;
+  }
+}
+
+/**
+ * Update sync metadata after successful sync
+ */
+async function updateSyncMetadata(tableName, rowCount, contentHash) {
+  try {
+    const { error } = await supabase
+      .from(METADATA_TABLE)
+      .upsert({
+        table_name: tableName,
+        row_count: rowCount,
+        content_hash: contentHash,
+        last_synced: new Date().toISOString()
+      }, {
+        onConflict: 'table_name'
+      });
+    
+    if (error) {
+      console.warn(`  ⚠ Could not update sync metadata: ${error.message}`);
+    }
+  } catch (error) {
+    // Metadata update is optional, don't fail
+    console.warn(`  ⚠ Metadata update failed: ${error.message}`);
+  }
+}
+
+/**
  * Sync CSV data to Supabase table
  */
 async function syncData(csvPath, tableName) {
@@ -310,16 +435,56 @@ async function syncData(csvPath, tableName) {
   
   // 1. Read and parse CSV
   console.log(`  Reading CSV file...`);
-  const { headers, rows } = parseCSV(csvPath);
+  let { headers, rows } = parseCSV(csvPath);
   
   if (rows.length === 0) {
     console.log(`  ⚠ No data rows found, skipping`);
     return true;
   }
   
+  // Remove duplicate headers (defensive check)
+  // parseCSV creates row objects where duplicate headers overwrite each other (last wins)
+  // We need to deduplicate headers array and ensure rows only have unique keys
+  const seenHeaders = new Set();
+  const uniqueHeaders = headers.filter(header => {
+    if (seenHeaders.has(header)) {
+      console.warn(`  ⚠ Duplicate header '${header}' detected, removing duplicate`);
+      return false;
+    }
+    seenHeaders.add(header);
+    return true;
+  });
+  
+  if (uniqueHeaders.length !== headers.length) {
+    console.log(`  ⚠ Removed ${headers.length - uniqueHeaders.length} duplicate column(s)`);
+    headers = uniqueHeaders;
+    // Ensure rows only contain unique header keys (parseCSV may have kept last duplicate)
+    rows = rows.map(row => {
+      const cleanRow = {};
+      uniqueHeaders.forEach(header => {
+        if (row.hasOwnProperty(header)) {
+          cleanRow[header] = row[header];
+        }
+      });
+      return cleanRow;
+    });
+  }
+  
   console.log(`  Found ${rows.length} rows with ${headers.length} columns`);
   
-  // 2. Always ensure table exists (CREATE IF NOT EXISTS handles existing tables)
+  // 2. Calculate CSV content hash for change detection
+  const csvHash = calculateFileHash(csvPath);
+  console.log(`  CSV hash: ${csvHash.substring(0, 16)}...`);
+  
+  // 3. Check if sync is needed (compare row count and hash)
+  const shouldSync = await needsSync(tableName, rows.length, csvHash);
+  
+  if (!shouldSync) {
+    console.log(`  ⏭ Skipping sync - no changes detected`);
+    return true; // Successfully skipped
+  }
+  
+  // 4. Always ensure table exists (CREATE IF NOT EXISTS handles existing tables)
   // This avoids schema cache errors by not checking existence first
   const created = await createTableStructure(tableName, headers, rows);
   
@@ -328,7 +493,7 @@ async function syncData(csvPath, tableName) {
     return false;
   }
   
-  // 3. Upload Data in Chunks
+  // 5. Upload Data in Chunks
   console.log(`  Uploading data in chunks...`);
   const chunkSize = 500;
   let successCount = 0;
@@ -390,6 +555,12 @@ async function syncData(csvPath, tableName) {
   }
   
   console.log(`  ✓ Sync complete: ${successCount} rows synced, ${failCount} failed`);
+  
+  // Update sync metadata if sync was successful
+  if (failCount === 0) {
+    await updateSyncMetadata(tableName, rows.length, csvHash);
+  }
+  
   return failCount === 0;
 }
 
@@ -401,6 +572,11 @@ async function main() {
   console.log('Smart CSV to Supabase Sync');
   console.log('='.repeat(80));
   console.log(`Supabase URL: ${SUPABASE_URL}`);
+  console.log('');
+  
+  // Ensure metadata table exists for change detection
+  console.log('Ensuring metadata table exists...');
+  await ensureMetadataTable();
   console.log('');
   
   if (!fs.existsSync(CSV_OUTPUT_DIR)) {

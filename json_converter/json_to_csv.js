@@ -81,10 +81,12 @@ function convertObjectNestedToCSV(data, tableName) {
   const headers = ['id'];
   const firstEntry = Object.values(data)[0];
   
-  // Extract all keys from nested objects
+  // Extract all keys from nested objects (skip 'id' since we already have it from object key)
   if (firstEntry && typeof firstEntry === 'object') {
     Object.keys(firstEntry).forEach(key => {
-      headers.push(key);
+      if (key !== 'id') {  // Skip 'id' to avoid duplicate column
+        headers.push(key);
+      }
     });
   }
   
@@ -123,10 +125,12 @@ function convertObjectComplexToCSV(data, tableName) {
   const headers = ['id'];
   const firstEntry = Object.values(data)[0];
   
-  // Extract all keys from nested objects
+  // Extract all keys from nested objects (skip 'id' since we already have it from object key)
   if (firstEntry && typeof firstEntry === 'object') {
     Object.keys(firstEntry).forEach(key => {
-      headers.push(key);
+      if (key !== 'id') {  // Skip 'id' to avoid duplicate column
+        headers.push(key);
+      }
     });
   }
   
