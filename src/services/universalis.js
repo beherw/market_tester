@@ -1,28 +1,52 @@
 import axios from 'axios';
 import { requestManager } from '../utils/requestManager';
-import marketItemsData from '../../teamcraft_git/libs/data/src/lib/json/market-items.json';
+import { getMarketItems } from './supabaseData';
 
 const UNIVERSALIS_BASE_URL = 'https://universalis.app/api/v2';
 
 // Cache for marketable items
 let marketableItemsSet = null;
+let marketableItemsLoadPromise = null;
 
 /**
- * Get the set of marketable item IDs from local market-items.json
+ * Get the set of marketable item IDs from Supabase
+ * Falls back to empty set if Supabase is unavailable
  * @returns {Promise<Set<number>>} - Set of marketable item IDs
  */
 export async function getMarketableItems() {
+  // Return cached set if available
   if (marketableItemsSet) {
     return marketableItemsSet;
   }
 
-  try {
-    marketableItemsSet = new Set(marketItemsData);
-    return marketableItemsSet;
-  } catch (error) {
-    console.error('Error loading marketable items:', error);
-    return new Set();
+  // If already loading, return the existing promise
+  if (marketableItemsLoadPromise) {
+    return marketableItemsLoadPromise;
   }
+
+  // Start loading from Supabase
+  marketableItemsLoadPromise = (async () => {
+    try {
+      console.log('Loading marketable items from Supabase...');
+      
+      // Fetch all marketable item IDs from Supabase
+      const itemIds = await getMarketItems();
+      marketableItemsSet = new Set(itemIds);
+      
+      console.log(`Loaded ${marketableItemsSet.size} marketable items from Supabase`);
+      return marketableItemsSet;
+    } catch (error) {
+      console.error('Error loading marketable items:', error);
+      // Fallback to empty set
+      marketableItemsSet = new Set();
+      return marketableItemsSet;
+    } finally {
+      // Clear the loading promise so we can retry if needed
+      marketableItemsLoadPromise = null;
+    }
+  })();
+
+  return marketableItemsLoadPromise;
 }
 
 /**

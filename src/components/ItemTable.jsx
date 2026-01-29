@@ -2,14 +2,15 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import ItemImage from './ItemImage';
 
+import { getIlvls, getRarities, getItemPatch, getPatchNames } from '../services/supabaseData';
+
 // Lazy load ilvls data
 let ilvlsDataRef = null;
 const loadIlvlsData = async () => {
   if (ilvlsDataRef) {
     return ilvlsDataRef;
   }
-  const ilvlsModule = await import('../../teamcraft_git/libs/data/src/lib/json/ilvls.json');
-  ilvlsDataRef = ilvlsModule.default;
+  ilvlsDataRef = await getIlvls();
   return ilvlsDataRef;
 };
 
@@ -19,8 +20,7 @@ const loadRaritiesData = async () => {
   if (raritiesDataRef) {
     return raritiesDataRef;
   }
-  const raritiesModule = await import('../../teamcraft_git/libs/data/src/lib/json/rarities.json');
-  raritiesDataRef = raritiesModule.default;
+  raritiesDataRef = await getRarities();
   return raritiesDataRef;
 };
 
@@ -30,8 +30,7 @@ const loadItemPatchData = async () => {
   if (itemPatchDataRef) {
     return itemPatchDataRef;
   }
-  const patchModule = await import('../../teamcraft_git/libs/data/src/lib/json/item-patch.json');
-  itemPatchDataRef = patchModule.default;
+  itemPatchDataRef = await getItemPatch();
   return itemPatchDataRef;
 };
 
@@ -41,8 +40,7 @@ const loadPatchNamesData = async () => {
   if (patchNamesDataRef) {
     return patchNamesDataRef;
   }
-  const patchNamesModule = await import('../../teamcraft_git/libs/data/src/lib/json/patch-names.json');
-  patchNamesDataRef = patchNamesModule.default;
+  patchNamesDataRef = await getPatchNames();
   return patchNamesDataRef;
 };
 

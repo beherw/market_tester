@@ -10,9 +10,7 @@ import TaxRatesModal from './TaxRatesModal';
 import { getMarketableItems } from '../services/universalis';
 import { searchItems, getSimplifiedChineseName, getItemById } from '../services/itemDatabase';
 import { loadRecipeDatabase } from '../services/recipeDatabase';
-import twJobAbbrData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-job-abbr.json';
-import twItemUICategoriesData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-item-ui-categories.json';
-import twItemsData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-items.json';
+import { getTwJobAbbr, getTwItemUICategories, getTwItems, getIlvls, getRarities, getEquipment, getUICategories } from '../services/supabaseData';
 
 export default function AdvancedSearch({
   addToast,
@@ -101,6 +99,11 @@ export default function AdvancedSearch({
   const [isSearchButtonDisabled, setIsSearchButtonDisabled] = useState(false);
   const categorySearchInputRef = useRef(null);
   
+  // Cache for Supabase data
+  const twJobAbbrDataRef = useRef(null);
+  const twItemUICategoriesDataRef = useRef(null);
+  const twItemsDataRef = useRef(null);
+  
   // Cache for ilvls data
   const ilvlsDataRef = useRef(null);
   
@@ -109,8 +112,7 @@ export default function AdvancedSearch({
     if (ilvlsDataRef.current) {
       return ilvlsDataRef.current;
     }
-    const ilvlsModule = await import('../../teamcraft_git/libs/data/src/lib/json/ilvls.json');
-    ilvlsDataRef.current = ilvlsModule.default;
+    ilvlsDataRef.current = await getIlvls();
     return ilvlsDataRef.current;
   }, []);
 
@@ -124,16 +126,29 @@ export default function AdvancedSearch({
     if (raritiesDataRef.current) {
       return raritiesDataRef.current;
     }
-    const raritiesModule = await import('../../teamcraft_git/libs/data/src/lib/json/rarities.json');
-    raritiesDataRef.current = raritiesModule.default;
+    raritiesDataRef.current = await getRarities();
     return raritiesDataRef.current;
   }, []);
 
-  // Load rarities data on mount
+  // Load all Supabase data on mount
   useEffect(() => {
-    loadRaritiesData().then(data => {
-      setRaritiesData(data);
-    });
+    const loadAllData = async () => {
+      try {
+        const [jobAbbr, itemUICategories, items, rarities] = await Promise.all([
+          getTwJobAbbr(),
+          getTwItemUICategories(),
+          getTwItems(),
+          loadRaritiesData(),
+        ]);
+        twJobAbbrDataRef.current = jobAbbr;
+        twItemUICategoriesDataRef.current = itemUICategories;
+        twItemsDataRef.current = items;
+        setRaritiesData(rarities);
+      } catch (error) {
+        console.error('Error loading Supabase data:', error);
+      }
+    };
+    loadAllData();
   }, [loadRaritiesData]);
 
   // Reset to first page when rarity filter changes
@@ -160,8 +175,7 @@ export default function AdvancedSearch({
     if (equipmentDataRef.current) {
       return equipmentDataRef.current;
     }
-    const equipmentModule = await import('../../teamcraft_git/libs/data/src/lib/json/equipment.json');
-    equipmentDataRef.current = equipmentModule.default;
+    equipmentDataRef.current = await getEquipment();
     return equipmentDataRef.current;
   }, []);
 
@@ -173,8 +187,7 @@ export default function AdvancedSearch({
     if (uiCategoriesDataRef.current) {
       return uiCategoriesDataRef.current;
     }
-    const uiCategoriesModule = await import('../../teamcraft_git/libs/data/src/lib/json/ui-categories.json');
-    uiCategoriesDataRef.current = uiCategoriesModule.default;
+    uiCategoriesDataRef.current = await getUICategories();
     return uiCategoriesDataRef.current;
   }, []);
 
@@ -899,6 +912,7 @@ export default function AdvancedSearch({
       caster: [],
     };
     
+    const twJobAbbrData = twJobAbbrDataRef.current || {};
     Object.entries(twJobAbbrData).forEach(([id, data]) => {
       const jobId = parseInt(id, 10);
       
@@ -1098,6 +1112,7 @@ export default function AdvancedSearch({
 
   // Item categories from tw-item-ui-categories.json (filtered to remove job-specific weapon categories)
   const itemCategories = useMemo(() => {
+    const twItemUICategoriesData = twItemUICategoriesDataRef.current || {};
     const allCategories = Object.entries(twItemUICategoriesData)
       .map(([id, data]) => ({
         id: parseInt(id, 10),
@@ -1341,6 +1356,7 @@ export default function AdvancedSearch({
       // If only categories selected (no jobs), get all items from database first
       if (itemIds.size === 0 && selectedJobs.length === 0) {
         // Load all items from tw-items.json
+        const twItemsData = twItemsDataRef.current || {};
         Object.keys(twItemsData).forEach(itemId => {
           itemIds.add(parseInt(itemId, 10));
         });
@@ -1467,6 +1483,7 @@ export default function AdvancedSearch({
       // twItemsData is imported synchronously, so it should always be available
       // Filter items by name before checking tradeable status
       itemIds.forEach(itemId => {
+        const twItemsData = twItemsDataRef.current || {};
         const item = twItemsData?.[itemId.toString()];
         // If item has name data, check if it matches
         if (item && item.tw) {
@@ -1691,6 +1708,7 @@ export default function AdvancedSearch({
         
         // Create items with names from twItemsData for immediate display
         const tempItems = verifiedInitialBatch.map(id => {
+          const twItemsData = twItemsDataRef.current || {};
           const itemData = twItemsData[id?.toString()];
           const itemName = itemData?.tw || `物品 (ID: ${id})`;
           return {
@@ -3121,7 +3139,8 @@ export default function AdvancedSearch({
                                 
                                 // Create items with names from twItemsData for immediate display
                                 const tempItems = verifiedInitialBatch.map(id => {
-                                  const itemData = twItemsData[id?.toString()];
+                                  const twItemsData = twItemsDataRef.current || {};
+          const itemData = twItemsData[id?.toString()];
                                   const itemName = itemData?.tw || `物品 (ID: ${id})`;
                                   return {
                                     id: id,

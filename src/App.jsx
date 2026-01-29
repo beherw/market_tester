@@ -21,6 +21,7 @@ import { addItemToHistory } from './utils/itemHistory';
 import { addSearchToHistory } from './utils/searchHistory';
 import { useHistory } from './hooks/useHistory';
 import { hasRecipe, buildCraftingTree, findRelatedItems } from './services/recipeDatabase';
+import { getIlvls, getItemPatch, getPatchNames } from './services/supabaseData';
 import TopBar from './components/TopBar';
 import NotFound from './components/NotFound';
 
@@ -98,7 +99,7 @@ function App() {
   const [isLoadingVelocities, setIsLoadingVelocities] = useState(false);
   const [isServerSelectorDisabled, setIsServerSelectorDisabled] = useState(true); // Start disabled until server data loads
   const [searchCurrentPage, setSearchCurrentPage] = useState(1);
-  const [searchItemsPerPage, setSearchItemsPerPage] = useState(100);
+  const [searchItemsPerPage, setSearchItemsPerPage] = useState(50);
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const loadingIndicatorStartTimeRef = useRef(null);
   
@@ -147,6 +148,7 @@ function App() {
   const velocityFetchAbortControllerRef = useRef(null);
   const velocityFetchRequestIdRef = useRef(0);
   const velocityFetchInProgressRef = useRef(false);
+  const searchAbortControllerRef = useRef(null);
   const lastFetchedItemIdsRef = useRef('');
   const imageIntervalRef = useRef(null);
   const manualModeTimeoutRef = useRef(null);
@@ -168,8 +170,7 @@ function App() {
     if (ilvlsDataRef.current) {
       return ilvlsDataRef.current;
     }
-    const ilvlsModule = await import('../teamcraft_git/libs/data/src/lib/json/ilvls.json');
-    ilvlsDataRef.current = ilvlsModule.default;
+    ilvlsDataRef.current = await getIlvls();
     return ilvlsDataRef.current;
   }, []);
 
@@ -182,8 +183,7 @@ function App() {
     if (itemPatchDataRef.current) {
       return itemPatchDataRef.current;
     }
-    const patchModule = await import('../teamcraft_git/libs/data/src/lib/json/item-patch.json');
-    itemPatchDataRef.current = patchModule.default;
+    itemPatchDataRef.current = await getItemPatch();
     return itemPatchDataRef.current;
   }, []);
 
@@ -192,8 +192,7 @@ function App() {
     if (patchNamesDataRef.current) {
       return patchNamesDataRef.current;
     }
-    const patchNamesModule = await import('../teamcraft_git/libs/data/src/lib/json/patch-names.json');
-    patchNamesDataRef.current = patchNamesModule.default;
+    patchNamesDataRef.current = await getPatchNames();
     return patchNamesDataRef.current;
   }, []);
 
@@ -504,6 +503,31 @@ function App() {
       }
     };
   }, [isManualMode, selectedItem, tradeableResults.length, untradeableResults.length, isSearching, location.pathname, isShattering, currentImage, createShatterEffect]);
+
+  // Cleanup on unmount - cancel all queries
+  useEffect(() => {
+    return () => {
+      // Cancel all abort controllers on unmount
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (serverLoadAbortControllerRef.current) {
+        serverLoadAbortControllerRef.current.abort();
+      }
+      if (simplifiedNameAbortControllerRef.current) {
+        simplifiedNameAbortControllerRef.current.abort();
+      }
+      if (velocityFetchAbortControllerRef.current) {
+        velocityFetchAbortControllerRef.current.abort();
+      }
+      if (historyFetchAbortControllerRef.current) {
+        historyFetchAbortControllerRef.current.abort();
+      }
+      if (searchAbortControllerRef.current) {
+        searchAbortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -842,12 +866,20 @@ function App() {
 
     // Get all item IDs from displayed results and sort by ilvl before API query
     (async () => {
+      // Ensure marketable items are loaded before processing batches
+      // This ensures we only process tradeable items
+      const marketableSet = await getMarketableItems();
+      
       // Load ilvls data and sort item IDs by ilvl (descending, highest first)
       const ilvlsData = await loadIlvlsData();
       const allItemIds = displayedResults.map(item => item.id);
       
+      // Filter to only marketable items before batch processing
+      // This ensures batch processing only handles tradeable items
+      const marketableItemIds = allItemIds.filter(id => marketableSet.has(id));
+      
       // Sort item IDs by ilvl (descending, highest first), then by ID if no ilvl
-      const sortedItemIds = allItemIds.sort((a, b) => {
+      const sortedItemIds = marketableItemIds.sort((a, b) => {
         const aIlvl = ilvlsData[a?.toString()] || null;
         const bIlvl = ilvlsData[b?.toString()] || null;
         
@@ -1346,12 +1378,18 @@ function App() {
 
     // Get all item IDs from history items and sort by ilvl before API query
     (async () => {
+      // Ensure marketable items are loaded before processing batches
+      const marketableSet = await getMarketableItems();
+      
       // Load ilvls data and sort item IDs by ilvl (descending, highest first)
       const ilvlsData = await loadIlvlsData();
       const allItemIds = historyItems.map(item => item.id);
       
+      // Filter to only marketable items before batch processing
+      const marketableItemIds = allItemIds.filter(id => marketableSet.has(id));
+      
       // Sort item IDs by ilvl (descending, highest first), then by ID if no ilvl
-      const sortedItemIds = allItemIds.sort((a, b) => {
+      const sortedItemIds = marketableItemIds.sort((a, b) => {
         const aIlvl = ilvlsData[a?.toString()] || null;
         const bIlvl = ilvlsData[b?.toString()] || null;
         
@@ -1979,8 +2017,15 @@ function App() {
             setIsServerSelectorDisabled(true); // Lock server selection during initial load
             setError(null);
 
+            // Cancel any previous search
+            if (searchAbortControllerRef.current) {
+              searchAbortControllerRef.current.abort();
+            }
+            searchAbortControllerRef.current = new AbortController();
+            const searchSignal = searchAbortControllerRef.current.signal;
+
             try {
-              const searchResult = await searchItems(searchQuery.trim());
+              const searchResult = await searchItems(searchQuery.trim(), false, searchSignal);
               const { results, converted, originalText, convertedText, searchedSimplified } = searchResult;
               
               if (lastProcessedURLRef.current !== currentURLKey) {
@@ -2073,6 +2118,11 @@ function App() {
               }
               // If there are results, velocity fetch will handle re-enabling server selector
             } catch (err) {
+              // Ignore abort errors
+              if (err.name === 'AbortError' || searchSignal.aborted) {
+                searchInProgressRef.current = false;
+                return;
+              }
               if (lastProcessedURLRef.current !== currentURLKey) {
                 searchInProgressRef.current = false;
                 return;
@@ -2101,6 +2151,12 @@ function App() {
       }
     } else if (!itemId && location.pathname === '/') {
       // We're on home page - clear search state but NOT history-related state
+      // Cancel any in-progress search queries
+      if (searchAbortControllerRef.current) {
+        searchAbortControllerRef.current.abort();
+        searchAbortControllerRef.current = null;
+      }
+      
       const currentSelectedItem = selectedItemRef.current;
       const currentSearchResults = searchResultsRef.current;
       if (currentSelectedItem || currentSearchResults.length > 0 || searchText) {
@@ -2238,7 +2294,14 @@ function App() {
     }
 
     try {
-      const searchResult = await searchItems(trimmedTerm);
+      // Cancel any previous search
+      if (searchAbortControllerRef.current) {
+        searchAbortControllerRef.current.abort();
+      }
+      searchAbortControllerRef.current = new AbortController();
+      const searchSignal = searchAbortControllerRef.current.signal;
+      
+      const searchResult = await searchItems(trimmedTerm, false, searchSignal);
       const { results, converted, originalText, convertedText, searchedSimplified } = searchResult;
       
       // Show toast if conversion happened
@@ -2323,6 +2386,10 @@ function App() {
         // Note: Toast for multiple results is now shown in the getMarketableItems().then() callback
       }
     } catch (err) {
+      // Ignore abort errors
+      if (err.name === 'AbortError' || searchSignal.aborted) {
+        return;
+      }
       setError(err.message || '搜索失敗，請稍後再試');
       addToast('搜索失敗', 'error');
       setTradeableResults([]);

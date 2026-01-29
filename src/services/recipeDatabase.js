@@ -1,7 +1,7 @@
-// Recipe database service - loads recipe data from tw-recipes.json
+// Recipe database service - loads recipe data from Supabase
 // Used for building crafting price trees
 
-import twRecipesData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-recipes.json';
+import { getTwRecipes } from './supabaseData';
 
 let recipesDatabase = null;
 let recipesByResult = null;
@@ -26,8 +26,8 @@ export async function loadRecipeDatabase() {
   isLoading = true;
 
   try {
-    // Recipes are already loaded from the JSON import
-    recipesDatabase = twRecipesData;
+    // Load recipes from Supabase
+    recipesDatabase = await getTwRecipes();
     
     // Create a lookup map by result item ID for faster searches
     recipesByResult = new Map();

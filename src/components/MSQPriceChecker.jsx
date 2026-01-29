@@ -10,8 +10,7 @@ import TaxRatesModal from './TaxRatesModal';
 import { getMarketableItems } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';
 import axios from 'axios';
-// Only import equipSlotCategoriesData - needed for initial render (8KB)
-import equipSlotCategoriesData from '../../teamcraft_git/libs/data/src/lib/json/equip-slot-categories.json';
+import { getEquipSlotCategories, getEquipment, getIlvls } from '../services/supabaseData';
 // Lazy load large data files:
 // - ilvlsData (748KB) - loaded when user inputs ilvl
 // - equipmentData (6.2MB) - loaded when searching
@@ -78,13 +77,22 @@ export default function MSQPriceChecker({
   const ilvlsDataRef = useRef(null);
   const equipmentDataRef = useRef(null);
 
+  // Cache for equip slot categories
+  const equipSlotCategoriesDataRef = useRef(null);
+  
+  // Load equip slot categories on mount
+  useEffect(() => {
+    getEquipSlotCategories().then(data => {
+      equipSlotCategoriesDataRef.current = data;
+    });
+  }, []);
+
   // Helper function to load equipmentData dynamically
   const loadEquipmentData = useCallback(async () => {
     if (equipmentDataRef.current) {
       return equipmentDataRef.current;
     }
-    const equipmentModule = await import('../../teamcraft_git/libs/data/src/lib/json/equipment.json');
-    equipmentDataRef.current = equipmentModule.default;
+    equipmentDataRef.current = await getEquipment();
     return equipmentDataRef.current;
   }, []);
 
@@ -93,8 +101,7 @@ export default function MSQPriceChecker({
     if (ilvlsDataRef.current) {
       return ilvlsDataRef.current;
     }
-    const ilvlsModule = await import('../../teamcraft_git/libs/data/src/lib/json/ilvls.json');
-    ilvlsDataRef.current = ilvlsModule.default;
+    ilvlsDataRef.current = await getIlvls();
     return ilvlsDataRef.current;
   }, []);
 
@@ -179,6 +186,7 @@ export default function MSQPriceChecker({
     const categories = new Map();
     
     // Iterate through equip-slot-categories to get all unique slot types
+    const equipSlotCategoriesData = equipSlotCategoriesDataRef.current || {};
     Object.entries(equipSlotCategoriesData).forEach(([categoryId, slots]) => {
       Object.entries(slots).forEach(([slotName, value]) => {
         // Skip SoulCrystal
@@ -221,6 +229,7 @@ export default function MSQPriceChecker({
     if (!equipInfo || equipInfo.equipSlotCategory === undefined) return false;
     
     const categoryId = equipInfo.equipSlotCategory;
+    const equipSlotCategoriesData = equipSlotCategoriesDataRef.current || {};
     const categorySlots = equipSlotCategoriesData[categoryId.toString()];
     
     if (!categorySlots) return false;
@@ -245,6 +254,7 @@ export default function MSQPriceChecker({
     if (!equipInfo || equipInfo.equipSlotCategory === undefined) return false;
     
     const categoryId = equipInfo.equipSlotCategory;
+    const equipSlotCategoriesData = equipSlotCategoriesDataRef.current || {};
     const categorySlots = equipSlotCategoriesData[categoryId.toString()];
     
     if (!categorySlots) return false;

@@ -14,7 +14,7 @@ import { getMarketableItems } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';
 import { getInternalUrl } from '../utils/internalUrl.js';
 import axios from 'axios';
-import twJobAbbrData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-job-abbr.json';
+import { getTwJobAbbr, getIlvls } from '../services/supabaseData';
 
 export default function CraftingJobPriceChecker({ 
   addToast, 
@@ -67,13 +67,22 @@ export default function CraftingJobPriceChecker({
   // Cache for ilvls data
   const ilvlsDataRef = useRef(null);
   
+  // Cache for job abbreviations
+  const twJobAbbrDataRef = useRef(null);
+  
+  // Load job abbreviations on mount
+  useEffect(() => {
+    getTwJobAbbr().then(data => {
+      twJobAbbrDataRef.current = data;
+    });
+  }, []);
+
   // Helper function to load ilvls data dynamically
   const loadIlvlsData = useCallback(async () => {
     if (ilvlsDataRef.current) {
       return ilvlsDataRef.current;
     }
-    const ilvlsModule = await import('../../teamcraft_git/libs/data/src/lib/json/ilvls.json');
-    ilvlsDataRef.current = ilvlsModule.default;
+    ilvlsDataRef.current = await getIlvls();
     return ilvlsDataRef.current;
   }, []);
 
@@ -585,6 +594,7 @@ export default function CraftingJobPriceChecker({
   };
 
   // Get crafting jobs (IDs 8-15) from tw-job-abbr.json
+  const twJobAbbrData = twJobAbbrDataRef.current || {};
   const allJobs = Object.entries(twJobAbbrData)
     .filter(([id]) => {
       const jobId = parseInt(id, 10);

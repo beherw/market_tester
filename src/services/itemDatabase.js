@@ -1,13 +1,13 @@
-// Item database service - loads Traditional Chinese item data from local tw-items.json
+// Item database service - loads Traditional Chinese item data from Supabase
 // Items are already in Traditional Chinese, so no translation needed for item names
 
 import { convertSimplifiedToTraditional, convertTraditionalToSimplified, isTraditionalChinese, containsChinese } from '../utils/chineseConverter';
-import twItemsData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-items.json';
-import twItemDescriptionsData from '../../teamcraft_git/libs/data/src/lib/json/tw/tw-item-descriptions.json';
+import { getTwItems, getTwItemDescriptions, searchTwItems } from './supabaseData';
 
 let itemsDatabase = null;
 let shopItemsDatabase = null;
 let isLoading = false;
+let twItemDescriptionsCache = null;
 
 // Cache for Simplified Chinese names from CSV
 const simplifiedNameCache = new Map();
@@ -304,27 +304,29 @@ export async function loadItemDatabase() {
   isLoading = true;
 
   try {
-    // Items are already loaded from the JSON import
-    // Convert the JSON structure to an array of items matching the CSV format
-    // JSON structure: { "13589": { "tw": "堅鋼投斧" }, ... }
+    // Load items from Supabase
+    const twItemsData = await getTwItems();
+    
+    // Convert the Supabase data structure to an array of items matching the CSV format
+    // Supabase structure: { "13589": { "tw": "堅鋼投斧" }, ... }
     // We need to convert to: [{ "key: #": "13589", "9: Name": "堅鋼投斧", ... }, ...]
     const items = Object.entries(twItemsData).map(([id, data]) => {
       const itemName = data.tw || '';
       // Transform to match the expected CSV format
       return {
         'key: #': id,
-        '9: Name': itemName, // Traditional Chinese name from JSON
+        '9: Name': itemName, // Traditional Chinese name from Supabase
         '0: Singular': itemName, // Use same as fallback
-        '11: Level{Item}': '', // Not available in JSON
-        '25: Price{Mid}': '', // Not available in JSON
-        '8: Description': '', // Not available in JSON
-        '22: IsUntradable': 'False', // Default to tradeable (we can't determine from JSON)
+        '11: Level{Item}': '', // Not available in Supabase
+        '25: Price{Mid}': '', // Not available in Supabase
+        '8: Description': '', // Not available in Supabase
+        '22: IsUntradable': 'False', // Default to tradeable (we can't determine from Supabase)
         '27: CanBeHq': 'True', // Default to true (most items can be HQ)
       };
     }).filter(item => item['key: #'] && item['9: Name'].trim() !== '');
 
     itemsDatabase = items;
-    shopItemsDatabase = []; // Shop items not available in JSON, keep empty array
+    shopItemsDatabase = []; // Shop items not available in Supabase, keep empty array
 
     isLoading = false;
     return { items: itemsDatabase, shopItems: shopItemsDatabase };
@@ -497,8 +499,8 @@ function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false)
       const canBeHQ = item['27: CanBeHq'] !== 'False';
       const inShop = shopItemIds.has(id);
 
-      // Get description from tw-item-descriptions.json
-      const descriptionData = twItemDescriptionsData[id];
+      // Get description from Supabase (cached - should be pre-loaded)
+      const descriptionData = twItemDescriptionsCache?.[id];
       const description = descriptionData?.tw || '';
 
       // Check if item is tradable (opposite of untradable)
@@ -543,7 +545,33 @@ function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false)
 }
 
 /**
+ * Transform Supabase search results to the format expected by performSearch
+ * @param {Object} searchResults - Results from searchTwItems: {itemId: {tw: "name"}}
+ * @param {Array} shopItems - Shop items array
+ * @param {Set} shopItemIds - Set of shop item IDs
+ * @returns {Array} - Items in the format expected by performSearch
+ */
+function transformSearchResultsToItems(searchResults, shopItems, shopItemIds) {
+  return Object.entries(searchResults).map(([id, data]) => {
+    const itemName = data.tw || '';
+    return {
+      'key: #': id,
+      '9: Name': itemName,
+      '0: Singular': itemName,
+      '11: Level{Item}': '',
+      '25: Price{Mid}': '',
+      '8: Description': '',
+      '22: IsUntradable': 'False', // Default to tradeable
+      '27: CanBeHq': 'True',
+    };
+  }).filter(item => item['key: #'] && item['9: Name'].trim() !== '');
+}
+
+/**
  * Search items - replicates ObservableHQ's SQL query
+ * Uses database queries for efficient searching (only fetches matching items)
+ * Falls back to full database load only when needed (fuzzy matching, etc.)
+ * 
  * Query: select items."key: #" as id, "9: Name" as name, "11: Level{Item}" as itemLevel, 
  *        "25: Price{Mid}" as shopPrice, "8: Description" as description, 
  *        IF(shop_items."0: Item" is null, false, true) as inShop, 
@@ -552,17 +580,18 @@ function performSearch(items, shopItems, shopItemIds, searchText, fuzzy = false)
  *        where name != '' and "22: IsUntradable" = 'False' and name like ? [for each word]
  * 
  * Search order (when fuzzy parameter is false or undefined):
- * 1. Precise search with TW names (original input)
- * 2. Fuzzy search with TW names (original input)
- * 3. Convert user input to traditional Chinese, then do steps 1 and 2 again
+ * 1. Precise search with TW names (original input) - uses database query
+ * 2. Fuzzy search with TW names (original input) - uses full load (character-order checking)
+ * 3. Convert user input to traditional Chinese, then do steps 1 and 2 again - uses database query
  * 4. Use simplified database API - convert to simplified, search simplified database by name to get item ID
  * 
  * When fuzzy=true is explicitly passed, skip precise search and go straight to fuzzy (for AdvancedSearch compatibility)
  * 
  * @param {string} searchText - Search text
  * @param {boolean} fuzzy - If true, skip precise search and use fuzzy only (for AdvancedSearch). If false/undefined, follow full order.
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
  */
-export async function searchItems(searchText, fuzzy = false) {
+export async function searchItems(searchText, fuzzy = false, signal = null) {
   if (!searchText || searchText.trim() === '') {
     return {
       results: [],
@@ -573,8 +602,14 @@ export async function searchItems(searchText, fuzzy = false) {
     };
   }
 
-  const { items, shopItems } = await loadItemDatabase();
+  // Pre-load descriptions cache if not already loaded
+  if (!twItemDescriptionsCache) {
+    twItemDescriptionsCache = await getTwItemDescriptions();
+  }
 
+  // Load shop items (needed for all searches)
+  const { shopItems } = await loadItemDatabase();
+  
   // Create shop items lookup
   const shopItemIds = new Set();
   shopItems.forEach(item => {
@@ -592,7 +627,9 @@ export async function searchItems(searchText, fuzzy = false) {
   let searchedSimplified = false;
 
   // If fuzzy=true is explicitly passed, skip precise search (for AdvancedSearch compatibility)
+  // Fuzzy search requires full database load for character-order checking
   if (fuzzy === true) {
+    const { items } = await loadItemDatabase();
     // Check if search text has spaces - fuzzy search only works with spaces
     const hasSpaces = trimmedSearchText.includes(' ');
     // Go straight to fuzzy search (will only use fuzzy if hasSpaces is true)
@@ -611,12 +648,35 @@ export async function searchItems(searchText, fuzzy = false) {
   const hasSpaces = trimmedSearchText.includes(' ');
 
   // Full search order (for main search bar):
-  // Step 1: Precise search with TW names (original input)
-  results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false);
+  // Step 1: Precise search with TW names (original input) - USE DATABASE QUERY
+  try {
+    // Check if aborted before query
+    if (signal && signal.aborted) {
+      throw new DOMException('Request aborted', 'AbortError');
+    }
+    const searchResults = await searchTwItems(trimmedSearchText, false, signal);
+    // Check if aborted after query
+    if (signal && signal.aborted) {
+      throw new DOMException('Request aborted', 'AbortError');
+    }
+    const items = transformSearchResultsToItems(searchResults, shopItems, shopItemIds);
+    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false);
+  } catch (error) {
+    // Don't fallback if aborted
+    if (error.name === 'AbortError' || (signal && signal.aborted)) {
+      throw error;
+    }
+    console.error('Error in database search, falling back to full load:', error);
+    // Fallback to full database load if query fails
+    const { items } = await loadItemDatabase();
+    results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, false);
+  }
   
   // Step 2: If no results AND search text has spaces, try fuzzy search with TW names (original input)
   // Fuzzy search only works when user put spaces between words
+  // Note: Fuzzy search requires full database load for character-order checking
   if (results.length === 0 && hasSpaces) {
+    const { items } = await loadItemDatabase();
     results = performSearch(items, shopItems, shopItemIds, trimmedSearchText, true);
   }
 
@@ -644,11 +704,33 @@ export async function searchItems(searchText, fuzzy = false) {
       // Check if converted text has spaces
       const convertedHasSpaces = traditionalSearchText.includes(' ');
       
-      // Step 3a: Precise search with converted traditional Chinese
-      results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false);
+      // Step 3a: Precise search with converted traditional Chinese - USE DATABASE QUERY
+      try {
+        // Check if aborted before query
+        if (signal && signal.aborted) {
+          throw new DOMException('Request aborted', 'AbortError');
+        }
+        const searchResults = await searchTwItems(traditionalSearchText, false, signal);
+        // Check if aborted after query
+        if (signal && signal.aborted) {
+          throw new DOMException('Request aborted', 'AbortError');
+        }
+        const items = transformSearchResultsToItems(searchResults, shopItems, shopItemIds);
+        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false);
+      } catch (error) {
+        // Don't fallback if aborted
+        if (error.name === 'AbortError' || (signal && signal.aborted)) {
+          throw error;
+        }
+        console.error('Error in database search (converted), falling back to full load:', error);
+        const { items } = await loadItemDatabase();
+        results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, false);
+      }
       
       // Step 3b: If still no results AND converted text has spaces, try fuzzy search with converted traditional Chinese
+      // Note: Fuzzy search requires full database load
       if (results.length === 0 && convertedHasSpaces) {
+        const { items } = await loadItemDatabase();
         results = performSearch(items, shopItems, shopItemIds, traditionalSearchText, true);
       }
     }
@@ -696,8 +778,8 @@ export async function searchItems(searchText, fuzzy = false) {
             const canBeHQ = item['27: CanBeHq'] !== 'False';
             const inShop = shopItemIds.has(id);
 
-            // Get description from tw-item-descriptions.json
-            const descriptionData = twItemDescriptionsData[id];
+            // Get description from Supabase (cached)
+            const descriptionData = twItemDescriptionsCache?.[id];
             const description = descriptionData?.tw || '';
 
             // Check if item is tradable
@@ -790,8 +872,13 @@ export async function getItemById(itemId) {
   const canBeHQ = item['27: CanBeHq'] !== 'False';
   const inShop = shopItemIds.has(id);
 
-  // Get description from tw-item-descriptions.json
-  const descriptionData = twItemDescriptionsData[id];
+  // Pre-load descriptions cache if not already loaded
+  if (!twItemDescriptionsCache) {
+    twItemDescriptionsCache = await getTwItemDescriptions();
+  }
+  
+  // Get description from Supabase (cached)
+  const descriptionData = twItemDescriptionsCache[id];
   const description = descriptionData?.tw || '';
 
   // Check if item is tradable (opposite of untradable)
