@@ -41,33 +41,37 @@ CREATE INDEX IF NOT EXISTS idx_ko_items_id ON ko_items(id);
 CREATE INDEX IF NOT EXISTS idx_ko_items_ko ON ko_items(ko);  -- For text search
 
 -- English item names (EN) - from items.json
+-- Note: Some items may not have all languages, so allow NULL
 CREATE TABLE IF NOT EXISTS en_items (
   id INTEGER PRIMARY KEY,
-  en TEXT NOT NULL
+  en TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_en_items_id ON en_items(id);
 CREATE INDEX IF NOT EXISTS idx_en_items_en ON en_items(en);  -- For text search
 
 -- Japanese item names (JA) - from items.json
+-- Note: Some items may not have all languages, so allow NULL
 CREATE TABLE IF NOT EXISTS ja_items (
   id INTEGER PRIMARY KEY,
-  ja TEXT NOT NULL
+  ja TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_ja_items_id ON ja_items(id);
 CREATE INDEX IF NOT EXISTS idx_ja_items_ja ON ja_items(ja);  -- For text search
 
 -- German item names (DE) - from items.json
+-- Note: Some items may not have all languages, so allow NULL
 CREATE TABLE IF NOT EXISTS de_items (
   id INTEGER PRIMARY KEY,
-  de TEXT NOT NULL
+  de TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_de_items_id ON de_items(id);
 CREATE INDEX IF NOT EXISTS idx_de_items_de ON de_items(de);  -- For text search
 
 -- French item names (FR) - from items.json
+-- Note: Some items may not have all languages, so allow NULL
 CREATE TABLE IF NOT EXISTS fr_items (
   id INTEGER PRIMARY KEY,
-  fr TEXT NOT NULL
+  fr TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_fr_items_id ON fr_items(id);
 CREATE INDEX IF NOT EXISTS idx_fr_items_fr ON fr_items(fr);  -- For text search
