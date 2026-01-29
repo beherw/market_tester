@@ -36,6 +36,18 @@ jobs:
       - name: Install Supabase client
         run: npm install @supabase/supabase-js
 
+      - name: Create tables in Supabase (if needed)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          echo "Creating tables in Supabase..."
+          echo "Note: Tables must be created manually the first time."
+          echo "Run create_tables.sql in Supabase SQL Editor if tables don't exist."
+          echo ""
+          echo "The sync script will attempt to create tables automatically,"
+          echo "but Supabase REST API has limitations for DDL operations."
+
       - name: Sync CSV to Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

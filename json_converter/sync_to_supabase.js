@@ -201,31 +201,46 @@ async function createIndexes(tableName) {
 
 /**
  * Parse CSV file and return array of objects
+ * Handles multi-line quoted values properly
  */
 function parseCSV(csvPath) {
   const content = fs.readFileSync(csvPath, 'utf-8');
-  const lines = content.split('\n').filter(line => line.trim());
   
-  if (lines.length === 0) {
+  if (content.trim().length === 0) {
     return { headers: [], rows: [] };
   }
   
-  const headers = lines[0].split(',').map(h => h.trim());
-  const rows = [];
+  // Parse CSV properly handling quoted multi-line values
+  const rows = parseCSVContent(content);
   
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line.trim()) continue;
+  if (rows.length === 0) {
+    return { headers: [], rows: [] };
+  }
+  
+  const headers = rows[0].map(h => h.trim());
+  const dataRows = [];
+  
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i];
     
-    const values = parseCSVLine(line);
+    // Skip if column count doesn't match (after trimming)
     if (values.length !== headers.length) {
-      console.warn(`Skipping row ${i}: column count mismatch`);
-      continue;
+      // Try to pad with empty strings if close
+      if (values.length < headers.length) {
+        while (values.length < headers.length) {
+          values.push('');
+        }
+      } else {
+        // Too many columns, skip this row
+        continue;
+      }
     }
     
     const row = {};
     headers.forEach((header, index) => {
       let value = values[index] || '';
+      value = value.trim();
+      
       // Try to parse JSON if it looks like JSON
       if (value.startsWith('[') || value.startsWith('{')) {
         try {
@@ -234,51 +249,82 @@ function parseCSV(csvPath) {
           // Keep as string if not valid JSON
         }
       }
-      // Try to parse numbers
-      else if (!isNaN(value) && value !== '') {
+      // Try to parse booleans
+      else if (value === 'true' || value === 'false') {
+        value = value === 'true';
+      }
+      // Try to parse numbers (but not empty strings)
+      else if (value !== '' && !isNaN(value) && value !== 'null') {
         const num = Number(value);
-        if (!isNaN(num)) {
+        if (!isNaN(num) && isFinite(num)) {
           value = num;
         }
       }
+      // Handle null/empty
+      else if (value === '' || value === 'null' || value === 'NULL') {
+        value = null;
+      }
+      
       row[header] = value;
     });
-    rows.push(row);
+    dataRows.push(row);
   }
   
-  return { headers, rows };
+  return { headers, rows: dataRows };
 }
 
 /**
- * Parse a CSV line handling quoted values
+ * Parse CSV content handling quoted multi-line values
  */
-function parseCSVLine(line) {
-  const values = [];
-  let current = '';
+function parseCSVContent(content) {
+  const rows = [];
+  let currentRow = [];
+  let currentField = '';
   let inQuotes = false;
   
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    const nextChar = content[i + 1];
     
     if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        // Escaped quote
-        current += '"';
-        i++;
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote inside quoted field
+        currentField += '"';
+        i++; // Skip next quote
       } else {
         // Toggle quote state
         inQuotes = !inQuotes;
       }
     } else if (char === ',' && !inQuotes) {
-      values.push(current.trim());
-      current = '';
+      // End of field
+      currentRow.push(currentField);
+      currentField = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      // End of row (but handle \r\n)
+      if (char === '\r' && nextChar === '\n') {
+        i++; // Skip \n
+      }
+      if (currentField !== '' || currentRow.length > 0) {
+        currentRow.push(currentField);
+        rows.push(currentRow);
+        currentRow = [];
+        currentField = '';
+      }
     } else {
-      current += char;
+      // Regular character
+      currentField += char;
     }
   }
   
-  values.push(current.trim());
-  return values;
+  // Don't forget the last field/row
+  if (currentField !== '' || currentRow.length > 0) {
+    currentRow.push(currentField);
+  }
+  if (currentRow.length > 0) {
+    rows.push(currentRow);
+  }
+  
+  return rows;
 }
 
 /**
@@ -419,8 +465,12 @@ async function processCSVFile(csvFileName) {
     // Verify table exists before proceeding
     const { error: checkError } = await supabase.from(tableName).select('*').limit(1);
     if (checkError && (checkError.code === 'PGRST116' || checkError.message.includes('does not exist'))) {
-      console.error(`  ERROR: Table ${tableName} does not exist. Please create it first using create_tables.sql`);
-      console.error(`  Or run this SQL in Supabase SQL Editor:`);
+      console.error(`  ❌ ERROR: Table ${tableName} does not exist!`);
+      console.error(`  📋 ACTION REQUIRED: Create tables first!`);
+      console.error(`  👉 Go to Supabase SQL Editor and run: create_tables.sql`);
+      console.error(`  📖 See: IMPORTANT_FIRST_STEP.md for instructions`);
+      console.error(``);
+      console.error(`  Quick fix SQL:`);
       console.error(`  CREATE TABLE IF NOT EXISTS "${tableName}" (${schema});`);
       return false;
     }
@@ -494,7 +544,23 @@ async function main() {
   console.log('');
   
   if (failCount > 0) {
+    console.log('⚠️  IMPORTANT: Some tables failed to sync!');
+    console.log('');
+    console.log('Most likely cause: Tables do not exist in Supabase.');
+    console.log('');
+    console.log('📋 SOLUTION:');
+    console.log('1. Go to: https://supabase.com/dashboard/project/dojkqotccerymtnqnyfj');
+    console.log('2. Click "SQL Editor" → "New query"');
+    console.log('3. Copy/paste contents of: json_converter/create_tables.sql');
+    console.log('4. Click "Run"');
+    console.log('5. Verify tables exist in "Table Editor"');
+    console.log('6. Push to GitHub again');
+    console.log('');
+    console.log('📖 For detailed instructions, see: IMPORTANT_FIRST_STEP.md');
+    console.log('');
     process.exit(1);
+  } else {
+    console.log('✅ All tables synced successfully!');
   }
 }
 
