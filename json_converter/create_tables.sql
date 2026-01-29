@@ -4,8 +4,9 @@
 --
 -- NEW SEARCH LOGIC:
 -- User input >> search TW (Traditional Chinese) strict then fuzzy
--- User input >> search CN (Simplified Chinese) strict then fuzzy  
--- User input >> search other languages...
+-- User input >> search CN (Simplified Chinese) strict then fuzzy
+-- User input >> search KO (Korean) strict then fuzzy
+-- User input >> search other languages (if available)...
 
 -- ============================================================================
 -- ITEM NAME TABLES (for search - one per language)
@@ -26,6 +27,14 @@ CREATE TABLE IF NOT EXISTS cn_items (
 );
 CREATE INDEX IF NOT EXISTS idx_cn_items_id ON cn_items(id);
 CREATE INDEX IF NOT EXISTS idx_cn_items_zh ON cn_items(zh);  -- For text search
+
+-- Korean item names (KO)
+CREATE TABLE IF NOT EXISTS ko_items (
+  id INTEGER PRIMARY KEY,
+  ko TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ko_items_id ON ko_items(id);
+CREATE INDEX IF NOT EXISTS idx_ko_items_ko ON ko_items(ko);  -- For text search
 
 -- Traditional Chinese item descriptions (for display)
 CREATE TABLE IF NOT EXISTS tw_item_descriptions (
@@ -189,8 +198,10 @@ CREATE INDEX IF NOT EXISTS idx_tw_job_abbr_id ON tw_job_abbr(id);
 -- 3. Consider adding Row Level Security (RLS) policies if needed
 -- 4. You may want to add foreign key constraints between related tables
 -- 5. For large tables, consider partitioning or additional indexes based on query patterns
--- 6. Text search indexes (idx_tw_items_tw, idx_cn_items_zh) support LIKE queries for search
+-- 6. Text search indexes (idx_tw_items_tw, idx_cn_items_zh, idx_ko_items_ko) support LIKE queries for search
 -- 7. For fuzzy search, consider using PostgreSQL's pg_trgm extension for trigram matching:
 --    CREATE EXTENSION IF NOT EXISTS pg_trgm;
 --    CREATE INDEX idx_tw_items_tw_trgm ON tw_items USING gin(tw gin_trgm_ops);
 --    CREATE INDEX idx_cn_items_zh_trgm ON cn_items USING gin(zh gin_trgm_ops);
+--    CREATE INDEX idx_ko_items_ko_trgm ON ko_items USING gin(ko gin_trgm_ops);
+-- 8. Search order: TW (strict then fuzzy) -> CN (strict then fuzzy) -> KO (strict then fuzzy) -> other languages
