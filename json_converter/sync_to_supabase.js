@@ -33,31 +33,6 @@ const CSV_OUTPUT_DIR = path.join(__dirname, 'csv_output');
 const SQL_FILE = path.join(__dirname, 'create_tables.sql');
 
 /**
- * Read and execute SQL file
- */
-async function executeSQL(sqlContent) {
-  // Split SQL by semicolons and execute each statement
-  const statements = sqlContent
-    .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && !s.startsWith('--'));
-
-  for (const statement of statements) {
-    try {
-      const { error } = await supabase.rpc('exec_sql', { sql: statement });
-      if (error) {
-        // Try direct query if RPC doesn't work
-        console.log(`Executing: ${statement.substring(0, 50)}...`);
-        // Note: Supabase JS client doesn't support raw SQL execution directly
-        // We'll need to use REST API or create tables differently
-      }
-    } catch (err) {
-      console.warn(`Warning executing SQL: ${err.message}`);
-    }
-  }
-}
-
-/**
  * Execute SQL using Supabase REST API via pg_net or direct database connection
  */
 async function executeSQL(sql) {
