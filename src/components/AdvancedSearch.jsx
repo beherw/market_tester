@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import Toast from './Toast';
 import TopBar from './TopBar';
 import TaxRatesModal from './TaxRatesModal';
-import SearchResultsTable from './SearchResultsTable';
+import SearchResultsTable from './SearchResultsTable.jsx';
 import ServerSelector from './ServerSelector';
 // RunningLoader is now handled by SearchResultsTable component for centralized loading display
 import { getMarketableItems, getMarketableItemsByIds } from '../services/universalis';

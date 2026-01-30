@@ -5,7 +5,7 @@ import Toast from './Toast';
 import SearchBar from './SearchBar';
 import TopBar from './TopBar';
 import TaxRatesModal from './TaxRatesModal';
-import SearchResultsTable from './SearchResultsTable';
+import SearchResultsTable from './SearchResultsTable.jsx';
 import RunningLoader from './RunningLoader';
 import { getMarketableItemsByIds } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';

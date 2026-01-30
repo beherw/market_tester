@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams, useParams, useLocation } from 'react-rout
 import SearchBar from './components/SearchBar';
 import ServerSelector from './components/ServerSelector';
 import TaxRatesModal from './components/TaxRatesModal';
-import SearchResultsTable from './components/SearchResultsTable';
+import SearchResultsTable from './components/SearchResultsTable.jsx';
 import MarketListings from './components/MarketListings';
 import MarketHistory from './components/MarketHistory';
 import ServerUploadTimes from './components/ServerUploadTimes';
@@ -27,13 +27,13 @@ import TopBar from './components/TopBar';
 import NotFound from './components/NotFound';
 
 // Lazy load route-based components
-const CraftingJobPriceChecker = lazy(() => import('./components/CraftingInspiration'));
-const MSQPriceChecker = lazy(() => import('./components/MSQPriceChecker'));
-const AdvancedSearch = lazy(() => import('./components/AdvancedSearch'));
-const CraftingTree = lazy(() => import('./components/CraftingTree'));
-const RelatedItems = lazy(() => import('./components/RelatedItems'));
-const HistorySection = lazy(() => import('./components/HistorySection'));
-const RecentUpdatesSection = lazy(() => import('./components/RecentUpdatesSection'));
+const CraftingJobPriceChecker = lazy(() => import('./components/CraftingInspiration.jsx'));
+const MSQPriceChecker = lazy(() => import('./components/MSQPriceChecker.jsx'));
+const AdvancedSearch = lazy(() => import('./components/AdvancedSearch.jsx'));
+const CraftingTree = lazy(() => import('./components/CraftingTree.jsx'));
+const RelatedItems = lazy(() => import('./components/RelatedItems.jsx'));
+const HistorySection = lazy(() => import('./components/HistorySection.jsx'));
+const RecentUpdatesSection = lazy(() => import('./components/RecentUpdatesSection.jsx'));
 
 function App() {
   const navigate = useNavigate();
