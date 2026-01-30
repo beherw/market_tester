@@ -1023,19 +1023,20 @@ export default function AdvancedSearch({
   }, [isLoadingVelocities, isFilterSearching, velocityFetchInProgress, showUntradeable, searchResults.length, untradeableResults.length, activeTab]);
 
   // Helper function to get background color class based on job role
+  // FF14官方颜色: Tank (#2d3a80), Healer (#346624), DPS (#732828)
   const getJobRoleBgColor = (role) => {
     switch (role) {
       case 'tank':
-        return 'bg-blue-500/20'; // 蓝色 - 坦克
+        return 'bg-blue-600/15'; // 深蓝色 - 坦克 (降低透明度使其更自然)
       case 'healer':
-        return 'bg-green-500/20'; // 绿色 - 辅助
+        return 'bg-green-600/15'; // 深绿色 - 辅助 (降低透明度使其更自然)
       case 'melee':
       case 'ranged':
       case 'caster':
-        return 'bg-red-500/20'; // 红色 - 输出
+        return 'bg-red-600/15'; // 深红色 - 输出 (降低透明度使其更自然)
       case 'crafting':
       case 'gathering':
-        return 'bg-gray-500/20'; // 灰色 - 生产职业
+        return 'bg-gray-500/15'; // 灰色 - 生产职业 (降低透明度使其更自然)
       default:
         return 'bg-slate-900/50';
     }
