@@ -4,7 +4,7 @@ import { getItemImageUrl, getItemImageUrlSync, getCalculatedIconUrls } from '../
 
 export default function ItemImage({ itemId, alt, className, priority = false, loadDelay = 0, isTradable = undefined, ...props }) {
   const [imageUrl, setImageUrl] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [iconIsLoading, setIconIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [fallbackUrls, setFallbackUrls] = useState([]);
   const [currentFallbackIndex, setCurrentFallbackIndex] = useState(0);
@@ -75,7 +75,7 @@ export default function ItemImage({ itemId, alt, className, priority = false, lo
   // Load image with retry logic
   const loadImage = useCallback((attemptNumber = 0) => {
     if (!itemId || itemId <= 0) {
-      setIsLoading(false);
+      setIconIsLoading(false);
       setHasError(true);
       return;
     }
@@ -84,7 +84,7 @@ export default function ItemImage({ itemId, alt, className, priority = false, lo
     const cachedUrl = getItemImageUrlSync(itemId);
     if (cachedUrl) {
       setImageUrl(cachedUrl);
-      setIsLoading(false);
+      setIconIsLoading(false);
       setHasError(false);
       setUsingCalculatedUrl(false);
       setRetryCount(0);
@@ -101,48 +101,62 @@ export default function ItemImage({ itemId, alt, className, priority = false, lo
     fallbackUrlsRef.current = calculatedUrls; // Also store in ref for error handler
     currentFallbackIndexRef.current = 0; // Reset index
 
-    // Track if we're using calculated URL (use ref to avoid stale closure)
-    let isUsingCalculated = false;
-
-    setIsLoading(true);
+    // OPTIMIZATION: Immediately show calculated URL for instant visual feedback
+    // This makes the page feel much faster - users see icons immediately
+    // The API URL will replace it in the background when available
+    if (calculatedUrls.length > 0) {
+      // Always set calculated URL if available - this ensures we show something immediately
+      setImageUrl(calculatedUrls[0]);
+      setUsingCalculatedUrl(true);
+      // Keep iconIsLoading=true to show loading indicator while fetching API URL
+      setIconIsLoading(true);
+    } else {
+      // No calculated URL - set loading state and wait for API
+      setIconIsLoading(true);
+    }
 
     // Fetch from API (no priority flag - sequential loading respects rate limits)
-    getItemImageUrl(itemId, abortSignal, false)
+    // This runs in background - calculated URL is already shown for instant feedback
+    getItemImageUrl(itemId, abortSignal)
       .then(url => {
         // Check if component is still mounted and request wasn't cancelled
         if (abortSignal.aborted) {
           return;
         }
         if (url) {
-          // Update to API URL if we got one (replaces calculated URL)
-          setImageUrl(url);
-          setHasError(false);
-          setUsingCalculatedUrl(false);
-          setRetryCount(0); // Reset retry count on success
-        } else {
-          // API failed, try retry if we haven't exceeded max retries
-          if (attemptNumber < 2) {
-            // Retry after a delay (exponential backoff: 500ms, 1000ms)
-            const retryDelay = (attemptNumber + 1) * 500;
-            retryTimeoutRef.current = setTimeout(() => {
-              // CRITICAL: Check if request was aborted before retrying
-              if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
-                loadImage(attemptNumber + 1);
-              }
-            }, retryDelay);
-          } else {
-            // Max retries reached, use calculated URLs if available
-            if (calculatedUrls.length > 0 && !isUsingCalculated) {
-              setImageUrl(calculatedUrls[0]);
-              setCurrentFallbackIndex(0);
-              currentFallbackIndexRef.current = 0;
-              setUsingCalculatedUrl(true);
-            } else if (calculatedUrls.length === 0) {
-              setHasError(true);
+          // Update to API URL if we got one (replaces calculated URL seamlessly)
+          // Only update if different to avoid unnecessary re-renders
+          setImageUrl(prevUrl => {
+            if (prevUrl !== url) {
+              setUsingCalculatedUrl(false);
+              return url;
             }
+            return prevUrl;
+          });
+          setHasError(false);
+          setRetryCount(0); // Reset retry count on success
+          setIconIsLoading(false); // API URL loaded, stop loading indicator
+        } else {
+          // API failed, but we already have calculated URL showing
+          // Only retry if we don't have a calculated URL
+          if (calculatedUrls.length === 0) {
+            // No calculated URL available, try retry
+            if (attemptNumber < 2) {
+              const retryDelay = (attemptNumber + 1) * 500;
+              retryTimeoutRef.current = setTimeout(() => {
+                if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+                  loadImage(attemptNumber + 1);
+                }
+              }, retryDelay);
+            } else {
+              setHasError(true);
+              setIconIsLoading(false);
+            }
+          } else {
+            // Have calculated URL, stop loading indicator
+            setIconIsLoading(false);
           }
         }
-        setIsLoading(false);
       })
       .catch(error => {
         // Ignore cancellation errors
@@ -150,32 +164,26 @@ export default function ItemImage({ itemId, alt, className, priority = false, lo
           return;
         }
         
-        // Try retry if we haven't exceeded max retries
-        if (attemptNumber < 2) {
-          // Retry after a delay (exponential backoff: 500ms, 1000ms)
-          const retryDelay = (attemptNumber + 1) * 500;
-          retryTimeoutRef.current = setTimeout(() => {
-            // CRITICAL: Check if request was aborted before retrying
-            if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
-              loadImage(attemptNumber + 1);
-            }
-          }, retryDelay);
-        } else {
-          // Max retries reached
-          console.error(`Failed to load item image after ${attemptNumber + 1} attempts:`, error);
-          // Keep using calculated URLs if we have them
-          if (calculatedUrls.length > 0 && !isUsingCalculated) {
-            setImageUrl(calculatedUrls[0]);
-            setCurrentFallbackIndex(0);
-            currentFallbackIndexRef.current = 0;
-            setUsingCalculatedUrl(true);
-          } else if (calculatedUrls.length === 0) {
+        // Try retry only if no calculated URL available
+        if (calculatedUrls.length === 0) {
+          if (attemptNumber < 2) {
+            const retryDelay = (attemptNumber + 1) * 500;
+            retryTimeoutRef.current = setTimeout(() => {
+              if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+                loadImage(attemptNumber + 1);
+              }
+            }, retryDelay);
+          } else {
+            console.error(`Failed to load item image after ${attemptNumber + 1} attempts:`, error);
             setHasError(true);
+            setIconIsLoading(false);
           }
+        } else {
+          // Have calculated URL, stop loading indicator
+          setIconIsLoading(false);
         }
-        setIsLoading(false);
       });
-  }, [itemId, priority]);
+  }, [itemId]);
 
   // 加载图片
   useEffect(() => {
@@ -189,11 +197,17 @@ export default function ItemImage({ itemId, alt, className, priority = false, lo
         clearTimeout(retryTimeoutRef.current);
         retryTimeoutRef.current = null;
       }
+      // Clear imageUrl when shouldLoad becomes false to prevent stale images
+      // But keep iconIsLoading state to avoid flickering
       return;
     }
 
     // Reset retry count when starting a new load
     setRetryCount(0);
+    // Reset error state when starting to load
+    setHasError(false);
+    // Reset loading state when starting to load
+    setIconIsLoading(true);
     
     // Start loading
     loadImage(0);
@@ -269,44 +283,79 @@ export default function ItemImage({ itemId, alt, className, priority = false, lo
 
   // Show placeholder while loading or on error - always reserve space
   if (!shouldLoad) {
-    // 尚未开始加载，显示占位符
+    // 尚未开始加载，显示loading indicator
     return (
       <div ref={imgRef} className={containerClasses}>
-        <span className="text-xs text-gray-500 opacity-50">...</span>
+        <div className="flex gap-1">
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}></span>
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }}></span>
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }}></span>
+        </div>
       </div>
     );
   }
 
-  if (isLoading || (hasError && !imageUrl)) {
+  // If we have an image URL (calculated or API), show it immediately
+  // Show loading indicator (three dots) on top of image while fetching API URL
+  if (imageUrl) {
     return (
-      <div ref={imgRef} className={containerClasses}>
-        {isLoading ? (
-          <span className="text-xs text-gray-500 animate-pulse">...</span>
-        ) : (
-          <span className="text-xs text-gray-500">?</span>
+      <div ref={imgRef} className={`${containerClasses} relative`}>
+        <img
+          src={imageUrl}
+          alt=""
+          className="w-full h-full object-contain"
+          onError={handleImageError}
+          data-item-id={itemId}
+          {...props}
+        />
+        {/* Loading indicator: three animated dots */}
+        {iconIsLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded pointer-events-none">
+            <div className="flex gap-1">
+              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}></span>
+              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }}></span>
+              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }}></span>
+            </div>
+          </div>
         )}
       </div>
     );
   }
 
-  if (!imageUrl) {
+  // No image URL yet - show loading or error state
+  if (iconIsLoading) {
     return (
       <div ref={imgRef} className={containerClasses}>
-        <span className="text-xs text-gray-500">?</span>
+        <div className="flex gap-1">
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}></span>
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }}></span>
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }}></span>
+        </div>
       </div>
     );
   }
 
+  if (hasError) {
+    // Show loading indicator even on error - cleaner UI
+    return (
+      <div ref={imgRef} className={containerClasses}>
+        <div className="flex gap-1">
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}></span>
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }}></span>
+          <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }}></span>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback (shouldn't reach here) - show loading indicator
   return (
     <div ref={imgRef} className={containerClasses}>
-      <img
-        src={imageUrl}
-        alt={alt || `Item ${itemId}`}
-        className="w-full h-full object-contain"
-        onError={handleImageError}
-        data-item-id={itemId}
-        {...props}
-      />
+      <div className="flex gap-1">
+        <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }}></span>
+        <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }}></span>
+        <span className="w-1 h-1 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }}></span>
+      </div>
     </div>
   );
 }

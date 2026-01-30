@@ -3,14 +3,14 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import Toast from './Toast';
-import ItemTable from './ItemTable';
 import SearchBar from './SearchBar';
-import ServerSelector from './ServerSelector';
 import HistoryButton from './HistoryButton';
 import TopBar from './TopBar';
 import TaxRatesModal from './TaxRatesModal';
-import { loadRecipeDatabase } from '../services/recipeDatabase';
-import { getMarketableItems } from '../services/universalis';
+import SearchResultsTable from './SearchResultsTable';
+import ServerSelector from './ServerSelector';
+import { loadRecipeDatabase, loadRecipesByJobAndLevel } from '../services/recipeDatabase';
+import { getMarketableItems, getMarketableItemsByIds } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';
 import { getInternalUrl } from '../utils/internalUrl.js';
 import axios from 'axios';
@@ -501,20 +501,11 @@ export default function CraftingJobPriceChecker({
     setCurrentPage(1); // Reset to first page on new search
 
     try {
-      // Load recipe database
-      const { recipes } = await loadRecipeDatabase();
-      
-      // Filter recipes by job and level
-      let filteredRecipes = recipes;
-      
-      if (selectedJobs.length > 0) {
-        filteredRecipes = filteredRecipes.filter(recipe => 
-          selectedJobs.includes(recipe.job)
-        );
-      }
-      
-      filteredRecipes = filteredRecipes.filter(recipe => 
-        recipe.lvl >= ilvlMin && recipe.lvl <= ilvlMax
+      // Load recipes filtered by job and level using targeted query (optimized)
+      const { recipes: filteredRecipes } = await loadRecipesByJobAndLevel(
+        selectedJobs.length > 0 ? selectedJobs : [],
+        ilvlMin,
+        ilvlMax
       );
 
       // Get unique item IDs from recipes
@@ -528,8 +519,8 @@ export default function CraftingJobPriceChecker({
 
       addToast(`找到 ${itemIds.length} 個物品，正在過濾可交易物品...`, 'info');
 
-      // Filter out non-tradeable items using marketable API
-      const marketableSet = await getMarketableItems();
+      // Filter out non-tradeable items using targeted marketable API (optimized)
+      const marketableSet = await getMarketableItemsByIds(itemIds);
       let tradeableItemIds = itemIds.filter(id => marketableSet.has(id));
 
       if (tradeableItemIds.length === 0) {
@@ -900,21 +891,16 @@ export default function CraftingJobPriceChecker({
                         setItemTradability({});
 
                         try {
-                          const { recipes } = await loadRecipeDatabase();
-                          let filteredRecipes = recipes;
-                          
-                          if (selectedJobs.length > 0) {
-                            filteredRecipes = filteredRecipes.filter(recipe => 
-                              selectedJobs.includes(recipe.job)
-                            );
-                          }
-                          
-                          filteredRecipes = filteredRecipes.filter(recipe => 
-                            recipe.lvl >= ilvlMin && recipe.lvl <= ilvlMax
+                          // Load recipes filtered by job and level using targeted query (optimized)
+                          const { recipes: filteredRecipes } = await loadRecipesByJobAndLevel(
+                            selectedJobs.length > 0 ? selectedJobs : [],
+                            ilvlMin,
+                            ilvlMax
                           );
 
                           const itemIds = [...new Set(filteredRecipes.map(recipe => recipe.result))];
-                          const marketableSet = await getMarketableItems();
+                          // Filter out non-tradeable items using targeted marketable API (optimized)
+                          const marketableSet = await getMarketableItemsByIds(itemIds);
                           let tradeableItemIds = itemIds.filter(id => marketableSet.has(id));
                           
                           // Sort item IDs by ilvl (descending, highest first) before API query
@@ -999,203 +985,35 @@ export default function CraftingJobPriceChecker({
         </div>
 
         {/* Results */}
-        {(searchResults.length > 0 || isRecipeSearching || isLoadingVelocities) && (
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-bold text-ffxiv-gold">
-                搜索結果 ({searchResults.length > 0 ? searchResults.length : 0} 個物品)
-              </h2>
-              {selectedWorld && selectedServerOption && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-indigo-900/40 border border-purple-500/30 rounded-lg backdrop-blur-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-ffxiv-gold animate-pulse"></div>
-                  <span className="text-xs sm:text-sm font-semibold text-ffxiv-gold">
-                    {selectedServerOption === selectedWorld.section 
-                      ? `${selectedWorld.section} (全服)`
-                      : worlds[selectedServerOption] || `伺服器 ${selectedServerOption}`
-                    }
-                  </span>
-                </div>
-              )}
-              {/* Loading Indicator - show when searching or loading velocities */}
-              {showLoadingIndicator && (
-                <div className="flex items-center gap-2 px-2 py-1 bg-slate-800/50 border border-purple-500/30 rounded-lg">
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-ffxiv-gold"></div>
-                  <span className="text-xs text-gray-300">載入中...</span>
-                </div>
-              )}
-            </div>
-
-            {/* Pagination Controls */}
-            {searchResults.length > itemsPerPage && (
-              <div className="mb-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm text-gray-300">每頁顯示:</label>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      const newItemsPerPage = parseInt(e.target.value, 10);
-                      setItemsPerPage(newItemsPerPage);
-                      setCurrentPage(1); // Reset to first page
-                    }}
-                    className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
-                  >
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                    <option value={200}>200</option>
-                  </select>
-                  <span className="text-sm text-gray-400">
-                    顯示 {startIndex + 1}-{Math.min(endIndex, searchResults.length)} / {searchResults.length}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === 1
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    首頁
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === 1
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    上一頁
-                  </button>
-                  <span className="px-3 py-1.5 text-sm text-gray-300">
-                    第 {currentPage} / {totalPages} 頁
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === totalPages
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    下一頁
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === totalPages
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    末頁
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Only render ItemTable when we have results */}
-            {searchResults.length > 0 && (
-              <ItemTable
-                items={searchResults}
-                onSelect={(item) => {
-                  window.open(`${window.location.origin}${getInternalUrl(`/item/${item.id}`)}`, '_blank', 'noopener,noreferrer');
-                }}
-                selectedItem={null}
-                marketableItems={marketableItems}
-                itemVelocities={itemVelocities}
-                itemAveragePrices={itemAveragePrices}
-                itemMinListings={itemMinListings}
-                itemRecentPurchases={itemRecentPurchases}
-                itemTradability={itemTradability}
-                isLoadingVelocities={isLoadingVelocities}
-                averagePriceHeader="平均價格"
-                getSimplifiedChineseName={getSimplifiedChineseName}
-                addToast={addToast}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-              />
-            )}
-
-            {/* Pagination Controls - Bottom */}
-            {searchResults.length > itemsPerPage && (
-              <div className="mt-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm text-gray-300">每頁顯示:</label>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      const newItemsPerPage = parseInt(e.target.value, 10);
-                      setItemsPerPage(newItemsPerPage);
-                      setCurrentPage(1); // Reset to first page
-                    }}
-                    className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
-                  >
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                    <option value={200}>200</option>
-                  </select>
-                  <span className="text-sm text-gray-400">
-                    顯示 {startIndex + 1}-{Math.min(endIndex, searchResults.length)} / {searchResults.length}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === 1
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    首頁
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === 1
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    上一頁
-                  </button>
-                  <span className="px-3 py-1.5 text-sm text-gray-300">
-                    第 {currentPage} / {totalPages} 頁
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === totalPages
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    下一頁
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === totalPages
-                        ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                    }`}
-                  >
-                    末頁
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+        {searchResults.length > 0 && (
+          <SearchResultsTable
+            items={searchResults}
+            selectedWorld={selectedWorld}
+            selectedServerOption={selectedServerOption}
+            onWorldChange={onWorldChange}
+            onServerOptionChange={onServerOptionChange}
+            datacenters={datacenters}
+            worlds={worlds}
+            serverOptions={serverOptions}
+            isServerSelectorDisabled={isLoadingVelocities || isRecipeSearching}
+            marketableItems={marketableItems}
+            itemVelocities={itemVelocities}
+            itemAveragePrices={itemAveragePrices}
+            itemMinListings={itemMinListings}
+            itemRecentPurchases={itemRecentPurchases}
+            itemTradability={itemTradability}
+            isLoadingVelocities={isLoadingVelocities}
+            showLoadingIndicator={showLoadingIndicator}
+            averagePriceHeader="平均價格"
+            getSimplifiedChineseName={getSimplifiedChineseName}
+            addToast={addToast}
+            title="搜索結果"
+            defaultItemsPerPage={50}
+            itemsPerPageOptions={[50, 100, 200]}
+            onSelect={(item) => {
+              window.open(`${window.location.origin}${getInternalUrl(`/item/${item.id}`)}`, '_blank', 'noopener,noreferrer');
+            }}
+          />
         )}
 
         </div>

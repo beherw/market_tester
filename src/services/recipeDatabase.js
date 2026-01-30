@@ -1,11 +1,13 @@
 // Recipe database service - loads recipe data from Supabase
 // Used for building crafting price trees
 
-import { getTwRecipes } from './supabaseData';
+import { getTwRecipes, getTwRecipesByResultIds, getTwRecipesByIngredientId, getTwRecipesByJobAndLevel } from './supabaseData';
 
 let recipesDatabase = null;
 let recipesByResult = null;
 let isLoading = false;
+// Cache for recipes by result (for targeted queries)
+const recipesByResultCache = new Map();
 
 /**
  * Load recipes database from local tw-recipes.json
@@ -51,7 +53,7 @@ export async function loadRecipeDatabase() {
 }
 
 /**
- * Find recipes by result item ID
+ * Find recipes by result item ID (optimized - uses targeted query)
  * @param {number} itemId - The result item ID to search for
  * @returns {Promise<Array>} - Array of recipes that produce this item
  */
@@ -60,12 +62,22 @@ export async function findRecipesByResult(itemId) {
     return [];
   }
 
-  const { byResult } = await loadRecipeDatabase();
-  return byResult.get(itemId) || [];
+  // Check cache first
+  if (recipesByResultCache.has(itemId)) {
+    return recipesByResultCache.get(itemId);
+  }
+
+  // Use targeted query instead of loading all recipes
+  const recipes = await getTwRecipesByResultIds([itemId]);
+  
+  // Cache the result
+  recipesByResultCache.set(itemId, recipes);
+  
+  return recipes;
 }
 
 /**
- * Check if an item has a recipe (is craftable)
+ * Check if an item has a recipe (is craftable) - optimized with targeted query
  * @param {number} itemId - The item ID to check
  * @returns {Promise<boolean>} - True if the item has at least one recipe
  */
@@ -74,8 +86,19 @@ export async function hasRecipe(itemId) {
     return false;
   }
 
-  const { byResult } = await loadRecipeDatabase();
-  return byResult.has(itemId);
+  // Check cache first
+  if (recipesByResultCache.has(itemId)) {
+    const recipes = recipesByResultCache.get(itemId);
+    return recipes.length > 0;
+  }
+
+  // Use targeted query instead of loading all recipes
+  const recipes = await getTwRecipesByResultIds([itemId]);
+  
+  // Cache the result
+  recipesByResultCache.set(itemId, recipes);
+  
+  return recipes.length > 0;
 }
 
 // Crystal item IDs (shards, crystals, clusters)
@@ -252,7 +275,7 @@ export function getAllItemIds(tree) {
 }
 
 /**
- * Find all items that use this item as an ingredient
+ * Find all items that use this item as an ingredient (optimized - uses targeted query)
  * @param {number} itemId - The ingredient item ID to search for
  * @returns {Promise<Array<number>>} - Array of unique result item IDs that use this item as ingredient
  */
@@ -261,22 +284,44 @@ export async function findRelatedItems(itemId) {
     return [];
   }
 
-  const { recipes } = await loadRecipeDatabase();
+  // Use targeted query instead of loading all recipes
+  const recipes = await getTwRecipesByIngredientId(itemId);
   const relatedItemIds = new Set();
 
-  // Search through all recipes
+  // Extract result item IDs from recipes
   recipes.forEach(recipe => {
-    if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
-      // Check if this item is in the ingredients
-      const isIngredient = recipe.ingredients.some(
-        ingredient => ingredient.id === itemId
-      );
-      
-      if (isIngredient && recipe.result) {
-        relatedItemIds.add(recipe.result);
-      }
+    if (recipe.result) {
+      relatedItemIds.add(recipe.result);
     }
   });
 
   return Array.from(relatedItemIds);
+}
+
+/**
+ * Load recipes filtered by job and level range (optimized - uses targeted query with WHERE clauses)
+ * This replaces the need to load all recipes and filter in JavaScript
+ * @param {Array<number>} jobs - Array of job IDs to filter by (optional, empty array = all jobs)
+ * @param {number} minLevel - Minimum level (optional, default 1)
+ * @param {number} maxLevel - Maximum level (optional, default 100)
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Object>} - { recipes: Array, byResult: Map } where byResult maps itemId to array of recipes
+ */
+export async function loadRecipesByJobAndLevel(jobs = [], minLevel = 1, maxLevel = 100, signal = null) {
+  // Use targeted query instead of loading all recipes
+  const recipes = await getTwRecipesByJobAndLevel(jobs, minLevel, maxLevel, signal);
+  
+  // Create a lookup map by result item ID for faster searches
+  const recipesByResult = new Map();
+  recipes.forEach(recipe => {
+    if (recipe.result) {
+      // Some items may have multiple recipes (different jobs), store all of them
+      if (!recipesByResult.has(recipe.result)) {
+        recipesByResult.set(recipe.result, []);
+      }
+      recipesByResult.get(recipe.result).push(recipe);
+    }
+  });
+
+  return { recipes, byResult: recipesByResult };
 }

@@ -2,15 +2,14 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import Toast from './Toast';
-import ItemTable from './ItemTable';
 import SearchBar from './SearchBar';
-import ServerSelector from './ServerSelector';
 import TopBar from './TopBar';
 import TaxRatesModal from './TaxRatesModal';
-import { getMarketableItems } from '../services/universalis';
+import SearchResultsTable from './SearchResultsTable';
+import { getMarketableItemsByIds } from '../services/universalis';
 import { getItemById, getSimplifiedChineseName } from '../services/itemDatabase';
 import axios from 'axios';
-import { getEquipSlotCategories, getEquipment, getIlvlsByIds } from '../services/supabaseData';
+import { getEquipSlotCategories, getEquipmentByIds, getItemIdsByIlvl } from '../services/supabaseData';
 // Lazy load large data files:
 // - ilvlsData (748KB) - loaded when user inputs ilvl
 // - equipmentData (6.2MB) - loaded when searching
@@ -71,45 +70,37 @@ export default function MSQPriceChecker({
   const [itemRecentPurchases, setItemRecentPurchases] = useState({});
   const [itemTradability, setItemTradability] = useState({});
   const [isLoadingVelocities, setIsLoadingVelocities] = useState(false);
+  const [isSearchingLocal, setIsSearchingLocal] = useState(false);
   const [marketableItems, setMarketableItems] = useState(null);
   
   // Cache for dynamically loaded data
-  const ilvlsDataRef = useRef(null);
   const equipmentDataRef = useRef(null);
 
   // Cache for equip slot categories
   const equipSlotCategoriesDataRef = useRef(null);
+  const [equipSlotCategoriesLoaded, setEquipSlotCategoriesLoaded] = useState(false);
   
   // Load equip slot categories on mount
   useEffect(() => {
     getEquipSlotCategories().then(data => {
       equipSlotCategoriesDataRef.current = data;
+      setEquipSlotCategoriesLoaded(true);
     });
   }, []);
 
-  // Helper function to load equipmentData dynamically
-  const loadEquipmentData = useCallback(async () => {
-    if (equipmentDataRef.current) {
-      return equipmentDataRef.current;
+  // Helper function to load equipmentData for specific item IDs
+  // Can optionally filter by equipSlotCategory
+  const loadEquipmentDataByIds = useCallback(async (itemIds, equipSlotCategoryId = null) => {
+    if (!itemIds || itemIds.length === 0) {
+      return {};
     }
-    equipmentDataRef.current = await getEquipment();
-    return equipmentDataRef.current;
+    return await getEquipmentByIds(itemIds);
   }, []);
 
-  // Helper function to load ilvlsData dynamically (only when searching)
-  // Note: This loads all ilvls because we need to find items BY ilvl value (reverse lookup)
-  // This is only called during search, not on every input validation
-  const loadIlvlsData = useCallback(async () => {
-    if (ilvlsDataRef.current) {
-      return ilvlsDataRef.current;
-    }
-    console.warn('[MSQPriceChecker] Loading all ilvls for reverse lookup (finding items by ilvl value)');
-    const { getIlvls } = await import('../services/supabaseData');
-    ilvlsDataRef.current = await getIlvls();
-    return ilvlsDataRef.current;
-  }, []);
+  // No longer need to load all ilvls - we query directly by ilvl value
 
   // Restore state from URL parameters on mount or when returning from item page
+  // Only restore state, do NOT auto-trigger search
   useEffect(() => {
     if (isInitializingFromURLRef.current) {
       return;
@@ -125,7 +116,7 @@ export default function MSQPriceChecker({
     const ilvlParam = searchParams.get('ilvl');
     const categoryParam = searchParams.get('category');
 
-    // If we have URL parameters, restore state
+    // If we have URL parameters, restore state only (no auto-search)
     if (ilvlParam) {
       const numValue = parseInt(ilvlParam, 10);
       if (!isNaN(numValue) && numValue >= 1 && numValue <= 999) {
@@ -133,7 +124,7 @@ export default function MSQPriceChecker({
         setIlvlInput(ilvlParam);
         
         // Validate URL parameter - just check range, don't load all ilvls for validation
-        // The actual search will load ilvls when needed
+        // The actual search will only happen when user clicks search button
         setIlvlInputValidation({
           valid: true,
           message: `物品等級: ${numValue}`
@@ -147,37 +138,15 @@ export default function MSQPriceChecker({
         }
         
         lastProcessedURLRef.current = currentURLKey;
+        // Reset initialization flag after a short delay to allow state updates
+        setTimeout(() => {
+          isInitializingFromURLRef.current = false;
+        }, 100);
       }
     } else {
       lastProcessedURLRef.current = currentURLKey;
     }
-  }, [location.pathname, location.search, searchParams, loadIlvlsData]);
-
-  // Auto-search when state is restored from URL
-  const [shouldAutoSearch, setShouldAutoSearch] = useState(false);
-  const handleSearchLocalRef = useRef(null);
-  
-  useEffect(() => {
-    const ilvlParam = searchParams.get('ilvl');
-    if (ilvlParam && isInitializingFromURLRef.current && ilvlInput === ilvlParam && ilvlInputValidation?.valid && isServerDataLoaded) {
-      // State has been restored, now trigger search
-      isInitializingFromURLRef.current = false;
-      setShouldAutoSearch(true);
-    }
-  }, [ilvlInput, ilvlInputValidation, searchParams, isServerDataLoaded]);
-
-  // Trigger search when auto-search flag is set
-  useEffect(() => {
-    if (shouldAutoSearch && ilvlInput && ilvlInputValidation?.valid && isServerDataLoaded && handleSearchLocalRef.current) {
-      setShouldAutoSearch(false);
-      // Use setTimeout to ensure state is fully updated
-      setTimeout(() => {
-        if (handleSearchLocalRef.current) {
-          handleSearchLocalRef.current();
-        }
-      }, 100);
-    }
-  }, [shouldAutoSearch, ilvlInput, ilvlInputValidation, isServerDataLoaded]);
+  }, [location.pathname, location.search, searchParams]);
 
   // Get equipment categories from equip-slot-categories
   const equipmentCategories = useMemo(() => {
@@ -186,9 +155,12 @@ export default function MSQPriceChecker({
     // Iterate through equip-slot-categories to get all unique slot types
     const equipSlotCategoriesData = equipSlotCategoriesDataRef.current || {};
     Object.entries(equipSlotCategoriesData).forEach(([categoryId, slots]) => {
+      // Skip if slots is not an object
+      if (!slots || typeof slots !== 'object') return;
+      
       Object.entries(slots).forEach(([slotName, value]) => {
-        // Skip SoulCrystal
-        if (slotName === 'SoulCrystal') return;
+        // Skip id field, SoulCrystal, and Waist
+        if (slotName === 'id' || slotName === 'SoulCrystal' || slotName === 'Waist') return;
         
         if (value === 1 || value === -1) { // 1 or -1 means this slot is part of this category
           // Group FingerL and FingerR as "Rings"
@@ -206,7 +178,7 @@ export default function MSQPriceChecker({
       });
     });
     
-    // Custom order for equipment slots
+    // Custom order for equipment slots (Waist is excluded)
     const customOrder = ['MainHand', 'OffHand', 'Head', 'Body', 'Gloves', 'Legs', 'Feet', 'Ears', 'Neck', 'Wrists', 'Rings'];
     
     // Sort by custom order
@@ -217,14 +189,14 @@ export default function MSQPriceChecker({
       if (indexB === -1) return -1;
       return indexA - indexB;
     });
-  }, []);
+  }, [equipSlotCategoriesLoaded]); // Recompute when data loads
 
   // Helper function to check if an item's equip slot matches the selected category
   const itemMatchesEquipCategory = useCallback((itemId, selectedCategory, equipmentData) => {
     if (!selectedCategory) return true;
     
     const equipInfo = equipmentData[itemId.toString()];
-    if (!equipInfo || equipInfo.equipSlotCategory === undefined) return false;
+    if (!equipInfo || equipInfo.equipSlotCategory === undefined || equipInfo.equipSlotCategory === null) return false;
     
     const categoryId = equipInfo.equipSlotCategory;
     const equipSlotCategoriesData = equipSlotCategoriesDataRef.current || {};
@@ -249,7 +221,7 @@ export default function MSQPriceChecker({
   // Helper function to check if an item matches any of the provided categories
   const itemMatchesAnyCategory = useCallback((itemId, equipmentData) => {
     const equipInfo = equipmentData[itemId.toString()];
-    if (!equipInfo || equipInfo.equipSlotCategory === undefined) return false;
+    if (!equipInfo || equipInfo.equipSlotCategory === undefined || equipInfo.equipSlotCategory === null) return false;
     
     const categoryId = equipInfo.equipSlotCategory;
     const equipSlotCategoriesData = equipSlotCategoriesDataRef.current || {};
@@ -257,8 +229,11 @@ export default function MSQPriceChecker({
     
     if (!categorySlots) return false;
     
+    // Get current equipment categories (use the memoized value)
+    const currentCategories = equipmentCategories;
+    
     // Check if the item matches any of the categories we provide
-    return equipmentCategories.some(category => {
+    return currentCategories.some(category => {
       if (category.name === 'Rings') {
         // Check for FingerL or FingerR
         return categorySlots['FingerL'] === 1 || categorySlots['FingerL'] === -1 ||
@@ -307,7 +282,7 @@ export default function MSQPriceChecker({
         message: `物品等級: ${numValue}`
       });
     }, 1000);
-  }, [loadIlvlsData]);
+  }, []);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -320,13 +295,16 @@ export default function MSQPriceChecker({
 
   // Perform search
   const handleSearchLocal = useCallback(async () => {
-    if (isSearching) return;
+    if (isSearchingLocal) return;
 
     const numValue = parseInt(ilvlInput, 10);
     if (isNaN(numValue) || numValue < 1 || numValue > 999) {
       addToast('請輸入有效的物品等級', 'error');
       return;
     }
+
+    // Set loading state immediately
+    setIsSearchingLocal(true);
 
     // Update URL parameters to persist state using navigate for better history control
     // Only update if params are different to avoid unnecessary history manipulation
@@ -355,22 +333,27 @@ export default function MSQPriceChecker({
     setItemTradability({});
 
     try {
-      // Load required data dynamically
-      const [ilvlsData, equipmentData] = await Promise.all([
-        loadIlvlsData(),
-        loadEquipmentData()
-      ]);
+      // Ensure equip slot categories are loaded
+      if (!equipSlotCategoriesDataRef.current) {
+        equipSlotCategoriesDataRef.current = await getEquipSlotCategories();
+        setEquipSlotCategoriesLoaded(true);
+      }
       
-      // Get all item IDs with matching ilvl
-      let itemIds = Object.entries(ilvlsData)
-        .filter(([_, ilvl]) => ilvl === numValue)
-        .map(([itemId, _]) => parseInt(itemId, 10));
+      // Query item IDs directly by ilvl value from database (no need to load all ilvls)
+      let itemIds = await getItemIdsByIlvl(numValue);
+      console.log(`[MSQPriceChecker] Found ${itemIds.length} items with ilvl ${numValue}`);
 
       if (itemIds.length === 0) {
         addToast('未找到該物品等級的物品', 'warning');
         setSearchResults([]);
+        setIsLoadingVelocities(false);
+        setIsSearchingLocal(false);
         return;
       }
+
+      // Load equipment data only for items with matching ilvl
+      const equipmentData = await loadEquipmentDataByIds(itemIds);
+      console.log(`[MSQPriceChecker] Loaded equipment data for ${Object.keys(equipmentData).length} items`);
 
       // Filter by equipment category
       // If a specific category is selected, filter by that category
@@ -386,32 +369,45 @@ export default function MSQPriceChecker({
         );
       }
 
+      console.log(`[MSQPriceChecker] After category filter: ${itemIds.length} items`);
+      
       if (itemIds.length === 0) {
         addToast('該裝備分類中沒有相符的物品', 'warning');
+        setSearchResults([]);
+        setIsLoadingVelocities(false);
+        setIsSearchingLocal(false);
         return;
       }
 
-      // Filter out non-tradeable items using marketable API (load on demand)
-      const marketableSet = await getMarketableItems();
+      // Filter out non-tradeable items - only check these specific items (efficient)
+      const marketableSet = await getMarketableItemsByIds(itemIds);
       setMarketableItems(marketableSet); // Set for ItemTable component
       const tradeableItemIds = itemIds.filter(id => marketableSet.has(id));
+      console.log(`[MSQPriceChecker] Tradeable items: ${tradeableItemIds.length} out of ${itemIds.length}`);
 
+      // If all items are untradeable, show all items by default (but don't query API for them)
+      const finalItemIds = tradeableItemIds.length > 0 ? tradeableItemIds : itemIds;
+      const itemsToQueryAPI = tradeableItemIds.length > 0 ? tradeableItemIds : []; // Only query API for tradeable items
       if (tradeableItemIds.length === 0) {
-        addToast('沒有可交易的物品', 'warning');
-        return;
+        console.log(`[MSQPriceChecker] All items are untradeable, showing all ${itemIds.length} items (no API query)`);
       }
 
-      // Fetch item details for display
-      const itemPromises = tradeableItemIds.map(id => getItemById(id));
+      // Fetch item details for display (show all items, including untradeable)
+      const itemPromises = finalItemIds.map(id => getItemById(id));
       const items = (await Promise.all(itemPromises)).filter(item => item !== null);
 
       if (items.length === 0) {
         addToast('無法獲取物品信息', 'error');
+        setSearchResults([]);
+        setIsLoadingVelocities(false);
+        setIsSearchingLocal(false);
         return;
       }
 
+      console.log(`[MSQPriceChecker] Fetched ${items.length} item details`);
+
       // Sort by ilvl品級 and 需求等級
-      // equipmentData is already loaded above
+      // Use existing equipmentData (already filtered to matching ilvl items)
       const itemsWithInfo = items.map(item => {
         const equipInfo = equipmentData[item.id.toString()];
         return {
@@ -429,6 +425,7 @@ export default function MSQPriceChecker({
         return a.name.localeCompare(b.name);
       });
 
+      console.log(`[MSQPriceChecker] Setting search results: ${itemsWithInfo.length} items`);
       setSearchResults(itemsWithInfo);
 
       // Fetch market data in batches (100 items per request)
@@ -453,8 +450,9 @@ export default function MSQPriceChecker({
       const allTradability = {};
 
       // Fetch market data in batches (100 items per request)
-      for (let i = 0; i < tradeableItemIds.length; i += batchSize) {
-        const batch = tradeableItemIds.slice(i, i + batchSize);
+      // Only query API for tradeable items to avoid 400 errors
+      for (let i = 0; i < itemsToQueryAPI.length; i += batchSize) {
+        const batch = itemsToQueryAPI.slice(i, i + batchSize);
         const itemIdsString = batch.join(',');
 
         try {
@@ -616,23 +614,27 @@ export default function MSQPriceChecker({
         }
       }
 
+      // Mark all untradeable items (not in itemsToQueryAPI) as non-tradable
+      finalItemIds.forEach(itemId => {
+        if (!itemsToQueryAPI.includes(itemId)) {
+          allTradability[itemId] = false;
+        }
+      });
+
       setItemVelocities(allVelocities);
       setItemAveragePrices(allAveragePrices);
       setItemMinListings(allMinListings);
       setItemRecentPurchases(allRecentPurchases);
       setItemTradability(allTradability);
       setIsLoadingVelocities(false);
+      setIsSearchingLocal(false);
     } catch (error) {
       console.error('Search error:', error);
       addToast('搜索失敗，請稍後再試', 'error');
       setIsLoadingVelocities(false);
+      setIsSearchingLocal(false);
     }
-  }, [ilvlInput, selectedEquipCategory, selectedWorld, selectedServerOption, addToast, itemMatchesEquipCategory, itemMatchesAnyCategory, searchParams, setSearchParams, loadIlvlsData, loadEquipmentData]);
-
-  // Store handleSearchLocal in ref for auto-search
-  useEffect(() => {
-    handleSearchLocalRef.current = handleSearchLocal;
-  }, [handleSearchLocal]);
+  }, [ilvlInput, selectedEquipCategory, selectedWorld, selectedServerOption, addToast, itemMatchesEquipCategory, itemMatchesAnyCategory, searchParams, setSearchParams, loadEquipmentDataByIds]);
 
   const maxRange = 50;
 
@@ -750,95 +752,87 @@ export default function MSQPriceChecker({
               </div>
             </div>
 
-            {/* Server Selector */}
-            {selectedWorld && (
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-ffxiv-gold mb-2">
-                  伺服器選擇
-                </label>
-                <ServerSelector
-                  datacenters={datacenters}
-                  worlds={worlds}
-                  selectedWorld={selectedWorld}
-                  onWorldChange={onWorldChange}
-                  selectedServerOption={selectedServerOption}
-                  onServerOptionChange={onServerOptionChange}
-                  serverOptions={serverOptions}
-                  disabled={isLoadingVelocities}
-                />
-              </div>
-            )}
-
             {/* Search Button */}
             <button
               onClick={handleSearchLocal}
-              disabled={isSearching || !ilvlInput || !ilvlInputValidation?.valid}
-              className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                isSearching || !ilvlInput || !ilvlInputValidation?.valid
+              disabled={isSearchingLocal || !ilvlInput || !ilvlInputValidation?.valid}
+              className={`w-full py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
+                isSearchingLocal || !ilvlInput || !ilvlInputValidation?.valid
                   ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
                   : 'bg-gradient-to-r from-ffxiv-gold to-yellow-500 text-slate-900 hover:shadow-[0_0_20px_rgba(212,175,55,0.5)]'
               }`}
             >
-              {isSearching ? '搜索中...' : '搜索'}
+              {isSearchingLocal && (
+                <svg className="animate-spin h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              )}
+              {isSearchingLocal ? '搜索中...' : '搜索'}
             </button>
           </div>
 
+          {/* Loading Overlay */}
+          {isSearchingLocal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center">
+              <div className="bg-gradient-to-br from-slate-800 via-purple-900/30 to-slate-800 rounded-lg border border-purple-500/30 p-8 flex flex-col items-center gap-4 shadow-2xl">
+                <svg className="animate-spin h-12 w-12 text-ffxiv-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="text-ffxiv-gold font-semibold text-lg">搜索中...</p>
+                <p className="text-gray-400 text-sm">正在查詢物品數據</p>
+              </div>
+            </div>
+          )}
+
           {/* Results */}
           {searchResults.length > 0 && (
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <h2 className="text-xl sm:text-2xl font-bold text-ffxiv-gold">
-                  搜索結果 ({searchResults.length} 個物品)
-                </h2>
-                {selectedWorld && selectedServerOption && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-indigo-900/40 border border-purple-500/30 rounded-lg backdrop-blur-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-ffxiv-gold animate-pulse"></div>
-                    <span className="text-xs sm:text-sm font-semibold text-ffxiv-gold">
-                      {selectedServerOption === selectedWorld.section
-                        ? `${selectedWorld.section} (全服)`
-                        : worlds[selectedServerOption] || `伺服器 ${selectedServerOption}`
-                      }
-                    </span>
-                  </div>
-                )}
-              </div>
-              <ItemTable
-                items={searchResults}
-                onSelect={(item) => {
-                  if (onItemSelect) {
-                    // Prepare navigation URL with server param
-                    const params = new URLSearchParams();
-                    if (selectedServerOption) {
-                      params.set('server', selectedServerOption);
-                    }
-                    const queryString = params.toString();
-                    const itemUrl = `/item/${item.id}${queryString ? '?' + queryString : ''}`;
-                    
-                    // Call onItemSelect which will navigate to /item/${item.id} (without server param)
-                    onItemSelect(item);
-                    
-                    // Immediately replace that navigation with our URL that includes server param
-                    // This ensures only one history entry is created
-                    requestAnimationFrame(() => {
-                      requestAnimationFrame(() => {
-                        navigate(itemUrl, { replace: true });
-                      });
-                    });
+            <SearchResultsTable
+              items={searchResults}
+              selectedWorld={selectedWorld}
+              selectedServerOption={selectedServerOption}
+              onWorldChange={onWorldChange}
+              onServerOptionChange={onServerOptionChange}
+              datacenters={datacenters}
+              worlds={worlds}
+              serverOptions={serverOptions}
+              isServerSelectorDisabled={isLoadingVelocities}
+              marketableItems={marketableItems}
+              itemVelocities={itemVelocities}
+              itemAveragePrices={itemAveragePrices}
+              itemMinListings={itemMinListings}
+              itemRecentPurchases={itemRecentPurchases}
+              itemTradability={itemTradability}
+              isLoadingVelocities={isLoadingVelocities}
+              showLoadingIndicator={isLoadingVelocities}
+              averagePriceHeader={selectedServerOption === selectedWorld?.section ? '全服平均價格' : '平均價格'}
+              getSimplifiedChineseName={getSimplifiedChineseName}
+              addToast={addToast}
+              title="搜索結果"
+              onSelect={(item) => {
+                if (onItemSelect) {
+                  // Prepare navigation URL with server param
+                  const params = new URLSearchParams();
+                  if (selectedServerOption) {
+                    params.set('server', selectedServerOption);
                   }
-                }}
-                selectedItem={null}
-                marketableItems={marketableItems}
-                itemVelocities={itemVelocities}
-                itemAveragePrices={itemAveragePrices}
-                itemMinListings={itemMinListings}
-                itemRecentPurchases={itemRecentPurchases}
-                itemTradability={itemTradability}
-                isLoadingVelocities={isLoadingVelocities}
-                averagePriceHeader="平均價格"
-                getSimplifiedChineseName={getSimplifiedChineseName}
-                addToast={addToast}
-              />
-            </div>
+                  const queryString = params.toString();
+                  const itemUrl = `/item/${item.id}${queryString ? '?' + queryString : ''}`;
+                  
+                  // Call onItemSelect which will navigate to /item/${item.id} (without server param)
+                  onItemSelect(item);
+                  
+                  // Immediately replace that navigation with our URL that includes server param
+                  // This ensures only one history entry is created
+                  requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                      navigate(itemUrl, { replace: true });
+                    });
+                  });
+                }
+              }}
+            />
           )}
 
         </div>

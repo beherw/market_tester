@@ -3,13 +3,13 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import Toast from './Toast';
-import ItemTable from './ItemTable';
 import TopBar from './TopBar';
-import ServerSelector from './ServerSelector';
 import TaxRatesModal from './TaxRatesModal';
-import { getMarketableItems } from '../services/universalis';
+import SearchResultsTable from './SearchResultsTable';
+import ServerSelector from './ServerSelector';
+import { getMarketableItems, getMarketableItemsByIds } from '../services/universalis';
 import { searchItems, getSimplifiedChineseName, getItemById } from '../services/itemDatabase';
-import { loadRecipeDatabase } from '../services/recipeDatabase';
+import { loadRecipeDatabase, loadRecipesByJobAndLevel } from '../services/recipeDatabase';
 import { getTwJobAbbr, getTwItemUICategories, getTwItems, getIlvlsByIds, getRaritiesByIds, getEquipmentByIds, getEquipmentByJobs, getUICategoriesByIds, getTwItemById } from '../services/supabaseData';
 
 export default function AdvancedSearch({
@@ -101,6 +101,11 @@ export default function AdvancedSearch({
   // State to trigger re-render when data loads
   const [jobAbbrLoaded, setJobAbbrLoaded] = useState(false);
   const [itemUICategoriesLoaded, setItemUICategoriesLoaded] = useState(false);
+  
+  // State to track job icon loading
+  const [jobIconsLoading, setJobIconsLoading] = useState(true);
+  const loadedJobIconsRef = useRef(new Set());
+  const totalJobIconsRef = useRef(0);
   
   // Cache for ilvls data (per-item basis, not full table)
   const ilvlsCacheRef = useRef({});
@@ -450,8 +455,9 @@ export default function AdvancedSearch({
         return;
       }
 
-      // Filter out non-tradeable items using marketable API
-      const marketableSet = await getMarketableItems();
+      // Filter out non-tradeable items using targeted marketable API (optimized)
+      const itemIds = allItems.map(item => item.id);
+      const marketableSet = await getMarketableItemsByIds(itemIds);
       
       // Check if this request was superseded
       if (currentRequestId !== batchSearchRequestIdRef.current) {
@@ -1012,6 +1018,48 @@ export default function AdvancedSearch({
     return { craftingJobs: crafting, gatheringJobs: gathering, battleJobsByRole: battleByRole };
   }, [jobAbbrLoaded, getJobAbbreviation]); // Recompute when job data loads or getJobAbbreviation changes
 
+  // Track total job icons count and reset loading state when jobs change
+  useEffect(() => {
+    const totalIcons = craftingJobs.length + gatheringJobs.length + 
+      battleJobsByRole.tank.length + battleJobsByRole.healer.length + 
+      battleJobsByRole.melee.length + battleJobsByRole.ranged.length + 
+      battleJobsByRole.caster.length;
+    
+    totalJobIconsRef.current = totalIcons;
+    
+    // Reset loading state if job data is not loaded yet or if we have no icons
+    if (!jobAbbrLoaded || totalIcons === 0) {
+      setJobIconsLoading(true);
+      loadedJobIconsRef.current.clear();
+    } else {
+      // If we have icons but haven't loaded any yet, set loading to true
+      if (loadedJobIconsRef.current.size === 0) {
+        setJobIconsLoading(true);
+      }
+    }
+  }, [craftingJobs, gatheringJobs, battleJobsByRole, jobAbbrLoaded]);
+
+  // Handle job icon load completion
+  const handleJobIconLoad = useCallback((jobId) => {
+    loadedJobIconsRef.current.add(jobId);
+    
+    // Check if all icons are loaded
+    if (loadedJobIconsRef.current.size >= totalJobIconsRef.current && totalJobIconsRef.current > 0) {
+      setJobIconsLoading(false);
+    }
+  }, []);
+
+  // Handle job icon load error
+  const handleJobIconError = useCallback((jobId) => {
+    // Still count as loaded even if error (to avoid infinite loading)
+    loadedJobIconsRef.current.add(jobId);
+    
+    // Check if all icons are loaded
+    if (loadedJobIconsRef.current.size >= totalJobIconsRef.current && totalJobIconsRef.current > 0) {
+      setJobIconsLoading(false);
+    }
+  }, []);
+
   // Map job-specific weapon categories to generic categories
   // Job-specific weapon categories that should be hidden and mapped to generic ones
   const jobSpecificWeaponCategories = new Set([
@@ -1310,13 +1358,12 @@ export default function AdvancedSearch({
 
     // Filter by production jobs (using recipes and equipment.json for tools)
     if (productionJobIds.length > 0) {
-      const { recipes } = await loadRecipeDatabase();
-      productionJobIds.forEach(jobId => {
-        recipes.forEach(recipe => {
-          if (recipe.job === jobId && recipe.result) {
-            itemIds.add(recipe.result);
-          }
-        });
+      // Use targeted query to load only recipes for selected jobs (optimized)
+      const { recipes } = await loadRecipesByJobAndLevel(productionJobIds, 1, 100);
+      recipes.forEach(recipe => {
+        if (recipe.result) {
+          itemIds.add(recipe.result);
+        }
       });
       
       // Also add production tools from equipment - use targeted query by jobs
@@ -1337,6 +1384,7 @@ export default function AdvancedSearch({
         Object.keys(equipmentData).forEach(itemId => {
           itemIds.add(parseInt(itemId, 10));
         });
+        console.log(`[AdvancedSearch] Found ${itemIds.size} items for jobs: ${battleJobAbbrs.join(', ')}`);
       }
     }
 
@@ -1400,6 +1448,8 @@ export default function AdvancedSearch({
         }
       });
       
+      console.log(`[AdvancedSearch] Category filter: ${Array.from(categoryIdsToFilter).join(', ')}`);
+      
       // If only categories selected (no jobs), get all items from database first
       // NOTE: This requires loading all items, but only when category filter is used without job filter
       if (itemIds.size === 0 && selectedJobs.length === 0) {
@@ -1418,20 +1468,26 @@ export default function AdvancedSearch({
       // Now load ui_categories for all items we have (use targeted query)
       const itemIdsArray = Array.from(itemIds);
       const uiCategoriesData = await loadUICategoriesByIds(itemIdsArray);
+      console.log(`[AdvancedSearch] Loaded ${Object.keys(uiCategoriesData).length} ui_categories for ${itemIdsArray.length} items`);
       
       // Filter items by category
       if (categoryIdsToFilter.size > 0) {
         const filteredItemIds = new Set();
+        let matchedCount = 0;
+        let excludedCount = 0;
         itemIds.forEach(itemId => {
           const itemCategoryId = uiCategoriesData[itemId];
           // Exclude items in excluded categories
           if (EXCLUDED_CATEGORIES.includes(itemCategoryId)) {
+            excludedCount++;
             return;
           }
           if (itemCategoryId && categoryIdsToFilter.has(itemCategoryId)) {
             filteredItemIds.add(itemId);
+            matchedCount++;
           }
         });
+        console.log(`[AdvancedSearch] Category filter result: ${matchedCount} matched, ${excludedCount} excluded, ${filteredItemIds.size} final items`);
         itemIds = filteredItemIds;
       } else {
         // Even if no category filter is selected, exclude items in excluded categories
@@ -1619,9 +1675,10 @@ export default function AdvancedSearch({
     }
 
     // Separate tradeable and untradeable items (AFTER name filtering)
-    const marketableSet = await getMarketableItems();
-    setMarketableItems(marketableSet);
+    // Use targeted query to check marketability for specific item IDs (optimized)
     const allItemIds = Array.from(itemIds);
+    const marketableSet = await getMarketableItemsByIds(allItemIds);
+    setMarketableItems(marketableSet);
     let tradeableItemIds = allItemIds.filter(id => marketableSet.has(id));
     const untradeableItemIds = allItemIds.filter(id => !marketableSet.has(id));
 
@@ -2647,10 +2704,20 @@ export default function AdvancedSearch({
               {/* Job Icons and Categories Selection - Side by Side, Height Determined by Crafting Jobs */}
               <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 {/* Job Icons Selection - Left Side */}
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-semibold text-ffxiv-gold mb-4">
                     選擇職業
                   </label>
+                  
+                  {/* Loading Indicator Overlay */}
+                  {jobIconsLoading && (
+                    <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-lg border border-purple-500/30 flex items-center justify-center z-10">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="animate-spin rounded-full h-10 w-10 border-4 border-slate-700 border-t-ffxiv-gold"></div>
+                        <p className="text-sm text-gray-300">載入職業圖示中...</p>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* 戰鬥職業 - 4 rows, all left-aligned */}
                   <div className="space-y-[0.86821875rem]">
@@ -2673,6 +2740,8 @@ export default function AdvancedSearch({
                               src={job.iconUrl} 
                               alt={job.name}
                               className="w-8 h-8 object-contain"
+                              onLoad={() => handleJobIconLoad(job.id)}
+                              onError={() => handleJobIconError(job.id)}
                             />
                           </button>
                         );
@@ -2697,6 +2766,8 @@ export default function AdvancedSearch({
                               src={job.iconUrl} 
                               alt={job.name}
                               className="w-8 h-8 object-contain"
+                              onLoad={() => handleJobIconLoad(job.id)}
+                              onError={() => handleJobIconError(job.id)}
                             />
                           </button>
                         );
@@ -2722,6 +2793,8 @@ export default function AdvancedSearch({
                               src={job.iconUrl} 
                               alt={job.name}
                               className="w-8 h-8 object-contain"
+                              onLoad={() => handleJobIconLoad(job.id)}
+                              onError={() => handleJobIconError(job.id)}
                             />
                           </button>
                         );
@@ -2746,6 +2819,8 @@ export default function AdvancedSearch({
                               src={job.iconUrl} 
                               alt={job.name}
                               className="w-8 h-8 object-contain"
+                              onLoad={() => handleJobIconLoad(job.id)}
+                              onError={() => handleJobIconError(job.id)}
                             />
                           </button>
                         );
@@ -2800,6 +2875,8 @@ export default function AdvancedSearch({
                                 src={job.iconUrl} 
                                 alt={job.name}
                                 className="w-8 h-8 object-contain"
+                                onLoad={() => handleJobIconLoad(job.id)}
+                                onError={() => handleJobIconError(job.id)}
                               />
                             </button>
                           );
@@ -2826,6 +2903,8 @@ export default function AdvancedSearch({
                               src={job.iconUrl} 
                               alt={job.name}
                               className="w-8 h-8 object-contain"
+                              onLoad={() => handleJobIconLoad(job.id)}
+                              onError={() => handleJobIconError(job.id)}
                             />
                           </button>
                         );
@@ -3988,243 +4067,69 @@ export default function AdvancedSearch({
               });
             }
             
-            // Pagination calculations (after rarity filtering)
-            const totalPages = Math.ceil(currentResults.length / itemsPerPage);
-            // Ensure currentPage doesn't exceed totalPages (safety check)
-            const safeCurrentPage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
-            const startIndex = (safeCurrentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedResults = currentResults.slice(startIndex, endIndex);
+            // Pagination is now handled by SearchResultsTable component
             
             return (
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-bold text-ffxiv-gold">
-                    搜索結果 ({currentResults.length} 個物品{filteredResults.length !== currentResults.length ? `，顯示 ${filteredResults.length} 個` : ''})
-                  </h2>
-                  {selectedWorld && selectedServerOption && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-indigo-900/40 border border-purple-500/30 rounded-lg backdrop-blur-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-ffxiv-gold animate-pulse"></div>
-                      <span className="text-xs sm:text-sm font-semibold text-ffxiv-gold">
-                        {selectedServerOption === selectedWorld.section
-                          ? `${selectedWorld.section} (全服)`
-                          : worlds[selectedServerOption] || `伺服器 ${selectedServerOption}`
-                        }
-                      </span>
-                    </div>
-                  )}
-                  {/* Show untradeable items button - positioned to the right of server display */}
-                  {/* Only show button when loading is complete and we have both tradeable and untradeable items */}
-                  {/* Use same logic as rarity selector disabled state */}
-                  {activeTab === 'filter' && untradeableResults.length > 0 && searchResults.length > 0 && isServerDataLoaded && !isLoadingVelocities && !velocityFetchInProgress && !isBatchSearching && !isFilterSearching && (
-                    <button
-                      onClick={() => {
-                        setShowUntradeable(!showUntradeable);
-                        setCurrentPage(1); // Reset to first page when switching between tradeable/untradeable
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 backdrop-blur-sm shadow-sm ${
-                        showUntradeable
-                          ? 'bg-gradient-to-r from-slate-700/70 via-slate-600/60 to-slate-700/70 text-gray-200 border border-slate-500/50 hover:from-slate-600/80 hover:via-slate-500/70 hover:to-slate-600/80 hover:border-slate-400/60 hover:shadow-md'
-                          : 'bg-gradient-to-r from-slate-800/70 via-slate-700/60 to-slate-800/70 text-gray-300 border border-slate-600/50 hover:from-slate-700/80 hover:via-slate-600/70 hover:to-slate-700/80 hover:border-slate-500/60 hover:shadow-md hover:text-gray-200'
-                      }`}
-                    >
-                      {showUntradeable ? `隱藏不可交易物品` : `顯示不可以交易物品${untradeableResults.length}個`}
-                    </button>
-                  )}
-                  {/* Loading Indicator - show when searching or loading velocities */}
-                  {showLoadingIndicator && (
-                    <div className="flex items-center gap-2 px-2 py-1 bg-slate-800/50 border border-purple-500/30 rounded-lg">
-                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-ffxiv-gold"></div>
-                      <span className="text-xs text-gray-300">載入中...</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Pagination Controls */}
-                {currentResults.length > itemsPerPage && (
-                  <div className="mb-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
-                    <div className="flex items-center gap-3">
-                      <label className="text-sm text-gray-300">每頁顯示:</label>
-                      <select
-                        value={itemsPerPage}
-                        onChange={(e) => {
-                          const newItemsPerPage = parseInt(e.target.value, 10);
-                          setItemsPerPage(newItemsPerPage);
-                          setCurrentPage(1); // Reset to first page
-                        }}
-                        className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
-                      >
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                        <option value={200}>200</option>
-                      </select>
-                      <span className="text-sm text-gray-400">
-                        顯示 {startIndex + 1}-{Math.min(endIndex, currentResults.length)} / {currentResults.length}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handlePageChange(1)}
-                        disabled={currentPage === 1}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === 1
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        首頁
-                      </button>
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === 1
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        上一頁
-                      </button>
-                      <span className="px-3 py-1.5 text-sm text-gray-300">
-                        第 {currentPage} / {totalPages} 頁
-                      </span>
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === totalPages
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        下一頁
-                      </button>
-                      <button
-                        onClick={() => handlePageChange(totalPages)}
-                        disabled={currentPage === totalPages}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === totalPages
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        末頁
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <ItemTable
-                  items={paginatedResults}
-                  onSelect={(item) => {
-                    if (onItemSelect) {
-                      const params = new URLSearchParams();
-                      if (selectedServerOption) {
-                        params.set('server', selectedServerOption);
-                      }
-                      const queryString = params.toString();
-                      const itemUrl = `/item/${item.id}${queryString ? '?' + queryString : ''}`;
-                      
-                      onItemSelect(item);
-                      
-                      // Open in new tab
-                      window.open(itemUrl, '_blank');
+              <SearchResultsTable
+                items={currentResults}
+                filteredItems={filteredResults}
+                selectedWorld={selectedWorld}
+                selectedServerOption={selectedServerOption}
+                onWorldChange={onWorldChange}
+                onServerOptionChange={onServerOptionChange}
+                datacenters={datacenters}
+                worlds={worlds}
+                serverOptions={serverOptions}
+                isServerSelectorDisabled={!isServerDataLoaded || isLoadingVelocities || velocityFetchInProgress || isBatchSearching || isFilterSearching}
+                marketableItems={marketableItems}
+                itemVelocities={itemVelocities}
+                itemAveragePrices={itemAveragePrices}
+                itemMinListings={itemMinListings}
+                itemRecentPurchases={itemRecentPurchases}
+                itemTradability={itemTradability}
+                isLoadingVelocities={isLoadingVelocities}
+                showLoadingIndicator={showLoadingIndicator}
+                averagePriceHeader="平均價格"
+                getSimplifiedChineseName={getSimplifiedChineseName}
+                addToast={addToast}
+                title="搜索結果"
+                titleSuffix={filteredResults.length !== currentResults.length ? `，顯示 ${filteredResults.length} 個` : ''}
+                showUntradeableButton={activeTab === 'filter' && untradeableResults.length > 0 && searchResults.length > 0}
+                untradeableCount={untradeableResults.length}
+                tradeableCount={searchResults.length}
+                onToggleUntradeable={setShowUntradeable}
+                isShowUntradeable={showUntradeable}
+                selectedRarities={selectedRarities}
+                setSelectedRarities={setSelectedRarities}
+                raritiesData={raritiesData}
+                externalRarityFilter={true}
+                externalRarityCounts={allResultsRarityCounts}
+                isRaritySelectorDisabled={!isServerDataLoaded || isLoadingVelocities || velocityFetchInProgress || isBatchSearching || isFilterSearching}
+                externalCurrentPage={currentPage}
+                externalItemsPerPage={itemsPerPage}
+                onExternalPageChange={handlePageChange}
+                onExternalItemsPerPageChange={(newItemsPerPage) => {
+                  setItemsPerPage(newItemsPerPage);
+                  setCurrentPage(1);
+                }}
+                defaultItemsPerPage={50}
+                itemsPerPageOptions={[50, 100, 200]}
+                onSelect={(item) => {
+                  if (onItemSelect) {
+                    const params = new URLSearchParams();
+                    if (selectedServerOption) {
+                      params.set('server', selectedServerOption);
                     }
-                  }}
-                  selectedItem={null}
-                  marketableItems={marketableItems}
-                  itemVelocities={itemVelocities}
-                  itemAveragePrices={itemAveragePrices}
-                  itemMinListings={itemMinListings}
-                  itemRecentPurchases={itemRecentPurchases}
-                  itemTradability={itemTradability}
-                  isLoadingVelocities={isLoadingVelocities}
-                  averagePriceHeader="平均價格"
-                  getSimplifiedChineseName={getSimplifiedChineseName}
-                  addToast={addToast}
-                  selectedRarities={selectedRarities}
-                  setSelectedRarities={setSelectedRarities}
-                  raritiesData={raritiesData}
-                  externalRarityFilter={true}
-                  externalRarityCounts={allResultsRarityCounts}
-                  isServerDataLoaded={isServerDataLoaded}
-                  isRaritySelectorDisabled={!isServerDataLoaded || isLoadingVelocities || velocityFetchInProgress || isBatchSearching || isFilterSearching}
-                />
-
-                {/* Pagination Controls - Bottom */}
-                {currentResults.length > itemsPerPage && (
-                  <div className="mt-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
-                    <div className="flex items-center gap-3">
-                      <label className="text-sm text-gray-300">每頁顯示:</label>
-                      <select
-                        value={itemsPerPage}
-                        onChange={(e) => {
-                          const newItemsPerPage = parseInt(e.target.value, 10);
-                          setItemsPerPage(newItemsPerPage);
-                          setCurrentPage(1); // Reset to first page
-                        }}
-                        className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
-                      >
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                        <option value={200}>200</option>
-                      </select>
-                      <span className="text-sm text-gray-400">
-                        顯示 {startIndex + 1}-{Math.min(endIndex, currentResults.length)} / {currentResults.length}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handlePageChange(1)}
-                        disabled={currentPage === 1}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === 1
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        首頁
-                      </button>
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === 1
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        上一頁
-                      </button>
-                      <span className="px-3 py-1.5 text-sm text-gray-300">
-                        第 {currentPage} / {totalPages} 頁
-                      </span>
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === totalPages
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        下一頁
-                      </button>
-                      <button
-                        onClick={() => handlePageChange(totalPages)}
-                        disabled={currentPage === totalPages}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          currentPage === totalPages
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        末頁
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+                    const queryString = params.toString();
+                    const itemUrl = `/item/${item.id}${queryString ? '?' + queryString : ''}`;
+                    
+                    onItemSelect(item);
+                    
+                    // Open in new tab
+                    window.open(itemUrl, '_blank');
+                  }
+                }}
+              />
             );
           })()}
         </div>

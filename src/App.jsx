@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams, useParams, useLocation } from 'react-rout
 import SearchBar from './components/SearchBar';
 import ServerSelector from './components/ServerSelector';
 import TaxRatesModal from './components/TaxRatesModal';
-import ItemTable from './components/ItemTable';
+import SearchResultsTable from './components/SearchResultsTable';
 import MarketListings from './components/MarketListings';
 import MarketHistory from './components/MarketHistory';
 import ServerUploadTimes from './components/ServerUploadTimes';
@@ -12,7 +12,7 @@ import Toast from './components/Toast';
 import { formatRelativeTime, formatLocalTime } from './utils/timeFormat';
 import { searchItems, getItemById, getSimplifiedChineseName, cancelSimplifiedNameFetch } from './services/itemDatabase';
 import { getMarketData, getMarketableItems, getItemsVelocity, getTaxRates } from './services/universalis';
-import { containsChinese } from './utils/chineseConverter';
+// Removed containsChinese import - no longer restricting to Chinese input
 import { getAssetPath } from './utils/assetPath.js';
 import ItemImage from './components/ItemImage';
 import { cancelAllIconRequests } from './utils/itemImage';
@@ -2017,6 +2017,11 @@ function App() {
         
         const needsSearch = (tradeableResults.length === 0 && untradeableResults.length === 0) || previousSearchText !== searchQuery;
         
+        // Reset page immediately when search query changes to prevent showing old results
+        if (previousSearchText !== searchQuery) {
+          setSearchCurrentPage(1);
+        }
+        
         if (needsSearch && !searchInProgressRef.current) {
           searchInProgressRef.current = true;
           const performSearch = async () => {
@@ -2030,10 +2035,7 @@ function App() {
               return;
             }
 
-            if (!containsChinese(searchQuery.trim())) {
-              searchInProgressRef.current = false;
-              return;
-            }
+            // Removed Chinese input restriction - now supports all languages
 
             setIsSearching(true);
             setIsServerSelectorDisabled(true); // Lock server selection during initial load
@@ -2075,6 +2077,7 @@ function App() {
               setUntradeableResults([]);
               setShowUntradeable(false);
               setTradeableResults(results);
+              setSearchCurrentPage(1); // Reset to first page on new search
               searchResultsRef.current = results;
               setError(null);
               // Reset tracking ref for new search
@@ -2208,7 +2211,7 @@ function App() {
 
     lastProcessedURLRef.current = currentURLKey;
     isInitializingFromURLRef.current = false;
-  }, [location.pathname, location.search, isServerDataLoaded, params.id, searchParams, searchText, navigate, addToast, isLoadingDB, datacenters, worlds, handleItemSelect, containsChinese]);
+  }, [location.pathname, location.search, isServerDataLoaded, params.id, searchParams, searchText, navigate, addToast, isLoadingDB, datacenters, worlds, handleItemSelect]);
 
   // Handle return to home page
   const handleReturnHome = useCallback(() => {
@@ -2280,19 +2283,7 @@ function App() {
       return;
     }
 
-    if (!containsChinese(trimmedTerm)) {
-      addToast('請輸入中文進行搜索', 'warning');
-      setTradeableResults([]);
-      setUntradeableResults([]);
-      setShowUntradeable(false);
-      setSelectedItem(null);
-      setMarketInfo(null);
-      setMarketListings([]);
-      setMarketHistory([]);
-      setError(null);
-      setRateLimitMessage(null);
-      return;
-    }
+    // Removed Chinese input restriction - now supports all languages
 
     searchInProgressRef.current = true;
     if (trimmedTerm) {
@@ -2441,7 +2432,7 @@ function App() {
         }
       }, 1000);
     }
-  }, [addToast, isLoadingDB, selectedServerOption, containsChinese, handleItemSelect, params.id, location.pathname, navigate]);
+  }, [addToast, isLoadingDB, selectedServerOption, handleItemSelect, params.id, location.pathname, navigate]);
 
   // Handle server option change
   const handleServerOptionChange = useCallback((option) => {
@@ -3056,44 +3047,31 @@ function App() {
                   <p className="mt-4 text-sm text-gray-400">載入歷史記錄...</p>
                 </div>
               ) : historyItems.length > 0 ? (
-                <>
-                  <p className="text-sm sm:text-base text-gray-400 mb-4">共 {historyItems.length} 個物品</p>
-                  
-                  {/* Server Selector for History Page */}
-                  {selectedWorld && (
-                    <div className="mb-4 flex items-center gap-3 flex-wrap">
-                      <label className="text-sm font-semibold text-ffxiv-gold whitespace-nowrap">
-                        伺服器選擇:
-                      </label>
-                      <ServerSelector
-                        datacenters={datacenters}
-                        worlds={worlds}
-                        selectedWorld={selectedWorld}
-                        onWorldChange={setSelectedWorld}
-                        selectedServerOption={selectedServerOption}
-                        onServerOptionChange={handleServerOptionChange}
-                        serverOptions={serverOptions}
-                        disabled={isLoadingHistoryVelocities}
-                      />
-                    </div>
-                  )}
-                  
-                  <ItemTable
-                    items={historyItems}
-                    onSelect={handleItemSelect}
-                    selectedItem={selectedItem}
-                    marketableItems={marketableItems}
-                    itemVelocities={historyVelocities}
-                    itemAveragePrices={historyAveragePrices}
-                    itemMinListings={historyMinListings}
-                    itemRecentPurchases={historyRecentPurchases}
-                    itemTradability={historyTradability}
-                    isLoadingVelocities={isLoadingHistoryVelocities}
-                    averagePriceHeader={selectedServerOption === selectedWorld?.section ? '全服平均價格' : '平均價格'}
-                    getSimplifiedChineseName={getSimplifiedChineseName}
-                    addToast={addToast}
-                  />
-                </>
+                <SearchResultsTable
+                  items={historyItems}
+                  selectedWorld={selectedWorld}
+                  selectedServerOption={selectedServerOption}
+                  onWorldChange={setSelectedWorld}
+                  onServerOptionChange={handleServerOptionChange}
+                  datacenters={datacenters}
+                  worlds={worlds}
+                  serverOptions={serverOptions}
+                  isServerSelectorDisabled={isLoadingHistoryVelocities}
+                  marketableItems={marketableItems}
+                  itemVelocities={historyVelocities}
+                  itemAveragePrices={historyAveragePrices}
+                  itemMinListings={historyMinListings}
+                  itemRecentPurchases={historyRecentPurchases}
+                  itemTradability={historyTradability}
+                  isLoadingVelocities={isLoadingHistoryVelocities}
+                  averagePriceHeader={selectedServerOption === selectedWorld?.section ? '全服平均價格' : '平均價格'}
+                  getSimplifiedChineseName={getSimplifiedChineseName}
+                  addToast={addToast}
+                  title="歷史記錄"
+                  showLoadingIndicator={false}
+                  showWarningForLargeResults={false}
+                  onSelect={handleItemSelect}
+                />
               ) : (
                 <div className="bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-8 sm:p-12 text-center">
                   <div className="text-6xl mb-4">📜</div>
@@ -3132,246 +3110,58 @@ function App() {
             const endIndex = startIndex + searchItemsPerPage;
 
             return (
-              <div className="mb-6">
-                {/* Search Results Header */}
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-bold text-ffxiv-gold">
-                    搜索結果 ({currentResults.length} 個物品{filteredResults.length !== currentResults.length ? `，顯示 ${filteredResults.length} 個` : ''})
-                  </h2>
-                  {selectedWorld && selectedServerOption && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-indigo-900/40 border border-purple-500/30 rounded-lg backdrop-blur-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-ffxiv-gold animate-pulse"></div>
-                      <span className="text-xs sm:text-sm font-semibold text-ffxiv-gold">
-                        {selectedServerOption === selectedWorld.section 
-                          ? `${selectedWorld.section} (全服)`
-                          : worlds[selectedServerOption] || `伺服器 ${selectedServerOption}`
-                        }
-                      </span>
-                    </div>
-                  )}
-                  {/* Show untradeable items button - positioned to the right of server display */}
-                  {/* Only show when we have both tradeable and untradeable items */}
-                  {untradeableResults.length > 0 && tradeableResults.length > 0 && !isServerSelectorDisabled && (
-                    <button
-                      onClick={() => {
-                        setShowUntradeable(!showUntradeable);
-                        setSearchCurrentPage(1); // Reset to first page when switching between tradeable/untradeable
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 backdrop-blur-sm shadow-sm ${
-                        showUntradeable
-                          ? 'bg-gradient-to-r from-slate-700/70 via-slate-600/60 to-slate-700/70 text-gray-200 border border-slate-500/50 hover:from-slate-600/80 hover:via-slate-500/70 hover:to-slate-600/80 hover:border-slate-400/60 hover:shadow-md'
-                          : 'bg-gradient-to-r from-slate-800/70 via-slate-700/60 to-slate-800/70 text-gray-300 border border-slate-600/50 hover:from-slate-700/80 hover:via-slate-600/70 hover:to-slate-700/80 hover:border-slate-500/60 hover:shadow-md hover:text-gray-200'
-                      }`}
-                    >
-                      {showUntradeable ? `隱藏不可交易物品` : `顯示不可以交易物品${untradeableResults.length}個`}
-                    </button>
-                  )}
-                  {/* Loading Indicator - show only for >=50 items, with minimum 1s display time */}
-                  {showLoadingIndicator && currentResults.length >= 50 && (
-                    <div className="flex items-center gap-2 px-2 py-1 bg-slate-800/50 border border-purple-500/30 rounded-lg">
-                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-ffxiv-gold"></div>
-                      <span className="text-xs text-gray-300">載入中</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Warning for large result sets - show immediately when item count is determined, persist after loading */}
-                {currentResults.length > 100 && (
-                  <div className={`mb-4 p-4 rounded-lg border-2 ${
-                      currentResults.length > 200
-                        ? 'bg-red-900/40 border-red-500/50'
-                        : 'bg-yellow-900/40 border-yellow-500/50'
-                    }`}>
-                      <div className="flex items-start gap-3">
-                        <div className="text-2xl flex-shrink-0">⚠️</div>
-                        <div className="flex-1">
-                          <h3 className={`font-semibold mb-1 ${
-                            currentResults.length > 200
-                              ? 'text-red-400'
-                              : 'text-yellow-400'
-                          }`}>
-                            {currentResults.length > 200 ? '結果數量過多' : '結果數量較多'}
-                          </h3>
-                          <p className="text-sm text-gray-300">
-                            找到 <span className={`font-bold ${
-                              currentResults.length > 200
-                                ? 'text-red-400'
-                                : 'text-yellow-400'
-                            }`}>{currentResults.length}</span> 個物品。
-                            數據載入需要一些時間，排序可能會較慢。
-                            建議使用更嚴格的關鍵詞進行搜索，或請耐心等待。
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                )}
-
-                {/* Server Selector for Search Results */}
-                {selectedWorld && (
-                  <div className="mb-4 flex items-center gap-3 flex-wrap">
-                    <label className="text-sm font-semibold text-ffxiv-gold whitespace-nowrap">
-                      伺服器選擇:
-                    </label>
-                    <ServerSelector
-                      datacenters={datacenters}
-                      worlds={worlds}
-                      selectedWorld={selectedWorld}
-                      onWorldChange={setSelectedWorld}
-                      selectedServerOption={selectedServerOption}
-                      onServerOptionChange={handleServerOptionChange}
-                      serverOptions={serverOptions}
-                      disabled={isServerSelectorDisabled}
-                    />
-                  </div>
-                )}
-
-                {/* Pagination Controls */}
-                {currentResults.length > searchItemsPerPage && (
-                  <div className="mb-4 flex items-center justify-between flex-wrap gap-3 bg-gradient-to-br from-slate-800/60 via-purple-900/20 to-slate-800/60 backdrop-blur-sm rounded-lg border border-purple-500/20 p-3">
-                    <div className="flex items-center gap-3">
-                      <label className="text-sm text-gray-300">每頁顯示:</label>
-                      <select
-                        value={searchItemsPerPage}
-                        onChange={(e) => {
-                          const newItemsPerPage = parseInt(e.target.value, 10);
-                          setSearchItemsPerPage(newItemsPerPage);
-                          setSearchCurrentPage(1); // Reset to first page
-                        }}
-                        className="px-3 py-1.5 bg-slate-900/50 border border-purple-500/30 rounded-lg text-white text-sm focus:outline-none focus:border-ffxiv-gold"
-                      >
-                        <option value={20}>20</option>
-                        <option value={30}>30</option>
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                        <option value={200}>200</option>
-                      </select>
-                      <span className="text-sm text-gray-400">
-                        顯示 {startIndex + 1}-{Math.min(endIndex, currentResults.length)} / {currentResults.length}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          const targetPage = 1;
-                          const targetStartIndex = (targetPage - 1) * searchItemsPerPage;
-                          const targetEndIndex = targetPage * searchItemsPerPage;
-                          
-                          // Check if target page has filtered data
-                          const targetPageFilteredItems = filteredResults.slice(targetStartIndex, targetEndIndex);
-                          
-                          if (targetPageFilteredItems.length === 0 && isServerSelectorDisabled) {
-                            addToast('該頁面資料正在載入中，請稍候...', 'warning');
-                            return;
-                          }
-                          handleSearchPageChange(targetPage);
-                        }}
-                        disabled={searchCurrentPage === 1}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          searchCurrentPage === 1
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        首頁
-                      </button>
-                      <button
-                        onClick={() => {
-                          const targetPage = searchCurrentPage - 1;
-                          const targetStartIndex = (targetPage - 1) * searchItemsPerPage;
-                          const targetEndIndex = targetPage * searchItemsPerPage;
-                          
-                          // Check if target page has filtered data
-                          const targetPageFilteredItems = filteredResults.slice(targetStartIndex, targetEndIndex);
-                          
-                          if (targetPageFilteredItems.length === 0 && isServerSelectorDisabled) {
-                            addToast('該頁面資料正在載入中，請稍候...', 'warning');
-                            return;
-                          }
-                          handleSearchPageChange(targetPage);
-                        }}
-                        disabled={searchCurrentPage === 1}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          searchCurrentPage === 1
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        上一頁
-                      </button>
-                      <span className="px-3 py-1.5 text-sm text-gray-300">
-                        第 {searchCurrentPage} / {totalPages} 頁
-                      </span>
-                      <button
-                        onClick={() => {
-                          const targetPage = searchCurrentPage + 1;
-                          const targetStartIndex = (targetPage - 1) * searchItemsPerPage;
-                          const targetEndIndex = targetPage * searchItemsPerPage;
-                          
-                          // Check if target page has filtered data
-                          const targetPageFilteredItems = filteredResults.slice(targetStartIndex, targetEndIndex);
-                          
-                          if (targetPageFilteredItems.length === 0 && isServerSelectorDisabled) {
-                            addToast('該頁面資料正在載入中，請稍候...', 'warning');
-                            return;
-                          }
-                          handleSearchPageChange(targetPage);
-                        }}
-                        disabled={searchCurrentPage === totalPages}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          searchCurrentPage === totalPages
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        下一頁
-                      </button>
-                      <button
-                        onClick={() => {
-                          const targetPage = totalPages;
-                          const targetStartIndex = (targetPage - 1) * searchItemsPerPage;
-                          const targetEndIndex = targetPage * searchItemsPerPage;
-                          
-                          // Check if target page has filtered data
-                          const targetPageFilteredItems = filteredResults.slice(targetStartIndex, targetEndIndex);
-                          
-                          if (targetPageFilteredItems.length === 0 && isServerSelectorDisabled) {
-                            addToast('該頁面資料正在載入中，請稍候...', 'warning');
-                            return;
-                          }
-                          handleSearchPageChange(targetPage);
-                        }}
-                        disabled={searchCurrentPage === totalPages}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                          searchCurrentPage === totalPages
-                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed opacity-50'
-                            : 'bg-slate-800/50 text-white hover:bg-purple-800/40 border border-purple-500/30'
-                        }`}
-                      >
-                        末頁
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <ItemTable
-                  items={currentResults}
-                  onSelect={handleItemSelect}
-                  selectedItem={selectedItem}
-                  marketableItems={marketableItems}
-                  itemVelocities={searchVelocities}
-                  itemAveragePrices={searchAveragePrices}
-                  itemMinListings={searchMinListings}
-                  itemRecentPurchases={searchRecentPurchases}
-                  itemTradability={searchTradability}
-                  isLoadingVelocities={isLoadingVelocities}
-                  averagePriceHeader={selectedServerOption === selectedWorld?.section ? '全服平均價格' : '平均價格'}
-                  currentPage={searchCurrentPage}
-                  itemsPerPage={searchItemsPerPage}
-                  isRaritySelectorDisabled={isServerSelectorDisabled}
-                  getSimplifiedChineseName={getSimplifiedChineseName}
-                  addToast={addToast}
-                />
-              </div>
+              <SearchResultsTable
+                items={currentResults}
+                filteredItems={filteredResults}
+                selectedWorld={selectedWorld}
+                selectedServerOption={selectedServerOption}
+                onWorldChange={setSelectedWorld}
+                onServerOptionChange={handleServerOptionChange}
+                datacenters={datacenters}
+                worlds={worlds}
+                serverOptions={serverOptions}
+                isServerSelectorDisabled={isServerSelectorDisabled}
+                marketableItems={marketableItems}
+                itemVelocities={searchVelocities}
+                itemAveragePrices={searchAveragePrices}
+                itemMinListings={searchMinListings}
+                itemRecentPurchases={searchRecentPurchases}
+                itemTradability={searchTradability}
+                isLoadingVelocities={isLoadingVelocities}
+                showLoadingIndicator={showLoadingIndicator}
+                averagePriceHeader={selectedServerOption === selectedWorld?.section ? '全服平均價格' : '平均價格'}
+                getSimplifiedChineseName={getSimplifiedChineseName}
+                addToast={addToast}
+                title="搜索結果"
+                titleSuffix={filteredResults.length !== currentResults.length ? `，顯示 ${filteredResults.length} 個` : ''}
+                showUntradeableButton={true}
+                untradeableCount={untradeableResults.length}
+                tradeableCount={tradeableResults.length}
+                onToggleUntradeable={setShowUntradeable}
+                isShowUntradeable={showUntradeable}
+                isRaritySelectorDisabled={isServerSelectorDisabled}
+                externalCurrentPage={searchCurrentPage}
+                externalItemsPerPage={searchItemsPerPage}
+                onExternalPageChange={(newPage) => {
+                  // Check if target page has filtered data before changing
+                  const targetStartIndex = (newPage - 1) * searchItemsPerPage;
+                  const targetEndIndex = newPage * searchItemsPerPage;
+                  const targetPageFilteredItems = filteredResults.slice(targetStartIndex, targetEndIndex);
+                  
+                  if (targetPageFilteredItems.length === 0 && isServerSelectorDisabled) {
+                    addToast('該頁面資料正在載入中，請稍候...', 'warning');
+                    return;
+                  }
+                  handleSearchPageChange(newPage);
+                }}
+                onExternalItemsPerPageChange={(newItemsPerPage) => {
+                  setSearchItemsPerPage(newItemsPerPage);
+                  setSearchCurrentPage(1);
+                }}
+                defaultItemsPerPage={20}
+                itemsPerPageOptions={[20, 30, 50, 100, 200]}
+                onSelect={handleItemSelect}
+              />
             );
           })()}
 
@@ -3392,13 +3182,26 @@ function App() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1 mid:gap-2 flex-wrap">
-                        <h2 className="text-lg mid:text-xl font-bold text-ffxiv-gold break-words line-clamp-2">
-                          {selectedItem.name}
-                        </h2>
+                        <div className="flex flex-col gap-1">
+                          <h2 className="text-lg mid:text-xl font-bold text-ffxiv-gold break-words line-clamp-2">
+                            {selectedItem.searchLanguageName && selectedItem.nameTW && selectedItem.searchLanguageName !== selectedItem.nameTW
+                              ? (
+                                  <>
+                                    <span>{selectedItem.searchLanguageName}</span>
+                                    <span className="text-gray-400 font-normal text-base mid:text-lg ml-2">({selectedItem.nameTW})</span>
+                                  </>
+                                )
+                              : selectedItem.name
+                            }
+                          </h2>
+                        </div>
                         <button
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(selectedItem.name);
+                              const nameToCopy = selectedItem.searchLanguageName && selectedItem.nameTW && selectedItem.searchLanguageName !== selectedItem.nameTW
+                                ? `${selectedItem.searchLanguageName} (${selectedItem.nameTW})`
+                                : selectedItem.name;
+                              await navigator.clipboard.writeText(nameToCopy);
                               addToast('已複製物品名稱', 'success');
                             } catch (err) {
                               console.error('Failed to copy:', err);

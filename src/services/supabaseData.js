@@ -47,7 +47,10 @@ const targetedQueryPromises = {
   market_items: {},
   tw_item_descriptions: {},
   equipment: {},
-  ui_categories: {}
+  ui_categories: {},
+  tw_recipes_by_result: {},
+  tw_recipes_by_ingredient: {},
+  tw_recipes_by_job_level: {}
 };
 
 /**
@@ -288,18 +291,74 @@ export async function getTwItemById(itemId) {
 }
 
 /**
- * Build a search query for tw_items
+ * Get Traditional Chinese item names for specific item IDs (efficient - uses WHERE IN)
+ * @param {Array<number>} itemIds - Array of item IDs to fetch names for
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Object>} - {itemId: {tw: "name"}}
+ */
+export async function getTwItemsByIds(itemIds, signal = null) {
+  if (!itemIds || itemIds.length === 0) {
+    return {};
+  }
+
+  // Check if already aborted
+  if (signal && signal.aborted) {
+    throw new DOMException('Request aborted', 'AbortError');
+  }
+
+  // Supabase supports up to 1000 items in an IN clause, so we need to batch if needed
+  const batchSize = 1000;
+  const result = {};
+  
+  for (let i = 0; i < itemIds.length; i += batchSize) {
+    // Check if aborted before each batch
+    if (signal && signal.aborted) {
+      throw new DOMException('Request aborted', 'AbortError');
+    }
+
+    const batch = itemIds.slice(i, i + batchSize);
+    const { data, error } = await supabase
+      .from('tw_items')
+      .select('id, tw')
+      .in('id', batch);
+
+    // Check if aborted after request
+    if (signal && signal.aborted) {
+      throw new DOMException('Request aborted', 'AbortError');
+    }
+
+    if (error) {
+      console.error(`Error fetching tw_items for batch:`, error);
+      continue; // Continue with next batch
+    }
+
+    if (data) {
+      data.forEach(row => {
+        if (row.tw && row.tw.trim() !== '') {
+          result[row.id] = { tw: row.tw };
+        }
+      });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Build a search query for any language table
+ * @param {string} tableName - Table name (e.g., 'tw_items', 'en_items', 'de_items')
+ * @param {string} columnName - Column name (e.g., 'tw', 'en', 'de')
  * @param {Array<string>} words - Array of search words
  * @param {boolean} fuzzy - Whether to use fuzzy matching
  * @returns {Function} - Function that returns a Supabase query builder
  */
-function buildSearchQuery(words, fuzzy) {
+function buildSearchQuery(tableName, columnName, words, fuzzy) {
   return () => {
     let query = supabase
-      .from('tw_items')
-      .select('id, tw')
-      .not('tw', 'is', null)
-      .neq('tw', '');
+      .from(tableName)
+      .select(`id, ${columnName}`)
+      .not(columnName, 'is', null)
+      .neq(columnName, '');
 
     // For each word, add a LIKE filter (case-insensitive)
     // Supabase chains filters with AND condition
@@ -308,10 +367,10 @@ function buildSearchQuery(words, fuzzy) {
         // Fuzzy matching: each character must appear in order
         // Pattern: %c1%c2%c3% matches "c1...c2...c3" in order
         const pattern = '%' + Array.from(word).join('%') + '%';
-        query = query.ilike('tw', pattern);
+        query = query.ilike(columnName, pattern);
       } else {
         // Exact substring matching: word must appear anywhere in the name
-        query = query.ilike('tw', `%${word}%`);
+        query = query.ilike(columnName, `%${word}%`);
       }
     });
 
@@ -320,13 +379,15 @@ function buildSearchQuery(words, fuzzy) {
 }
 
 /**
- * Search items by name using database queries (efficient - only fetches matching items)
+ * Generic search function for any language table
+ * @param {string} tableName - Table name (e.g., 'tw_items', 'en_items', 'de_items')
+ * @param {string} columnName - Column name (e.g., 'tw', 'en', 'de')
  * @param {string} searchText - Search text (can contain multiple words separated by spaces)
  * @param {boolean} fuzzy - Whether to use fuzzy matching (if false, uses exact substring match)
  * @param {AbortSignal} signal - Optional abort signal to cancel the request
- * @returns {Promise<Object>} - {itemId: {tw: "name"}}
+ * @returns {Promise<Object>} - {itemId: {columnName: "name"}}
  */
-export async function searchTwItems(searchText, fuzzy = false, signal = null) {
+async function searchLanguageItems(tableName, columnName, searchText, fuzzy = false, signal = null) {
   if (!searchText || !searchText.trim()) {
     return {};
   }
@@ -347,7 +408,7 @@ export async function searchTwItems(searchText, fuzzy = false, signal = null) {
   }
 
   // Build query factory function
-  const buildQuery = buildSearchQuery(words, fuzzy);
+  const buildQuery = buildSearchQuery(tableName, columnName, words, fuzzy);
 
   // Fetch all matching rows (with pagination if needed)
   const pageSize = 1000;
@@ -371,7 +432,7 @@ export async function searchTwItems(searchText, fuzzy = false, signal = null) {
     }
 
     if (error) {
-      console.error(`Error searching tw_items:`, error);
+      console.error(`Error searching ${tableName}:`, error);
       throw error;
     }
 
@@ -392,12 +453,66 @@ export async function searchTwItems(searchText, fuzzy = false, signal = null) {
   // Transform to same format as getTwItems
   const result = {};
   allData.forEach(row => {
-    if (row.tw && row.tw.trim() !== '') {
-      result[row.id] = { tw: row.tw };
+    const value = row[columnName];
+    if (value && value.trim() !== '') {
+      result[row.id] = { [columnName]: value };
     }
   });
 
   return result;
+}
+
+/**
+ * Search items by name using database queries (efficient - only fetches matching items)
+ * @param {string} searchText - Search text (can contain multiple words separated by spaces)
+ * @param {boolean} fuzzy - Whether to use fuzzy matching (if false, uses exact substring match)
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Object>} - {itemId: {tw: "name"}}
+ */
+export async function searchTwItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('tw_items', 'tw', searchText, fuzzy, signal);
+}
+
+/**
+ * Search Simplified Chinese items
+ */
+export async function searchCnItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('cn_items', 'zh', searchText, fuzzy, signal);
+}
+
+/**
+ * Search Korean items
+ */
+export async function searchKoItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('ko_items', 'ko', searchText, fuzzy, signal);
+}
+
+/**
+ * Search English items
+ */
+export async function searchEnItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('en_items', 'en', searchText, fuzzy, signal);
+}
+
+/**
+ * Search Japanese items
+ */
+export async function searchJaItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('ja_items', 'ja', searchText, fuzzy, signal);
+}
+
+/**
+ * Search German items
+ */
+export async function searchDeItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('de_items', 'de', searchText, fuzzy, signal);
+}
+
+/**
+ * Search French items
+ */
+export async function searchFrItems(searchText, fuzzy = false, signal = null) {
+  return searchLanguageItems('fr_items', 'fr', searchText, fuzzy, signal);
 }
 
 /**
@@ -446,21 +561,30 @@ export async function getTwItemDescriptionsByIds(itemIds, signal = null) {
   const cacheKey = itemIds.sort((a, b) => a - b).join(',');
   const cached = targetedQueryCache.tw_item_descriptions[cacheKey];
   if (cached) {
-    console.log(`[Supabase] 📦 Using cached tw_item_descriptions for ${itemIds.length} items`);
+    // Only log cache hits for multi-item queries to reduce console noise
+    if (itemIds.length > 1) {
+      console.log(`[Supabase] 📦 Using cached tw_item_descriptions for ${itemIds.length} items`);
+    }
     return cached;
   }
 
   // Check if same query is already in progress
   const existingPromise = targetedQueryPromises.tw_item_descriptions[cacheKey];
   if (existingPromise) {
-    console.log(`[Supabase] ⏳ tw_item_descriptions for ${itemIds.length} items already loading, waiting...`);
+    // Only log for multi-item queries to reduce console noise
+    if (itemIds.length > 1) {
+      console.log(`[Supabase] ⏳ tw_item_descriptions for ${itemIds.length} items already loading, waiting...`);
+    }
     return existingPromise;
   }
 
   const loadStartTime = performance.now();
-  console.log(`[Supabase] 📥 Loading tw_item_descriptions for ${itemIds.length} items from Supabase...`);
+  // Only log for multi-item queries to reduce console noise
+  if (itemIds.length > 1) {
+    console.log(`[Supabase] 📥 Loading tw_item_descriptions for ${itemIds.length} items from Supabase...`);
+  }
 
-  // Create promise and store it
+  // Create promise and store it immediately to prevent race conditions
   const promise = (async () => {
     try {
       // Supabase supports up to 1000 items in an IN clause, so we need to batch if needed
@@ -498,8 +622,9 @@ export async function getTwItemDescriptionsByIds(itemIds, signal = null) {
 
       const loadDuration = performance.now() - loadStartTime;
       const loadedCount = Object.keys(result).length;
-      // Only log if we actually loaded items (avoid logging "0 items" for single-item queries that don't have descriptions)
-      if (loadedCount > 0 || itemIds.length > 1) {
+      // Only log for multi-item queries to reduce console noise
+      // Single-item queries are very fast and common, so we skip logging them
+      if (itemIds.length > 1 && loadedCount > 0) {
         console.log(`[Supabase] ✅ Loaded tw_item_descriptions for ${loadedCount} items in ${loadDuration.toFixed(2)}ms`);
       }
       
@@ -526,6 +651,15 @@ export async function getTwItemDescriptionsByIds(itemIds, signal = null) {
     }
   })();
 
+  // Store promise immediately to prevent race conditions
+  // Check again in case another call stored it while we were creating this one
+  const raceCheck = targetedQueryPromises.tw_item_descriptions[cacheKey];
+  if (raceCheck && raceCheck !== promise) {
+    // Another call beat us to it, use their promise
+    return raceCheck;
+  }
+  
+  // Store our promise
   targetedQueryPromises.tw_item_descriptions[cacheKey] = promise;
   return promise;
 }
@@ -830,12 +964,12 @@ export async function getEquipmentByJobs(jobAbbrs, signal = null) {
           throw new DOMException('Request aborted', 'AbortError');
         }
         
-        // Use .filter() with 'cs' (contains) operator and Postgres array syntax
-        // Format: filter('jobs', 'cs', '{SGE}') checks if jobs array contains 'SGE'
+        // Use .filter() with 'cs' (contains) operator and JSON array syntax for JSONB
+        // Format: filter('jobs', 'cs', '["DNC"]') checks if jobs JSONB array contains 'DNC'
         const { data: jobData, error: jobError } = await supabase
           .from('equipment')
           .select('*')
-          .filter('jobs', 'cs', `{${abbr}}`);
+          .filter('jobs', 'cs', JSON.stringify([abbr]));
         
         // Check if aborted after request
         if (signal && signal.aborted) {
@@ -994,6 +1128,92 @@ export async function getIlvlsByIds(itemIds, signal = null) {
     }
   })();
 
+  targetedQueryPromises.ilvls[cacheKey] = promise;
+  return promise;
+}
+
+/**
+ * Get item IDs by ilvl value (reverse lookup - find items with specific ilvl)
+ * @param {number} ilvlValue - The ilvl value to search for
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Array<number>>} - Array of item IDs with matching ilvl
+ */
+export async function getItemIdsByIlvl(ilvlValue, signal = null) {
+  if (!ilvlValue || ilvlValue < 1) {
+    return [];
+  }
+
+  // Check if already aborted
+  if (signal && signal.aborted) {
+    throw new DOMException('Request aborted', 'AbortError');
+  }
+
+  // Create cache key
+  const cacheKey = `ilvl_${ilvlValue}`;
+  
+  // Check cache
+  if (targetedQueryCache.ilvls && targetedQueryCache.ilvls[cacheKey]) {
+    console.log(`[Supabase] 📦 Using cached item IDs for ilvl ${ilvlValue}`);
+    return targetedQueryCache.ilvls[cacheKey];
+  }
+
+  // Check if same query is already in progress
+  if (targetedQueryPromises.ilvls && targetedQueryPromises.ilvls[cacheKey]) {
+    console.log(`[Supabase] ⏳ Item IDs for ilvl ${ilvlValue} already loading, waiting...`);
+    return targetedQueryPromises.ilvls[cacheKey];
+  }
+
+  const loadStartTime = performance.now();
+  console.log(`[Supabase] 📥 Querying item IDs for ilvl ${ilvlValue} from Supabase...`);
+
+  // Create promise and store it
+  const promise = (async () => {
+    try {
+      // Query ilvls table where value equals the target ilvl
+      const { data, error } = await supabase
+        .from('ilvls')
+        .select('id')
+        .eq('value', ilvlValue);
+
+      // Check if aborted after request
+      if (signal && signal.aborted) {
+        throw new DOMException('Request aborted', 'AbortError');
+      }
+
+      if (error) {
+        console.error(`Error querying item IDs by ilvl:`, error);
+        throw error;
+      }
+
+      const itemIds = data ? data.map(row => row.id).filter(id => id !== undefined && id !== null) : [];
+
+      const loadDuration = performance.now() - loadStartTime;
+      console.log(`[Supabase] ✅ Found ${itemIds.length} items with ilvl ${ilvlValue} in ${loadDuration.toFixed(2)}ms`);
+      
+      // Cache the result
+      if (!targetedQueryCache.ilvls) {
+        targetedQueryCache.ilvls = {};
+      }
+      targetedQueryCache.ilvls[cacheKey] = itemIds;
+      
+      return itemIds;
+    } catch (error) {
+      if (error.name === 'AbortError' || (signal && signal.aborted)) {
+        throw error;
+      }
+      console.error(`Error querying item IDs by ilvl:`, error);
+      return [];
+    } finally {
+      // Remove promise from cache
+      if (targetedQueryPromises.ilvls) {
+        delete targetedQueryPromises.ilvls[cacheKey];
+      }
+    }
+  })();
+
+  if (!targetedQueryPromises.ilvls) {
+    targetedQueryPromises.ilvls = {};
+  }
   targetedQueryPromises.ilvls[cacheKey] = promise;
   return promise;
 }
@@ -1244,10 +1464,313 @@ export async function getPatchNames() {
 
 /**
  * Get crafting recipes
+ * 
+ * ⚠️ WARNING: This loads ALL 11,605 recipes from the database!
+ * 
+ * DO NOT USE THIS unless you truly need all recipes (e.g., for searching by ingredient).
+ * 
+ * Instead, use: getTwRecipesByResultIds(itemIds) to load only recipes for specific items.
+ * 
  * @returns {Promise<Array>} - Array of recipe objects
+ * @deprecated Use getTwRecipesByResultIds() instead for better performance
  */
 export async function getTwRecipes() {
+  console.warn(`[Supabase] ⚠️ getTwRecipes() called - this loads ALL 11,605 recipes!`);
+  console.warn(`[Supabase] ⚠️ Use getTwRecipesByResultIds(itemIds) instead to load only what you need.`);
+  console.trace(`[Supabase] 🔍 Stack trace - find and replace with targeted query:`);
   return loadTableData('tw_recipes');
+}
+
+/**
+ * Get crafting recipes for specific result item IDs (efficient - uses WHERE IN)
+ * @param {Array<number>} itemIds - Array of result item IDs to fetch recipes for
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Array>} - Array of recipe objects that produce these items
+ */
+export async function getTwRecipesByResultIds(itemIds, signal = null) {
+  if (!itemIds || itemIds.length === 0) {
+    return [];
+  }
+
+  // Check if already aborted
+  if (signal && signal.aborted) {
+    throw new DOMException('Request aborted', 'AbortError');
+  }
+
+  // Check cache
+  const cacheKey = itemIds.sort((a, b) => a - b).join(',');
+  const cache = dataCache['tw_recipes_by_result'] || {};
+  const cached = cache[cacheKey];
+  if (cached) {
+    return cached;
+  }
+
+  // Check if same query is already in progress
+  const promiseCache = targetedQueryPromises.tw_recipes_by_result || {};
+  const existingPromise = promiseCache[cacheKey];
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  const loadStartTime = performance.now();
+
+  // Create promise and store it
+  const promise = (async () => {
+    try {
+      // Supabase supports up to 1000 items in an IN clause
+      const batchSize = 1000;
+      const result = [];
+      
+      for (let i = 0; i < itemIds.length; i += batchSize) {
+        // Check if aborted before each batch
+        if (signal && signal.aborted) {
+          throw new DOMException('Request aborted', 'AbortError');
+        }
+
+        const batch = itemIds.slice(i, i + batchSize);
+        const { data, error } = await supabase
+          .from('tw_recipes')
+          .select('*')
+          .in('result', batch);
+
+        // Check if aborted after request
+        if (signal && signal.aborted) {
+          throw new DOMException('Request aborted', 'AbortError');
+        }
+
+        if (error) {
+          console.error(`Error loading tw_recipes for result items:`, error);
+          throw error;
+        }
+
+        if (data) {
+          result.push(...data);
+        }
+      }
+
+      const loadDuration = performance.now() - loadStartTime;
+      if (result.length > 0) {
+        console.log(`[Supabase] ✅ Loaded ${result.length} recipes for ${itemIds.length} items in ${loadDuration.toFixed(2)}ms`);
+      }
+      
+      // Cache the result
+      if (!dataCache['tw_recipes_by_result']) {
+        dataCache['tw_recipes_by_result'] = {};
+      }
+      dataCache['tw_recipes_by_result'][cacheKey] = result;
+      
+      return result;
+    } catch (error) {
+      if (error.name === 'AbortError' || (signal && signal.aborted)) {
+        throw error;
+      }
+      console.error(`Error loading tw_recipes by result IDs:`, error);
+      return [];
+    } finally {
+      // Remove promise from cache
+      if (promiseCache[cacheKey]) {
+        delete promiseCache[cacheKey];
+      }
+    }
+  })();
+
+  // Store promise
+  if (!targetedQueryPromises.tw_recipes_by_result) {
+    targetedQueryPromises.tw_recipes_by_result = {};
+  }
+  targetedQueryPromises.tw_recipes_by_result[cacheKey] = promise;
+  return promise;
+}
+
+/**
+ * Get crafting recipes that use specific item IDs as ingredients (efficient - uses JSONB query)
+ * @param {number} ingredientId - The ingredient item ID to search for
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Array>} - Array of recipe objects that use this item as an ingredient
+ */
+export async function getTwRecipesByIngredientId(ingredientId, signal = null) {
+  if (!ingredientId || ingredientId <= 0) {
+    return [];
+  }
+
+  // Check if already aborted
+  if (signal && signal.aborted) {
+    throw new DOMException('Request aborted', 'AbortError');
+  }
+
+  // Check cache
+  const cacheKey = `ingredient_${ingredientId}`;
+  const cache = dataCache['tw_recipes_by_ingredient'] || {};
+  const cached = cache[cacheKey];
+  if (cached) {
+    return cached;
+  }
+
+  // Check if same query is already in progress
+  const promiseCache = targetedQueryPromises.tw_recipes_by_ingredient || {};
+  const existingPromise = promiseCache[cacheKey];
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  const loadStartTime = performance.now();
+
+  // Create promise and store it
+  const promise = (async () => {
+    try {
+      // Query recipes where ingredients JSONB array contains an object with this id
+      // Using Supabase's filter with 'cs' (contains) operator for JSONB
+      // Format: ingredients @> '[{"id": ingredientId}]'
+      const ingredientFilter = JSON.stringify([{ id: ingredientId }]);
+      
+      const { data, error } = await supabase
+        .from('tw_recipes')
+        .select('*')
+        .filter('ingredients', 'cs', ingredientFilter);
+
+      // Check if aborted after request
+      if (signal && signal.aborted) {
+        throw new DOMException('Request aborted', 'AbortError');
+      }
+
+      if (error) {
+        console.error(`Error loading tw_recipes by ingredient ID:`, error);
+        // If JSONB filter doesn't work, fallback to loading all (shouldn't happen, but safety)
+        console.warn(`[Supabase] ⚠️ JSONB query failed, this is unexpected. Error:`, error.message);
+        return [];
+      }
+
+      const result = data || [];
+      const loadDuration = performance.now() - loadStartTime;
+      if (result.length > 0) {
+        console.log(`[Supabase] ✅ Loaded ${result.length} recipes using ingredient ${ingredientId} in ${loadDuration.toFixed(2)}ms`);
+      }
+      
+      // Cache the result
+      if (!dataCache['tw_recipes_by_ingredient']) {
+        dataCache['tw_recipes_by_ingredient'] = {};
+      }
+      dataCache['tw_recipes_by_ingredient'][cacheKey] = result;
+      
+      return result;
+    } catch (error) {
+      if (error.name === 'AbortError' || (signal && signal.aborted)) {
+        throw error;
+      }
+      console.error(`Error loading tw_recipes by ingredient ID:`, error);
+      return [];
+    } finally {
+      // Remove promise from cache
+      if (promiseCache[cacheKey]) {
+        delete promiseCache[cacheKey];
+      }
+    }
+  })();
+
+  // Store promise
+  if (!targetedQueryPromises.tw_recipes_by_ingredient) {
+    targetedQueryPromises.tw_recipes_by_ingredient = {};
+  }
+  targetedQueryPromises.tw_recipes_by_ingredient[cacheKey] = promise;
+  return promise;
+}
+
+/**
+ * Get crafting recipes filtered by job and level range (efficient - uses WHERE clauses)
+ * @param {Array<number>} jobs - Array of job IDs to filter by (optional, empty array = all jobs)
+ * @param {number} minLevel - Minimum level (optional, default 1)
+ * @param {number} maxLevel - Maximum level (optional, default 100)
+ * @param {AbortSignal} signal - Optional abort signal to cancel the request
+ * @returns {Promise<Array>} - Array of recipe objects matching the filters
+ */
+export async function getTwRecipesByJobAndLevel(jobs = [], minLevel = 1, maxLevel = 100, signal = null) {
+  // Check if already aborted
+  if (signal && signal.aborted) {
+    throw new DOMException('Request aborted', 'AbortError');
+  }
+
+  // Create cache key from parameters
+  const cacheKey = `jobs_${jobs.sort((a, b) => a - b).join(',')}_lvl_${minLevel}_${maxLevel}`;
+  const cache = dataCache['tw_recipes_by_job_level'] || {};
+  const cached = cache[cacheKey];
+  if (cached) {
+    console.log(`[Supabase] 📦 Using cached recipes for jobs [${jobs.join(',')}] level ${minLevel}-${maxLevel} (${cached.length} recipes)`);
+    return cached;
+  }
+
+  // Check if same query is already in progress
+  const promiseCache = targetedQueryPromises.tw_recipes_by_job_level || {};
+  const existingPromise = promiseCache[cacheKey];
+  if (existingPromise) {
+    console.log(`[Supabase] ⏳ Recipe query for jobs [${jobs.join(',')}] level ${minLevel}-${maxLevel} already in progress, waiting...`);
+    return existingPromise;
+  }
+
+  const loadStartTime = performance.now();
+  console.log(`[Supabase] 📥 Loading recipes for jobs [${jobs.length > 0 ? jobs.join(',') : 'all'}] level ${minLevel}-${maxLevel} from Supabase...`);
+
+  // Create promise and store it
+  const promise = (async () => {
+    try {
+      let query = supabase
+        .from('tw_recipes')
+        .select('*')
+        .gte('lvl', minLevel)
+        .lte('lvl', maxLevel);
+
+      // Filter by jobs if provided
+      if (jobs.length > 0) {
+        query = query.in('job', jobs);
+      }
+
+      // Check if aborted before request
+      if (signal && signal.aborted) {
+        throw new DOMException('Request aborted', 'AbortError');
+      }
+
+      const { data, error } = await query;
+
+      // Check if aborted after request
+      if (signal && signal.aborted) {
+        throw new DOMException('Request aborted', 'AbortError');
+      }
+
+      if (error) {
+        console.error(`Error loading tw_recipes by job and level:`, error);
+        throw error;
+      }
+
+      const result = data || [];
+      const loadDuration = performance.now() - loadStartTime;
+      console.log(`[Supabase] ✅ Loaded ${result.length} recipes for jobs [${jobs.length > 0 ? jobs.join(',') : 'all'}] level ${minLevel}-${maxLevel} in ${loadDuration.toFixed(2)}ms`);
+      
+      // Cache the result
+      if (!dataCache['tw_recipes_by_job_level']) {
+        dataCache['tw_recipes_by_job_level'] = {};
+      }
+      dataCache['tw_recipes_by_job_level'][cacheKey] = result;
+      
+      return result;
+    } catch (error) {
+      if (error.name === 'AbortError' || (signal && signal.aborted)) {
+        throw error;
+      }
+      console.error(`Error loading tw_recipes by job and level:`, error);
+      return [];
+    } finally {
+      // Remove promise from cache
+      if (promiseCache[cacheKey]) {
+        delete promiseCache[cacheKey];
+      }
+    }
+  })();
+
+  // Store promise
+  if (!targetedQueryPromises.tw_recipes_by_job_level) {
+    targetedQueryPromises.tw_recipes_by_job_level = {};
+  }
+  targetedQueryPromises.tw_recipes_by_job_level[cacheKey] = promise;
+  return promise;
 }
 
 // ============================================================================
